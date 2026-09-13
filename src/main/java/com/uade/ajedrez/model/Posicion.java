@@ -16,4 +16,12 @@ public class Posicion {
     public int getColumna() {
         return this.columna;
     }
+
+    public void setFila(int fila) {
+        this.fila = fila;
+    }
+
+    public void setColumna(int columna) {
+        this.columna = columna;
+    }
 }

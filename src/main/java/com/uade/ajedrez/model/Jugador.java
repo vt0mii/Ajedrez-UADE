@@ -2,23 +2,37 @@ package main.java.com.uade.ajedrez.model;
 
 public class Jugador {
     private String nombre;
-    private int elo;
-
-    public Jugador(String n, int elo) {
-        this.nombre = n;
-        this.elo = elo;
-    }
+    private int victorias;
+    private int derrotas;
 
     public Jugador(String n) {
         this.nombre = n;
-        this.elo = 1200;
+        this.victorias = 0;
+        this.derrotas = 0;
     }
 
     public String getNombre() {
         return this.nombre;
     }
 
-    public int getElo() {
-        return this.elo;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
+
+    public int getVictorias() {
+        return victorias;
+    }
+
+    public void setVictorias(int victorias) {
+        this.victorias = victorias;
+    }
+
+    public int getDerrotas() {
+        return derrotas;
+    }
+
+    public void setDerrotas(int derrotas) {
+        this.derrotas = derrotas;
+    }
+    
 }

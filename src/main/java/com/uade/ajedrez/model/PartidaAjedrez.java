@@ -13,7 +13,40 @@ public class PartidaAjedrez {
         this.turnoActual = Color.BLANCO;
     }
 
-    public boolean realizarMovimiento(Movimiento movimiento) {
-        return false;
+    public ResultadoMovimiento realizarMovimiento(Movimiento movimiento) {
+        return null;
     }
+
+    public Jugador getJugadorBlanco() {
+        return jugadorBlanco;
+    }
+
+    public void setJugadorBlanco(Jugador jugadorBlanco) {
+        this.jugadorBlanco = jugadorBlanco;
+    }
+
+    public Jugador getJugadorNegro() {
+        return jugadorNegro;
+    }
+
+    public void setJugadorNegro(Jugador jugadorNegro) {
+        this.jugadorNegro = jugadorNegro;
+    }
+
+    public Estado getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Estado estado) {
+        this.estado = estado;
+    }
+
+    public Color getTurnoActual() {
+        return turnoActual;
+    }
+
+    public void setTurnoActual(Color turnoActual) {
+        this.turnoActual = turnoActual;
+    }
+
 }
