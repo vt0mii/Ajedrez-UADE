@@ -1,8 +1,8 @@
-package main.java.com.uade.ajedrez.model.strategy;
+package com.uade.ajedrez.model.strategy;
 
-import main.java.com.uade.ajedrez.model.Movimiento;
-import main.java.com.uade.ajedrez.model.ResultadoMovimiento;
-import main.java.com.uade.ajedrez.model.Tablero;
+import com.uade.ajedrez.model.Movimiento;
+import com.uade.ajedrez.model.ResultadoMovimiento;
+import com.uade.ajedrez.model.Tablero;
 
 public class EstrategiaReina implements IEstrategiaMovimiento {
 

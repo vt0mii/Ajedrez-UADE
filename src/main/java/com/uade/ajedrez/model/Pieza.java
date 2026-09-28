@@ -1,6 +1,6 @@
-package main.java.com.uade.ajedrez.model;
+package com.uade.ajedrez.model;
 
-import main.java.com.uade.ajedrez.model.strategy.IEstrategiaMovimiento;
+import com.uade.ajedrez.model.strategy.IEstrategiaMovimiento;
 
 public class Pieza {
     private Color color;

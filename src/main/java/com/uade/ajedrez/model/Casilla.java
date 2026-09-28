@@ -1,4 +1,4 @@
-package main.java.com.uade.ajedrez.model;
+package com.uade.ajedrez.model;
 
 public class Casilla {
     private Pieza pieza;
