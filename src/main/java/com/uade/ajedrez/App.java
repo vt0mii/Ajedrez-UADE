@@ -1,6 +1,6 @@
 package com.uade.ajedrez;
 
-import com.uade.ajedrez.model.Tablero;
+import com.uade.ajedrez.domain.model.Tablero;
 
 public class App {
     public static void main(String[] args) {
