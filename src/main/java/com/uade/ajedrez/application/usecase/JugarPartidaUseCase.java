@@ -1,7 +1,7 @@
 package com.uade.ajedrez.application.usecase;
 
 import com.uade.ajedrez.domain.model.*;
-import com.uade.ajedrez.domain.port.in.IJugarPartidaPort;
+import com.uade.ajedrez.infrastructure.port.in.IJugarPartidaPort;
 
 public class JugarPartidaUseCase implements IJugarPartidaPort {
     private final PartidaAjedrez partida;

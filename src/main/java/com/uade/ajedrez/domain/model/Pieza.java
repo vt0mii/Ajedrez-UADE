@@ -6,7 +6,6 @@ public class Pieza {
     private Color color;
     private TipoPieza tipo;
     private IEstrategiaMovimiento estrategia;
-    private boolean seMovio;
 
     public Pieza(Color color, TipoPieza tipo, IEstrategiaMovimiento estrategia) {
         this.color = color;
@@ -24,14 +23,7 @@ public class Pieza {
         return this.estrategia;
     }
     public ResultadoMovimiento canMove(Tablero t, Movimiento m) {
-       return this.estrategia.canMove(t, m, this);
-    }
-    public boolean isSeMovio() {
-        return seMovio;
-    }
-
-    public void setSeMovio(boolean seMovio) {
-        this.seMovio = seMovio;
+        return this.estrategia.canMove(t, m, this);
     }
 
 }

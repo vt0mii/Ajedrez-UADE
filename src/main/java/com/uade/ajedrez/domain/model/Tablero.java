@@ -6,8 +6,23 @@ public class Tablero {
     public static final int TAMANIO = 8;
 
     private final Casilla[][] casillas = new Casilla[TAMANIO][TAMANIO];
+    private Color perspectiva = Color.BLANCO;
+
     public Tablero() {
         generarTablero();
+    }
+
+    public Tablero(Color perspectiva) {
+        this.perspectiva = perspectiva;
+        generarTablero();
+    }
+
+    public void setPerspectiva(Color perspectiva) {
+        this.perspectiva = perspectiva;
+    }
+
+    public Color getPerspectiva() {
+        return perspectiva;
     }
 
     public void generarTablero() {
@@ -48,21 +63,38 @@ public class Tablero {
     @Override
     public String toString() {
         StringBuilder tablero = new StringBuilder();
-        tablero.append("  a b c d e f g h\n");
-
-        for (int fila = 0; fila < TAMANIO; fila++) {
-            tablero.append(TAMANIO - fila).append(' ');
-            for (int columna = 0; columna < TAMANIO; columna++) {
-                Pieza pieza = casillas[fila][columna].getPieza();
-                tablero.append(pieza == null ? '.' : simboloPieza(pieza));
-                if (columna < TAMANIO - 1) {
-                    tablero.append(' ');
+        
+        if (perspectiva == Color.BLANCO) {
+            tablero.append("  a b c d e f g h\n");
+            for (int fila = 0; fila < TAMANIO; fila++) {
+                tablero.append(TAMANIO - fila).append(' ');
+                for (int columna = 0; columna < TAMANIO; columna++) {
+                    Pieza pieza = casillas[fila][columna].getPieza();
+                    tablero.append(pieza == null ? '.' : simboloPieza(pieza));
+                    if (columna < TAMANIO - 1) {
+                        tablero.append(' ');
+                    }
                 }
+                tablero.append(' ').append(TAMANIO - fila).append('\n');
             }
-            tablero.append(' ').append(TAMANIO - fila).append('\n');
+            tablero.append("  a b c d e f g h");
+        } else {
+            tablero.append("  h g f e d c b a\n");
+            for (int fila = TAMANIO - 1; fila >= 0; fila--) {
+                tablero.append(TAMANIO - fila).append(' ');
+                for (int columna = TAMANIO - 1; columna >= 0; columna--) {
+                    Pieza pieza = casillas[fila][columna].getPieza();
+                    tablero.append(pieza == null ? '.' : simboloPieza(pieza));
+                    if (columna > 0) {
+                        tablero.append(' ');
+                    }
+                }
+                tablero.append(' ').append(TAMANIO - fila).append('\n');
+            }
+            tablero.append("  h g f e d c b a");
         }
-
-        return tablero.append("  a b c d e f g h").toString();
+        
+        return tablero.toString();
     }
 
     private void colocarPieza(int fila, int columna, Color color, TipoPieza tipo) {
@@ -89,6 +121,5 @@ public class Tablero {
         Casilla destino = obtenerCasilla(movimiento.getDestino());
         destino.setPieza(origen.getPieza());
         origen.setPieza(null);
-        destino.getPieza().setSeMovio(true);
     }
 }

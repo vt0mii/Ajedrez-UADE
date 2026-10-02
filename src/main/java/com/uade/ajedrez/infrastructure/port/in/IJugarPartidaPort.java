@@ -1,4 +1,4 @@
-package com.uade.ajedrez.domain.port.in;
+package com.uade.ajedrez.infrastructure.port.in;
 
 import com.uade.ajedrez.domain.model.*;
 
