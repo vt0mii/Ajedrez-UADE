@@ -55,7 +55,7 @@ public class EstrategiaTorre implements IEstrategiaMovimiento{
             }
         } else { // Movimiento horizontal
             int direccion = (columnaDestino > columnaOrigen) ? 1 : -1;
-            for (int columna = columnaOrigen + direccion; columna != columnaOrigen; columna += direccion) {
+            for (int columna = columnaOrigen + direccion; columna != columnaDestino; columna += direccion) {
                 if (t.obtenerPieza(new Posicion(filaOrigen, columna)) != null) {
                     return false;
                 }

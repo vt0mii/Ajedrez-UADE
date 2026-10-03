@@ -7,10 +7,25 @@ import com.uade.ajedrez.domain.model.Tablero;
 
 public class EstrategiaReina implements IEstrategiaMovimiento {
 
+    private final IEstrategiaMovimiento estrategiaTorre = new EstrategiaTorre();
+    private final IEstrategiaMovimiento estrategiaAlfil = new EstrategiaAlfil();
+
     @Override
-    public ResultadoMovimiento canMove(Tablero t, Movimiento m, Pieza p) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'canMove'");
+    public ResultadoMovimiento canMove(Tablero tab, Movimiento mov, Pieza p) {
+        Posicion origen = mov.getOrigen();
+        Posicion destino = mov.getDestino();
+
+        int difFila = Math.abs(destino.getFila() - origen.getFila());
+        int difColumna = Math.abs(destino.getColumna() - origen.getColumna());
+
+        if (difFila == 0 || difColumna == 0) {
+            return estrategiaTorre.canMove(tab, mov, p);
+        }
+
+        if (difFila == difColumna) {
+            return estrategiaAlfil.canMove(tab, mov, p);
+        }
+
+        return new ResultadoMovimiento(false, Motivo.NO_DISPONIBLE, "La reina solo se mueve en linea recta o diagonal");
     }
-    
 }
