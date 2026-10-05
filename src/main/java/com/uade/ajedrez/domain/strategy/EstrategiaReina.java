@@ -1,7 +1,9 @@
 package com.uade.ajedrez.domain.strategy;
 
+import com.uade.ajedrez.domain.model.Motivo;
 import com.uade.ajedrez.domain.model.Movimiento;
 import com.uade.ajedrez.domain.model.Pieza;
+import com.uade.ajedrez.domain.model.Posicion;
 import com.uade.ajedrez.domain.model.ResultadoMovimiento;
 import com.uade.ajedrez.domain.model.Tablero;
 

@@ -1,6 +1,5 @@
 package com.uade.ajedrez.domain.strategy;
 
-import com.uade.ajedrez.domain.model.Color;
 import com.uade.ajedrez.domain.model.Motivo;
 import com.uade.ajedrez.domain.model.Movimiento;
 import com.uade.ajedrez.domain.model.Pieza;

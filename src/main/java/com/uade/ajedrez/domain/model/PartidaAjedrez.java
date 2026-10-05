@@ -3,7 +3,9 @@ package com.uade.ajedrez.domain.model;
 import com.uade.ajedrez.domain.service.ValidadorMovimiento;
 
 public class PartidaAjedrez {
+    @SuppressWarnings("unused")
     private final Jugador jugadorBlanco;
+    @SuppressWarnings("unused")
     private final Jugador jugadorNegro;
     private final Tablero tablero;
     private final ValidadorMovimiento validadorMovimiento;

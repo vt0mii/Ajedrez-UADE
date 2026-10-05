@@ -4,7 +4,8 @@ import com.uade.ajedrez.domain.model.*;
 import com.uade.ajedrez.infrastructure.port.in.IJugarPartidaPort;
 
 public class JugarPartidaUseCase implements IJugarPartidaPort {
-    private final PartidaAjedrez partida;
+    @SuppressWarnings("unused")
+    private final PartidaAjedrez partida; 
 
     public JugarPartidaUseCase(PartidaAjedrez partida) {
         this.partida = partida;
