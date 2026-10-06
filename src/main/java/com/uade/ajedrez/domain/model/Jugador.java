@@ -2,11 +2,13 @@ package com.uade.ajedrez.domain.model;
 
 public class Jugador {
     private String nombre;
+    private Color color;
     private int victorias;
     private int derrotas;
 
-    public Jugador(String n) {
+    public Jugador(String n, Color color) {
         this.nombre = n;
+        this.color = color;
         this.victorias = 0;
         this.derrotas = 0;
     }
@@ -17,6 +19,14 @@ public class Jugador {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public Color getColor() {
+        return this.color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
     }
 
     public int getVictorias() {
