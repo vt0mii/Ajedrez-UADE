@@ -1,10 +1,14 @@
 package com.uade.ajedrez;
 
+import com.uade.ajedrez.application.usecase.JugarPartidaUseCase;
 import com.uade.ajedrez.domain.model.*;
 import com.uade.ajedrez.domain.service.ValidadorMovimiento;
+import com.uade.ajedrez.infrastructure.adapter.in.ConsolaAdapter;
+import com.uade.ajedrez.infrastructure.adapter.out.MemoriaPartida;
 
 public class App {
     public static void main(String[] args) {
+        // Composición raíz
         Tablero tablero = new Tablero();
         ValidadorMovimiento validador = new ValidadorMovimiento();
 
@@ -12,6 +16,10 @@ public class App {
         Jugador jugadorNegro = new Jugador("JuanDoe", Color.NEGRO);
 
         PartidaAjedrez partida = new PartidaAjedrez(jugadorBlanco, jugadorNegro, tablero, validador);
-        partida.jugarPartida();
+        MemoriaPartida persistencia = new MemoriaPartida();
+        JugarPartidaUseCase useCase = new JugarPartidaUseCase(partida, persistencia);
+        ConsolaAdapter consola = new ConsolaAdapter(useCase);
+
+        consola.iniciar();
     }
 }
