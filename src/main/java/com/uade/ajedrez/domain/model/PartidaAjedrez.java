@@ -1,5 +1,7 @@
 package com.uade.ajedrez.domain.model;
 
+import com.uade.ajedrez.domain.port.in.Entrada;
+import com.uade.ajedrez.domain.port.out.Salida;
 import com.uade.ajedrez.domain.service.ValidadorMovimiento;
 
 public class PartidaAjedrez {
@@ -36,6 +38,63 @@ public class PartidaAjedrez {
         turno.siguienteTurno();
 
         return resultado;
+    }
+
+    public void jugarPartida(Entrada entrada, Salida salida) {
+        while (estado == Estado.EN_CURSO) {
+            salida.mostrar("\n" + tablero);
+            salida.mostrar("Turno #" + turno.getTurnoNumero() + " - " + turno.getJugadorActual().getNombre() + " (" + turno.getJugadorActual().getColor() + ")");
+            salida.mostrar("Ingrese movimiento (ej: e2 e4) o salir: ");
+
+            String input = entrada.leerLinea().trim();
+
+            if (input.equalsIgnoreCase("salir")) {
+                salida.mostrar("Partida abandonada.");
+                return;
+            }
+
+            try {
+                String[] partes = input.split(" ");
+                if (partes.length != 2) {
+                    salida.mostrar("Formato invalido. Use: origen destino (ej: e2 e4)");
+                    continue;
+                }
+
+                Posicion origen = parsearCoordenada(partes[0]);
+                Posicion destino = parsearCoordenada(partes[1]);
+
+                Movimiento movimiento = new Movimiento(origen, destino);
+                ResultadoMovimiento resultado = realizarMovimiento(movimiento);
+
+                if (resultado.isFuePosible()) {
+                    salida.mostrar("Movimiento realizado: " + partes[0] + " -> " + partes[1]);
+                } else {
+                    salida.mostrar("Movimiento invalido: " + resultado.getMensaje());
+                }
+            } catch (IllegalArgumentException e) {
+                salida.mostrar("Error: " + e.getMessage());
+            }
+        }
+
+        salida.mostrar("\n" + tablero);
+        salida.mostrar("Fin de la partida. Estado: " + estado);
+    }
+
+    private Posicion parsearCoordenada(String coord) {
+        if (coord.length() != 2) {
+            throw new IllegalArgumentException("Coordenada invalida: " + coord);
+        }
+        String letras = "abcdefgh";
+        String numeros = "87654321";
+
+        int columna = letras.indexOf(coord.charAt(0));
+        int fila = numeros.indexOf(coord.charAt(1));
+
+        if (fila < 0 || fila >= 8 || columna < 0 || columna >= 8) {
+            throw new IllegalArgumentException("Coordenada fuera del tablero: " + coord);
+        }
+
+        return new Posicion(fila, columna);
     }
 
     public Estado getEstado() {
