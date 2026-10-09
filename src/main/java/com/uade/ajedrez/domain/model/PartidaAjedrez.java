@@ -19,31 +19,42 @@ public class PartidaAjedrez {
     }
 
     public ResultadoMovimiento realizarMovimiento(Movimiento movimiento) {
-        if (estado == Estado.JAQUE_MATE || estado == Estado.TABLAS) {
+        if (estado == Estado.JAQUE_MATE) {
             return new ResultadoMovimiento(false, Motivo.NO_DISPONIBLE, "La partida ya finalizo");
         }
 
-        Pieza pieza = tablero.obtenerPieza(movimiento.getOrigen());
-        ResultadoMovimiento validacion = validadorMovimiento.validarPiezaOrigen(pieza, this);
+        Color colorEnTurno = turno.getJugadorActual().getColor();
+        ResultadoMovimiento validacion = validadorMovimiento.validarMovimiento(tablero, movimiento, colorEnTurno);
         if (!validacion.isFuePosible()) {
             return validacion;
-        }
-
-        ResultadoMovimiento resultado = pieza.canMove(tablero, movimiento);
-        if (!resultado.isFuePosible()) {
-            return resultado;
         }
 
         tablero.moverPieza(movimiento);
         turno.siguienteTurno();
 
-        return resultado;
+        actualizarEstado();
+
+        return validacion;
+    }
+
+    private void actualizarEstado() {
+        Color colorEnTurno = turno.getJugadorActual().getColor();
+        if (validadorMovimiento.estaEnJaqueMate(tablero, colorEnTurno)) {
+            estado = Estado.JAQUE_MATE;
+        } else if (validadorMovimiento.estaEnJaque(tablero, colorEnTurno)) {
+            estado = Estado.JAQUE;
+        } else {
+            estado = Estado.EN_CURSO;
+        }
     }
 
     public void jugarPartida(Entrada entrada, Salida salida) {
-        while (estado == Estado.EN_CURSO) {
+        while (estado != Estado.JAQUE_MATE) {
             salida.mostrar("\n" + tablero);
             salida.mostrar("Turno #" + turno.getTurnoNumero() + " - " + turno.getJugadorActual().getNombre() + " (" + turno.getJugadorActual().getColor() + ")");
+            if (estado == Estado.JAQUE) {
+                salida.mostrar("¡JAQUE! El rey esta en peligro.");
+            }
             salida.mostrar("Ingrese movimiento (ej: e2 e4) o salir: ");
 
             String input = entrada.leerLinea().trim();
@@ -77,7 +88,7 @@ public class PartidaAjedrez {
         }
 
         salida.mostrar("\n" + tablero);
-        salida.mostrar("Fin de la partida. Estado: " + estado);
+        salida.mostrar("¡JAQUE_MATE! Fin de la partida.");
     }
 
     private Posicion parsearCoordenada(String coord) {
