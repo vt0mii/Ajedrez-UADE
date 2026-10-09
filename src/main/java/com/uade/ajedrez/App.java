@@ -1,23 +1,24 @@
 package com.uade.ajedrez;
 
 import com.uade.ajedrez.domain.model.*;
-import com.uade.ajedrez.domain.service.ValidadorMovimiento;
-import com.uade.ajedrez.infrastructure.adapter.in.ConsolaAdapter;
-import com.uade.ajedrez.infrastructure.adapter.out.MemoriaPartida;
+import com.uade.ajedrez.domain.service.MovementService;
+import com.uade.ajedrez.infrastructure.adapter.in.ConsoleView;
+import com.uade.ajedrez.infrastructure.adapter.out.GameRepository;
 
 public class App {
     public static void main(String[] args) {
-        // Composición raíz
-        Tablero tablero = new Tablero();
-        ValidadorMovimiento validador = new ValidadorMovimiento();
+        // Composition root
+        Board board = new Board();
+        MovementService movementService = new MovementService();
 
-        Jugador jugadorBlanco = new Jugador("Tomi", Color.BLANCO);
-        Jugador jugadorNegro = new Jugador("JuanDoe", Color.NEGRO);
+        Player whitePlayer = new Player("Tomi", Color.WHITE);
+        Player blackPlayer = new Player("JuanDoe", Color.BLACK);
 
-        PartidaAjedrez partida = new PartidaAjedrez(jugadorBlanco, jugadorNegro, tablero, validador);
-        MemoriaPartida persistencia = new MemoriaPartida();
-        ConsolaAdapter consola = new ConsolaAdapter(partida);
+        ChessManager chessManager = new ChessManager(whitePlayer, blackPlayer, board, movementService);
+        @SuppressWarnings("unused")
+        GameRepository repository = new GameRepository();
+        ConsoleView consoleView = new ConsoleView(chessManager);
 
-        consola.iniciar();
+        consoleView.start();
     }
 }
