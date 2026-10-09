@@ -1,8 +1,8 @@
 package com.uade.ajedrez.domain.model;
 
 public class Posicion {
-    private int fila;
-    private int columna;
+    private final int fila;
+    private final int columna;
 
     public Posicion(int fila, int columna) {
         this.fila = fila;
@@ -10,18 +10,10 @@ public class Posicion {
     }
 
     public int getFila() {
-        return this.fila;
+        return fila;
     }
 
     public int getColumna() {
-        return this.columna;
-    }
-
-    public void setFila(int fila) {
-        this.fila = fila;
-    }
-
-    public void setColumna(int columna) {
-        this.columna = columna;
+        return columna;
     }
 }

@@ -1,9 +1,9 @@
 package com.uade.ajedrez.domain.model;
 
 public class ResultadoMovimiento {
-    private boolean fuePosible;
-    private Motivo motivo;
-    private String mensaje;
+    private final boolean fuePosible;
+    private final Motivo motivo;
+    private final String mensaje;
 
     public ResultadoMovimiento(boolean fuePosible, Motivo motivo, String mensaje) {
         this.fuePosible = fuePosible;
@@ -11,29 +11,15 @@ public class ResultadoMovimiento {
         this.mensaje = mensaje;
     }
 
-    public String getMensaje() {
-        return mensaje;
+    public boolean isFuePosible() {
+        return fuePosible;
     }
 
     public Motivo getMotivo() {
         return motivo;
     }
 
-    public boolean isFuePosible() {
-        return fuePosible;
+    public String getMensaje() {
+        return mensaje;
     }
-
-    public void setFuePosible(boolean fuePosible) {
-        this.fuePosible = fuePosible;
-    }
-
-    public void setMotivo(Motivo motivo) {
-        this.motivo = motivo;
-    }
-
-    public void setMensaje(String mensaje) {
-        this.mensaje = mensaje;
-    }
-
-    
 }

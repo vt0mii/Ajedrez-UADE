@@ -1,21 +1,16 @@
 package com.uade.ajedrez.domain.model;
 
 public class Casilla {
+    private final Posicion posicion;
     private Pieza pieza;
-    private Posicion posicion;
-
-    public Casilla(Pieza pieza, Posicion posicion) {
-        this.pieza = pieza;
-        this.posicion = posicion;
-    }
 
     public Casilla(Posicion posicion) {
-        this.pieza = null;
         this.posicion = posicion;
+        this.pieza = null;
     }
 
     public Pieza getPieza() {
-        return this.pieza;
+        return pieza;
     }
 
     public void setPieza(Pieza pieza) {
@@ -25,10 +20,4 @@ public class Casilla {
     public Posicion getPosicion() {
         return posicion;
     }
-
-    public void setPosicion(Posicion posicion) {
-        this.posicion = posicion;
-    }
-
-    
 }
