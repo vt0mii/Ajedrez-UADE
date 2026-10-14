@@ -4,22 +4,14 @@ import com.uade.ajedrez.domain.model.*;
 
 public class MovementService {
 
-    public MoveResult validateOriginPiece(Piece piece, ChessManager game) {
-        if (piece == null) {
-            return new MoveResult(false, Reason.NOT_AVAILABLE, "No piece at origin position");
-        }
-
-        if (piece.getColor() != game.getCurrentTurn()) {
-            return new MoveResult(false, Reason.NOT_AVAILABLE, "Not that piece's turn");
-        }
-
-        return new MoveResult(true, null, "Valid move");
-    }
-
     public MoveResult validateMove(Board board, Move move, Color playerColor) {
         Piece piece = board.getPiece(move.getOrigin());
         if (piece == null) {
             return new MoveResult(false, Reason.NOT_AVAILABLE, "No piece at origin position");
+        }
+
+        if (piece.getColor() != playerColor) {
+            return new MoveResult(false, Reason.NOT_AVAILABLE, "Cant move enemy piece");
         }
 
         MoveResult result = piece.canMove(board, move);
@@ -32,6 +24,36 @@ public class MovementService {
         }
 
         return new MoveResult(true, null, "Valid move");
+    }
+
+    public boolean isInCheck(Board board, Color kingColor) {
+        Position kingPosition = findKing(board, kingColor);
+        if (kingPosition == null) {
+            return false;
+        }
+
+        Color enemyColor = (kingColor == Color.WHITE) ? Color.BLACK : Color.WHITE;
+
+        for (int row = 0; row < Board.SIZE; row++) {
+            for (int column = 0; column < Board.SIZE; column++) {
+                Piece piece = board.getPiece(new Position(row, column));
+                if (piece != null && piece.getColor() == enemyColor) {
+                    Move attackMove = new Move(new Position(row, column), kingPosition);
+                    if (piece.canMove(board, attackMove).wasPossible()) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public boolean isCheckmate(Board board, Color playerColor) {
+        if (!isInCheck(board, playerColor)) {
+            return false;
+        }
+        return !hasValidMove(board, playerColor);
     }
 
     private boolean leavesKingInCheck(Board board, Move move, Color playerColor) {
@@ -51,41 +73,6 @@ public class MovementService {
         }
         copy.movePiece(move);
         return copy;
-    }
-
-    public boolean isInCheck(Board board, Color kingColor) {
-        Position kingPosition = findKing(board, kingColor);
-        if (kingPosition == null) {
-            return false;
-        }
-
-        Color enemyColor = (kingColor == Color.WHITE) ? Color.BLACK : Color.WHITE;
-
-        for (int row = 0; row < Board.SIZE; row++) {
-            for (int column = 0; column < Board.SIZE; column++) {
-                Piece piece = board.getPiece(new Position(row, column));
-                if (piece != null && piece.getColor() == enemyColor) {
-                    Move attackMove = new Move(
-                            new Position(row, column),
-                            kingPosition
-                    );
-                    MoveResult result = piece.canMove(board, attackMove);
-                    if (result.wasPossible()) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
-    public boolean isCheckmate(Board board, Color playerColor) {
-        if (!isInCheck(board, playerColor)) {
-            return false;
-        }
-
-        return !hasValidMove(board, playerColor);
     }
 
     private boolean hasValidMove(Board board, Color playerColor) {

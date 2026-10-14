@@ -7,7 +7,7 @@ import com.uade.ajedrez.infrastructure.adapter.out.GameRepository;
 
 public class App {
     public static void main(String[] args) {
-        // Composition root
+        // Raiz de composicion
         Board board = new Board();
         MovementService movementService = new MovementService();
 

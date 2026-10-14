@@ -15,7 +15,7 @@ public class StratPawn implements IMovementStrategy {
         int diffRow = destination.getRow() - origin.getRow();
         int diffColumn = Math.abs(destination.getColumn() - origin.getColumn());
 
-        // Simple advance
+        // Avance simple
         if (diffRow == direction && diffColumn == 0) {
             if (board.getPiece(destination) == null) {
                 return new MoveResult(true, null, "Valid move");
@@ -24,7 +24,7 @@ public class StratPawn implements IMovementStrategy {
             }
         }
 
-        // Double advance
+        // Avance doble
         if (origin.getRow() == initialRow && diffRow == (2 * direction) && diffColumn == 0) {
             Position intermediate = new Position(origin.getRow() + direction, origin.getColumn());
             if (board.getPiece(intermediate) == null && board.getPiece(destination) == null) {
@@ -34,7 +34,7 @@ public class StratPawn implements IMovementStrategy {
             }
         }
 
-        // Capture
+        // Captura
         if (diffRow == direction && diffColumn == 1) {
             Piece targetPiece = board.getPiece(destination);
             if (targetPiece != null && targetPiece.getColor() != piece.getColor()) {
