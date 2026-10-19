@@ -1,5 +1,6 @@
 package com.uade.ajedrez;
 
+import com.uade.ajedrez.domain.command.MoveCommandTest;
 import com.uade.ajedrez.domain.model.BoardTest;
 import com.uade.ajedrez.domain.model.ChessManagerTest;
 import com.uade.ajedrez.domain.service.MovementServiceTest;
@@ -10,6 +11,9 @@ public class AllTests {
         System.out.println("Corriendo todos los tests");
         
         try {
+            MoveCommandTest.main(args);
+            System.out.println();
+
             BoardTest.main(args);
             System.out.println();
             
