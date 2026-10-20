@@ -20,7 +20,13 @@ public class ConsoleView implements Input, Output {
 
     @Override
     public String readLine() {
-        return scanner.nextLine();
+        if (scanner.hasNextLine()) {
+            return scanner.nextLine();
+        }
+        if (scanner.ioException() != null) {
+            throw new java.io.UncheckedIOException("Could not read console input", scanner.ioException());
+        }
+        return null;
     }
 
     @Override

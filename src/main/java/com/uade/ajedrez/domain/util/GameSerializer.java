@@ -2,6 +2,8 @@ package com.uade.ajedrez.domain.util;
 
 import com.uade.ajedrez.domain.model.*;
 import com.uade.ajedrez.domain.factory.PieceFactory;
+import com.uade.ajedrez.domain.exception.GamePersistenceException;
+import com.uade.ajedrez.domain.service.MovementService;
 
 import java.io.*;
 import java.util.Properties;
@@ -38,6 +40,14 @@ public class GameSerializer {
     }
 
     public static ChessManager fromProperties(Properties props) {
+        try {
+            return deserialize(props);
+        } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
+            throw new GamePersistenceException("Invalid saved game data", e);
+        }
+    }
+
+    private static ChessManager deserialize(Properties props) {
         String playerName = props.getProperty("playerName", "Jugador");
         Color playerColor = Color.valueOf(props.getProperty("playerColor", "WHITE"));
         Player currentPlayer = new Player(playerName, playerColor);
@@ -57,10 +67,16 @@ public class GameSerializer {
         for (String key : props.stringPropertyNames()) {
             if (key.startsWith("piece.")) {
                 String[] coords = key.substring(6).split(",");
+                if (coords.length != 2) {
+                    throw new IllegalArgumentException("Invalid piece coordinates: " + key);
+                }
                 int row = Integer.parseInt(coords[0]);
                 int column = Integer.parseInt(coords[1]);
 
                 String[] parts = props.getProperty(key).split(",");
+                if (parts.length != 2) {
+                    throw new IllegalArgumentException("Invalid piece data: " + key);
+                }
                 PieceType type = PieceType.valueOf(parts[0]);
                 Color color = Color.valueOf(parts[1]);
 
@@ -72,7 +88,7 @@ public class GameSerializer {
                 playerColor == Color.WHITE ? currentPlayer : opponent,
                 playerColor == Color.WHITE ? opponent : currentPlayer,
                 board,
-                null
+                new MovementService()
         );
 
         State state = State.valueOf(props.getProperty("state", "IN_PROGRESS"));
@@ -86,7 +102,7 @@ public class GameSerializer {
         try (FileOutputStream out = new FileOutputStream(filename)) {
             props.store(out, "Partida de Ajedrez");
         } catch (IOException e) {
-            throw new RuntimeException("Error al guardar la partida", e);
+            throw new GamePersistenceException("Error al guardar la partida", e);
         }
     }
 
@@ -94,8 +110,8 @@ public class GameSerializer {
         Properties props = new Properties();
         try (FileInputStream in = new FileInputStream(filename)) {
             props.load(in);
-        } catch (IOException e) {
-            throw new RuntimeException("Error al cargar la partida", e);
+        } catch (IOException | IllegalArgumentException e) {
+            throw new GamePersistenceException("Error al cargar la partida", e);
         }
         return fromProperties(props);
     }
