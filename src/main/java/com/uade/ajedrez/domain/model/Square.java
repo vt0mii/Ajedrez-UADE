@@ -13,6 +13,10 @@ public class Square {
         return piece;
     }
 
+    public boolean hasPiece() {
+        return piece != null;
+    }
+
     public void setPiece(Piece piece) {
         this.piece = piece;
     }

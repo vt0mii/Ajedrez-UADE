@@ -1,4 +1,9 @@
-# Build and run tests script
+# Script para compilar y ejecutar los tests
+
+Write-Host "Cleaning previous build output..." -ForegroundColor Cyan
+if (Test-Path "bin") {
+    Get-ChildItem -Path "bin" -Recurse -File | Remove-Item -Force
+}
 
 Write-Host "Compiling main sources..." -ForegroundColor Cyan
 $mainFiles = Get-ChildItem -Path "src\main\java" -Recurse -Filter "*.java" | ForEach-Object { $_.FullName }
@@ -22,7 +27,7 @@ if ($testFiles.Count -gt 0) {
         exit 1
     }
     Write-Host "Test sources compiled successfully!" -ForegroundColor Green
-    
+
     Write-Host "`nRunning tests..." -ForegroundColor Cyan
     java -ea -cp bin com.uade.ajedrez.AllTests
 } else {

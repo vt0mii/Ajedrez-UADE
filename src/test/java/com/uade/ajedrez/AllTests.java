@@ -1,29 +1,38 @@
 package com.uade.ajedrez;
 
+import com.uade.ajedrez.application.service.ChessGameServiceTest;
 import com.uade.ajedrez.domain.command.MoveCommandTest;
 import com.uade.ajedrez.domain.model.BoardTest;
-import com.uade.ajedrez.domain.model.ChessManagerTest;
+import com.uade.ajedrez.domain.model.ChessGameTest;
 import com.uade.ajedrez.domain.service.MovementServiceTest;
+import com.uade.ajedrez.infrastructure.adapter.out.persistence.GameSerializerTest;
 
 public class AllTests {
-    
-    public static void main(String[] args) {
+
+    public static void main(String[] args) throws Exception {
         System.out.println("Corriendo todos los tests");
-        
+
         try {
-            ErrorHandlingTest.main(args);
+            BoardTest.main(args);
+            System.out.println();
+
+            MovementServiceTest.main(args);
+            System.out.println();
+
+            ChessGameTest.main(args);
+            System.out.println();
+
             MoveCommandTest.main(args);
             System.out.println();
 
-            BoardTest.main(args);
+            ChessGameServiceTest.main(args);
             System.out.println();
-            
-            MovementServiceTest.main(args);
+
+            GameSerializerTest.main(args);
             System.out.println();
-            
-            ChessManagerTest.main(args);
-            System.out.println();
-            
+
+            ErrorHandlingTest.main(args);
+
             System.out.println("All Tests Passed!");
         } catch (AssertionError e) {
             System.err.println("\nX TEST FAILED: " + e.getMessage());

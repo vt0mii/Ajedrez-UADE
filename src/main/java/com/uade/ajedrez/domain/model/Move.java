@@ -1,19 +1,22 @@
 package com.uade.ajedrez.domain.model;
 
 public class Move {
-    private Position origin;
-    private Position destination;
+    private final Position origin;
+    private final Position destination;
 
-    public Move(Position o, Position d) {
-        this.origin = o;
-        this.destination = d;
+    public Move(Position origin, Position destination) {
+        if (origin == null || destination == null) {
+            throw new IllegalArgumentException("A move requires an origin and a destination");
+        }
+        this.origin = origin;
+        this.destination = destination;
     }
 
     public Position getOrigin() {
-        return this.origin;
+        return origin;
     }
 
     public Position getDestination() {
-        return this.destination;
+        return destination;
     }
 }

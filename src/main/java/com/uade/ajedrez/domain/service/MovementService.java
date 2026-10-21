@@ -5,13 +5,24 @@ import com.uade.ajedrez.domain.model.*;
 public class MovementService {
 
     public MoveResult validateMove(Board board, Move move, Color playerColor) {
-        Piece piece = board.getPiece(move.getOrigin());
+        Position origin = move.getOrigin();
+        Position destination = move.getDestination();
+        if (origin.getRow() == destination.getRow() && origin.getColumn() == destination.getColumn()) {
+            return new MoveResult(false, Reason.NOT_AVAILABLE, "Origin and destination are the same");
+        }
+
+        Piece piece = board.getPiece(origin);
         if (piece == null) {
             return new MoveResult(false, Reason.NOT_AVAILABLE, "No piece at origin position");
         }
 
         if (piece.getColor() != playerColor) {
             return new MoveResult(false, Reason.NOT_AVAILABLE, "Cant move enemy piece");
+        }
+
+        Piece targetPiece = board.getPiece(move.getDestination());
+        if (targetPiece != null && targetPiece.getType() == PieceType.KING) {
+            return new MoveResult(false, Reason.NOT_AVAILABLE, "Cannot capture the king");
         }
 
         MoveResult result = piece.canMove(board, move);
@@ -32,7 +43,7 @@ public class MovementService {
             return false;
         }
 
-        Color enemyColor = (kingColor == Color.WHITE) ? Color.BLACK : Color.WHITE;
+        Color enemyColor = opposite(kingColor);
 
         for (int row = 0; row < Board.SIZE; row++) {
             for (int column = 0; column < Board.SIZE; column++) {
@@ -53,7 +64,7 @@ public class MovementService {
         if (!isInCheck(board, playerColor)) {
             return false;
         }
-        return !hasValidMove(board, playerColor);
+        return !hasAnyLegalMove(board, playerColor);
     }
 
     private boolean leavesKingInCheck(Board board, Move move, Color playerColor) {
@@ -62,25 +73,23 @@ public class MovementService {
     }
 
     private Board simulateMove(Board board, Move move) {
-        Board copy = new Board();
-        for (int row = 0; row < Board.SIZE; row++) {
-            for (int column = 0; column < Board.SIZE; column++) {
-                Piece piece = board.getPiece(new Position(row, column));
-                if (piece != null) {
-                    copy.getSquare(new Position(row, column)).setPiece(piece);
-                }
-            }
-        }
+        Board copy = board.copy();
         copy.movePiece(move);
         return copy;
     }
 
-    private boolean hasValidMove(Board board, Color playerColor) {
+    /**
+     * Usa la validación completa (incluye el filtro de jaque). Si no, un
+     * movimiento pseudo-legal que no resuelve el jaque podría ocultar un mate
+     * real.
+     */
+    private boolean hasAnyLegalMove(Board board, Color playerColor) {
         for (int row = 0; row < Board.SIZE; row++) {
             for (int column = 0; column < Board.SIZE; column++) {
-                Piece piece = board.getPiece(new Position(row, column));
+                Position origin = new Position(row, column);
+                Piece piece = board.getPiece(origin);
                 if (piece != null && piece.getColor() == playerColor) {
-                    if (pieceCanMove(board, piece, new Position(row, column))) {
+                    if (pieceHasLegalMove(board, origin, playerColor)) {
                         return true;
                     }
                 }
@@ -89,13 +98,11 @@ public class MovementService {
         return false;
     }
 
-    private boolean pieceCanMove(Board board, Piece piece, Position origin) {
+    private boolean pieceHasLegalMove(Board board, Position origin, Color playerColor) {
         for (int row = 0; row < Board.SIZE; row++) {
             for (int column = 0; column < Board.SIZE; column++) {
-                Position destination = new Position(row, column);
-                Move move = new Move(origin, destination);
-                MoveResult result = piece.canMove(board, move);
-                if (result.wasPossible()) {
+                Move move = new Move(origin, new Position(row, column));
+                if (validateMove(board, move, playerColor).wasPossible()) {
                     return true;
                 }
             }
@@ -106,12 +113,17 @@ public class MovementService {
     private Position findKing(Board board, Color color) {
         for (int row = 0; row < Board.SIZE; row++) {
             for (int column = 0; column < Board.SIZE; column++) {
-                Piece piece = board.getPiece(new Position(row, column));
+                Position position = new Position(row, column);
+                Piece piece = board.getPiece(position);
                 if (piece != null && piece.getType() == PieceType.KING && piece.getColor() == color) {
-                    return new Position(row, column);
+                    return position;
                 }
             }
         }
         return null;
+    }
+
+    private Color opposite(Color color) {
+        return color == Color.WHITE ? Color.BLACK : Color.WHITE;
     }
 }

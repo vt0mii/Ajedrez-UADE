@@ -4,5 +4,6 @@ public enum Reason {
     CHECK,
     NOT_AVAILABLE,
     CASTLE,
-    CAPTURE
+    CAPTURE,
+    GAME_OVER
 }

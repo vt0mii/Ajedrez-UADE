@@ -8,16 +8,29 @@ public class Board {
     private final Square[][] squares = new Square[SIZE][SIZE];
 
     public Board() {
-        generateBoard();
+        this(true);
     }
 
-    public void generateBoard() {
+    private Board(boolean withInitialSetup) {
         for (int row = 0; row < SIZE; row++) {
             for (int column = 0; column < SIZE; column++) {
                 squares[row][column] = new Square(new Position(row, column));
             }
         }
+        if (withInitialSetup) {
+            generateBoard();
+        }
+    }
 
+    /**
+     * Crea un tablero vacío. Útil para cargar una posición guardada o para
+     * tests que arman un escenario específico.
+     */
+    public static Board empty() {
+        return new Board(false);
+    }
+
+    private void generateBoard() {
         PieceType[] initialOrder = {
             PieceType.ROOK,
             PieceType.KNIGHT,
@@ -46,35 +59,22 @@ public class Board {
         return getSquare(position).getPiece();
     }
 
-    @Override
-    public String toString() {
-        StringBuilder board = new StringBuilder();
-        board.append("  a b c d e f g h\n");
+    /**
+     * Copia la posición actual. Las piezas son inmutables, así que compartir las
+     * referencias es seguro y hace barata la simulación de movimientos.
+     */
+    public Board copy() {
+        Board copy = Board.empty();
         for (int row = 0; row < SIZE; row++) {
-            board.append(SIZE - row).append(' ');
             for (int column = 0; column < SIZE; column++) {
-                Piece piece = squares[row][column].getPiece();
-                board.append(piece == null ? '.' : pieceSymbol(piece));
-                if (column < SIZE - 1) {
-                    board.append(' ');
-                }
+                copy.squares[row][column].setPiece(squares[row][column].getPiece());
             }
-            board.append(' ').append(SIZE - row).append('\n');
         }
-        board.append("  a b c d e f g h");
-        return board.toString();
+        return copy;
     }
 
     private void placePiece(int row, int column, Color color, PieceType type) {
         squares[row][column].setPiece(PieceFactory.create(type, color));
-    }
-
-    private char pieceSymbol(Piece piece) {
-        char symbol = piece.getType().name().charAt(0);
-        if (piece.getType() == PieceType.QUEEN) {
-            symbol = 'Q';
-        }
-        return piece.getColor() == Color.BLACK ? Character.toLowerCase(symbol) : symbol;
     }
 
     private void validatePosition(Position position) {

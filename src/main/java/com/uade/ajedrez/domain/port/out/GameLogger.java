@@ -1,6 +1,6 @@
 package com.uade.ajedrez.domain.port.out;
 
-/** Logging port: the domain does not depend on a logging framework. */
+/** Puerto de logging: el dominio no depende de un framework de logs. */
 public interface GameLogger {
     void info(String message);
     void warning(String message);

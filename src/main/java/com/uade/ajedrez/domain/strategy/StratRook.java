@@ -12,6 +12,10 @@ public class StratRook implements IMovementStrategy {
         int diffRow = destination.getRow() - origin.getRow();
         int diffColumn = destination.getColumn() - origin.getColumn();
 
+        if (diffRow == 0 && diffColumn == 0) {
+            return new MoveResult(false, Reason.NOT_AVAILABLE, "Rook must move to a different square");
+        }
+
         if (diffColumn != 0 && diffRow != 0) {
             return new MoveResult(false, Reason.NOT_AVAILABLE, "Rook can only move in straight lines");
         }

@@ -1,6 +1,6 @@
 package com.uade.ajedrez.domain.exception;
 
-/** Saving or loading failed; retains the original cause for diagnostics. */
+/** Falló el guardado o la carga; conserva la causa original para diagnóstico. */
 public class GamePersistenceException extends RuntimeException {
     public GamePersistenceException(String message, Throwable cause) {
         super(message, cause);

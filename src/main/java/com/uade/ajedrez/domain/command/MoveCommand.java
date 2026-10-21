@@ -5,9 +5,10 @@ import com.uade.ajedrez.domain.model.Move;
 import com.uade.ajedrez.domain.model.Piece;
 
 /**
- * Reversible board movement. Chess rules must be validated before execution.
- * Commands on the same board must be undone in reverse execution order.
- * Turn and game state are outside this command's responsibility.
+ * Movimiento reversible sobre el tablero. Las reglas del ajedrez se validan
+ * antes de ejecutarlo. Los comandos sobre el mismo tablero se deshacen en orden
+ * inverso al de ejecución. El turno y el estado de la partida quedan fuera de la
+ * responsabilidad de este comando.
  */
 public class MoveCommand implements ICommand {
     private final Board board;

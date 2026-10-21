@@ -4,7 +4,7 @@ import com.uade.ajedrez.domain.port.out.GameLogger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/** Uses the JDK logging implementation; no external dependencies required. */
+/** Usa el logging del JDK; no requiere dependencias externas. */
 public class JavaGameLogger implements GameLogger {
     private final Logger logger = Logger.getLogger("com.uade.ajedrez");
 
