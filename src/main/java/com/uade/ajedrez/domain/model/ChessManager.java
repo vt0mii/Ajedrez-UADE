@@ -89,8 +89,8 @@ public class ChessManager {
                     throw new InvalidMoveInputException("Invalid format. Use: origin destination (e.g: e2 e4)");
                 }
 
-                Position origin = parseCoordinate(parts[0]);
-                Position destination = parseCoordinate(parts[1]);
+                Position origin = Position.fromAlgebraic(parts[0]);
+                Position destination = Position.fromAlgebraic(parts[1]);
 
                 Move move = new Move(origin, destination);
                 MoveResult result = makeMove(move);
@@ -109,23 +109,6 @@ public class ChessManager {
         output.show("\n" + board);
         output.show("CHECKMATE! Game over.");
         logger.info("Game ended: checkmate");
-    }
-
-    private Position parseCoordinate(String coord) {
-        if (coord.length() != 2) {
-            throw new InvalidMoveInputException("Invalid coordinate: " + coord);
-        }
-        String letters = "abcdefgh";
-        String numbers = "87654321";
-
-        int column = letters.indexOf(coord.charAt(0));
-        int row = numbers.indexOf(coord.charAt(1));
-
-        if (row < 0 || row >= 8 || column < 0 || column >= 8) {
-            throw new InvalidMoveInputException("Coordinate out of board: " + coord);
-        }
-
-        return new Position(row, column);
     }
 
     public State getState() {

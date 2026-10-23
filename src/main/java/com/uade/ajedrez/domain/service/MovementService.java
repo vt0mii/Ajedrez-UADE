@@ -66,9 +66,8 @@ public class MovementService {
         for (int row = 0; row < Board.SIZE; row++) {
             for (int column = 0; column < Board.SIZE; column++) {
                 Piece piece = board.getPiece(new Position(row, column));
-                if (piece != null) {
-                    copy.getSquare(new Position(row, column)).setPiece(piece);
-                }
+                // Empty squares must also replace the initial setup in the copy.
+                copy.getSquare(new Position(row, column)).setPiece(piece);
             }
         }
         copy.movePiece(move);
@@ -94,7 +93,7 @@ public class MovementService {
             for (int column = 0; column < Board.SIZE; column++) {
                 Position destination = new Position(row, column);
                 Move move = new Move(origin, destination);
-                MoveResult result = piece.canMove(board, move);
+                MoveResult result = validateMove(board, move, piece.getColor());
                 if (result.wasPossible()) {
                     return true;
                 }

@@ -11,6 +11,7 @@ public class AllTests {
         System.out.println("Corriendo todos los tests");
         
         try {
+            ChessHttpServerTest.main(args);
             ErrorHandlingTest.main(args);
             MoveCommandTest.main(args);
             System.out.println();

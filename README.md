@@ -19,6 +19,16 @@ El diseño busca que las dependencias apunten hacia el núcleo. Los adaptadores 
 - **Puertos (`domain/port`)**: contratos `Input`, `Output` y `GameLogger` para interactuar con el exterior sin depender de implementaciones concretas.
 - **Adaptadores (`infrastructure/adapter`)**: `ConsoleView` implementa la entrada y salida por consola; `JavaGameLogger` implementa el registro de eventos con `java.util.logging`.
 - **Composición (`App`)**: crea los objetos y conecta el núcleo con los adaptadores.
+- **Aplicación (`application`)**: `ChessGameService` implementa el puerto de entrada
+  `ChessGame` y coordina una partida en memoria. Expone vistas inmutables mediante
+  `GameSnapshot`, sin tipos HTTP ni dependencias de React.
+- **Adaptador HTTP (`infrastructure/adapter/in/http`)**: `ChessHttpServer` traduce
+  peticiones HTTP a los casos de uso del puerto `ChessGame` y devuelve JSON.
+- **Frontend (`frontend`)**: aplicación React con Vite. Consume la API, muestra el
+  tablero y envía movimientos; las reglas y la validación permanecen en Java.
+
+El flujo de la interfaz web es: **React → adaptador HTTP → puerto `ChessGame` →
+`ChessGameService` → dominio**. La consola continúa disponible como interfaz alternativa.
 
 La independencia del núcleo es el objetivo del diseño. Actualmente, `GameSerializer` está en `domain/util` y realiza operaciones con archivos; su traslado a un adaptador de persistencia detrás de un puerto es una mejora pendiente.
 
@@ -28,6 +38,8 @@ La independencia del núcleo es el objetivo del diseño. Actualmente, `GameSeria
 - Validación de movimientos mediante estrategias por tipo de pieza.
 - Alternancia de turnos y detección de jaque y jaque mate.
 - Interfaz de consola para jugar.
+- Interfaz React con tablero interactivo, turnos, jaque/jaque mate, mensajes de
+  error, historial de movimientos de la sesión y reinicio con confirmación.
 - Comando de movimiento con ejecución y deshacer a nivel de tablero; su integración en el flujo de la partida está pendiente.
 - Manejo de entradas incorrectas y registro de eventos y errores.
 - Utilidad de persistencia en archivos de propiedades, todavía sin integración con la interfaz de consola.
@@ -38,7 +50,9 @@ La independencia del núcleo es el objetivo del diseño. Actualmente, `GameSeria
 - **PowerShell** para ejecutar el script de compilación.
 - Opcional: **IntelliJ IDEA** con el SDK del proyecto configurado en JDK 17.
 
-El proyecto no requiere dependencias externas ni utiliza Maven o Gradle. Ejecutar los siguientes comandos desde la carpeta raíz del repositorio.
+El backend no requiere dependencias externas ni utiliza Maven o Gradle. Para el
+frontend se necesita **Node.js 22.12 o superior** y npm. Ejecutar los siguientes
+comandos desde la carpeta raíz del repositorio, salvo donde se indique otra carpeta.
 
 ## Compilación y tests
 
@@ -62,11 +76,68 @@ java -ea -cp bin com.uade.ajedrez.domain.model.BoardTest
 java -ea -cp bin com.uade.ajedrez.domain.service.MovementServiceTest
 java -ea -cp bin com.uade.ajedrez.domain.model.ChessManagerTest
 java -ea -cp bin com.uade.ajedrez.ErrorHandlingTest
+java -ea -cp bin com.uade.ajedrez.ChessHttpServerTest
 ```
 
 Los tests usan aserciones de Java; es necesario incluir `-ea` para verificar los resultados.
+Los tests HTTP levantan y cierran un servidor local en un puerto temporal.
 
 ## Ejecución
+
+### Interfaz React
+
+En una terminal, compilar y arrancar la API Java:
+
+```powershell
+.\build.ps1
+java -cp bin com.uade.ajedrez.App --web
+```
+
+En otra terminal, instalar las dependencias y arrancar React:
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+Abrir **http://127.0.0.1:5173**. Seleccionar una pieza del color que tiene el turno
+y luego la casilla de destino. El botón **Nueva partida** pide confirmación para
+reiniciar. **Actualizar tablero** consulta el estado actual de Java.
+
+Vite reenvía `/api` a `http://127.0.0.1:8080`, por lo que no es necesario habilitar
+CORS. La API escucha únicamente en la máquina local. En IntelliJ también se puede
+ejecutar `App` con `--web` en **Program arguments**; sin argumentos abre la consola.
+
+Para generar y comprobar el frontend compilado, desde `frontend`:
+
+```powershell
+npm run build
+npm run preview
+```
+
+La vista previa también necesita que Java esté ejecutándose. Para alojar el build
+en otro servidor, configurar allí el reenvío de `/api` al backend.
+
+Esta versión ofrece **una partida compartida en memoria**, sin usuarios ni salas.
+Las pestañas consultan el mismo juego y deben actualizar el tablero para ver jugadas
+hechas desde otra pestaña. El historial de React pertenece a la sesión de la página;
+se limpia al actualizar el tablero o recargarla. Reiniciar Java pierde la partida.
+
+### API local
+
+- `GET /api/game`: devuelve piezas, turno, número de ronda y estado.
+- `POST /api/moves`: recibe `origin` y `destination` como formulario
+  `application/x-www-form-urlencoded`, por ejemplo `origin=e2&destination=e4`.
+  Devuelve un mensaje, motivo y estado actualizado de la partida.
+- `POST /api/game/new`: inicia una nueva partida y devuelve su estado.
+
+Respuestas: `200` para operaciones correctas, `400` para entradas mal formadas,
+`422` para jugadas rechazadas por el dominio, `404` para rutas desconocidas,
+`405` para métodos incorrectos, `413` para cuerpos de movimiento demasiado grandes,
+`415` para formatos no soportados y `500` para errores inesperados.
+
+### Interfaz de consola
 
 Después de compilar:
 
