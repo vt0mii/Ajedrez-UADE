@@ -6,11 +6,8 @@ import com.uade.ajedrez.domain.model.PieceType;
 
 import java.util.List;
 
-/**
- * Modelo de lectura que devuelven los casos de uso. Es apto para cualquier
- * adaptador: el renderer de consola o un serializador HTTP/JSON consumen el
- * mismo objeto.
- */
+// Lo que devuelven los casos de uso. Es el mismo objeto para la consola y para
+// el JSON de la API, así no hay dos modelos dando vueltas.
 public record GameView(
         String id,
         GameState status,

@@ -7,7 +7,7 @@ function winnerName(game: GameView): string | null {
     return playerOf(game, game.winner).name;
   }
   if (game.status === "ABANDONED") {
-    // Abandona el jugador que tenía el turno.
+    // El que abandona es el que tenía el turno, así que gana el otro.
     return playerOf(game, game.turn === "WHITE" ? "BLACK" : "WHITE").name;
   }
   return null;

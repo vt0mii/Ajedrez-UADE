@@ -1,17 +1,13 @@
 package com.uade.ajedrez.infrastructure.adapter.in.http;
 
-/**
- * Lector mínimo de JSON para los bodies de la API: solo objetos planos con
- * valores string. Evita sumar una dependencia como Jackson.
- */
+// Lector mínimo de JSON para los bodies de la API: objetos planos con strings.
+// Alcanza para este contrato y evita meter Jackson.
 final class JsonBody {
 
     private JsonBody() {
     }
 
-    /**
-     * @return el valor del campo, o {@code null} si no está presente.
-     */
+    // Devuelve el valor del campo o null si no está.
     static String stringField(String json, String field) {
         int index = valueStart(json, field);
         if (index < 0) {
@@ -33,10 +29,7 @@ final class JsonBody {
         return null;
     }
 
-    /**
-     * @return la posición del primer caracter del valor string, o -1 si el campo
-     *         no existe o no es un string.
-     */
+    // Posición donde empieza el string del campo, o -1 si no existe o no es string.
     private static int valueStart(String json, String field) {
         if (json == null) {
             return -1;

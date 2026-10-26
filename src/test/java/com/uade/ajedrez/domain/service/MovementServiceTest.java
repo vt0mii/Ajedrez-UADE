@@ -146,11 +146,9 @@ public class MovementServiceTest {
         System.out.println("V testEnJaqueMate paso");
     }
 
-    /**
-     * Mate del pasillo: los peones bloquean al rey y los movimientos del caballo
-     * son pseudo-legales pero no resuelven el jaque. Antes del arreglo,
-     * hasValidMove ocultaba este mate al contar esos movimientos imposibles.
-     */
+    // Mate del pasillo: los peones encierran al rey y el caballo tiene jugadas
+    // pseudo-legales que no sacan el jaque. Antes esto se escapaba porque
+    // hasValidMove contaba movimientos imposibles.
     static void testJaqueMateConPiezasBloqueadas() {
         MovementService service = new MovementService();
         Board board = Board.empty();

@@ -1,6 +1,6 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
-/** Error con el código HTTP y el código de error que devuelve el backend. */
+// Error con el status y el código que manda el backend.
 export class ApiError extends Error {
   readonly status: number;
   readonly code: string;

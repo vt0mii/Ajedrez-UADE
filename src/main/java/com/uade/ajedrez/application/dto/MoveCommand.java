@@ -1,9 +1,6 @@
 package com.uade.ajedrez.application.dto;
 
-/**
- * Comando para mover una pieza usando coordenadas algebraicas, por ejemplo de
- * "e2" a "e4". El formato de transporte queda en la aplicación para no filtrar
- * detalles de consola o HTTP al dominio.
- */
+// Movimiento tal como llega desde afuera ("e2" a "e4"). Vive en aplicación
+// para que el dominio no se entere de consola ni de HTTP.
 public record MoveCommand(String from, String to) {
 }

@@ -2,11 +2,8 @@ package com.uade.ajedrez.application.exception;
 
 import com.uade.ajedrez.domain.model.Reason;
 
-/**
- * Se lanza cuando el dominio rechaza un movimiento. El motivo es un código
- * legible por la máquina para que un adaptador web lo traduzca a un estado HTTP
- * y a un mensaje de error.
- */
+// El dominio rechazó la jugada. Guardamos el motivo para que el adaptador
+// HTTP lo convierta en un 409 y el frontend muestre algo útil.
 public class MoveRejectedException extends RuntimeException {
     private final Reason reason;
 

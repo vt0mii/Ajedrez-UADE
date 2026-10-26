@@ -1,4 +1,4 @@
-// Contrato de la API: espeja el GameView que devuelve el backend Java.
+// Contrato de la API. Es el mismo GameView que devuelve Java.
 
 export type Color = "WHITE" | "BLACK";
 
@@ -28,7 +28,7 @@ export type GameView = {
   turnNumber: number;
   whitePlayer: PlayerView;
   blackPlayer: PlayerView;
-  /** 8x8. board[0][0] es a8 y board[7][7] es h1. */
+  // 8x8. board[0][0] es a8 y board[7][7] es h1.
   board: (PieceView | null)[][];
   history: MoveView[];
   lastMove: MoveView | null;

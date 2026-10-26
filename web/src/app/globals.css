@@ -29,8 +29,8 @@
 
 /*
  * Tema claro. Los componentes usan los mismos tokens (ink, gold, danger,
- * success), así que alcanza con redefinir los valores. El tablero mantiene
- * la madera en ambos temas para que las piezas se lean igual.
+ * success), así que alcanza con cambiar los valores. El tablero sigue con
+ * la madera en los dos temas para que las piezas se lean igual.
  */
 html[data-theme="light"] {
   color-scheme: light;
@@ -100,7 +100,7 @@ html[data-theme="light"] {
       0 2px 3px rgb(0 0 0 / 0.4);
   }
 
-  /* Piezas capturadas: sobre fondo oscuro el negro puro no se ve. */
+  /* Piezas capturadas: en fondo oscuro el negro puro desaparece. */
   .piece-captured.piece-white {
     color: #efe9dd;
     text-shadow: 0 0 1px rgb(0 0 0 / 0.9);
@@ -121,7 +121,7 @@ html[data-theme="light"] {
     text-shadow: none;
   }
 
-  /* El botón de tema muestra el tema activo sin estado en React. */
+  /* El ícono del botón de tema lo elige el CSS, así el componente no guarda estado. */
   .theme-icon-light {
     display: none;
   }
@@ -134,7 +134,7 @@ html[data-theme="light"] {
     display: none;
   }
 
-  /* Velo del resultado: en claro un negro al 65 % apaga todo el tablero. */
+  /* Velo del resultado. En claro un negro al 65 % apaga demasiado, así que va uno suave. */
   .result-overlay {
     background-color: rgb(11 15 20 / 0.65);
   }

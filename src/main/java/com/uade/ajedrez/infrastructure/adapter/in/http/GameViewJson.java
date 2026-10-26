@@ -7,10 +7,8 @@ import com.uade.ajedrez.application.dto.GameView.PlayerView;
 
 import java.util.List;
 
-/**
- * Serializa el modelo de lectura {@code GameView} a JSON. Es la única clase que
- * conoce la forma exacta del contrato HTTP.
- */
+// Convierte el GameView a JSON. Es la única clase que sabe cómo se ve el
+// contrato de la API.
 final class GameViewJson {
 
     private GameViewJson() {

@@ -8,9 +8,7 @@ import com.uade.ajedrez.domain.model.Color;
 
 import java.io.PrintStream;
 
-/**
- * Solo presentación: dibuja el modelo de lectura, sin reglas del juego.
- */
+// Solo dibuja el GameView. No decide nada del juego.
 public class ConsoleRenderer {
 
     private final PrintStream out;

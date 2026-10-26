@@ -3,12 +3,12 @@ import type { Color, GameView, MoveView, PieceType, PieceView } from "./types";
 export const SIZE = 8;
 export const FILES = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
-/** "e2" -> 6 (la fila 0 es el rango 8). */
+// "e2" -> 6 (la fila 0 es el rango 8).
 export function toRow(square: string): number {
   return SIZE - Number(square[1]);
 }
 
-/** "e2" -> 4. */
+// "e2" -> 4.
 export function toColumn(square: string): number {
   return FILES.indexOf(square[0]);
 }
@@ -17,7 +17,7 @@ export function toSquare(row: number, column: number): string {
   return `${FILES[column]}${SIZE - row}`;
 }
 
-/** a8 es clara, así que (fila + columna) par es clara. */
+// a8 es clara, así que (fila + columna) par también.
 export function isLightSquare(row: number, column: number): boolean {
   return (row + column) % 2 === 0;
 }
@@ -61,10 +61,8 @@ const INITIAL_COUNTS: Record<PieceType, number> = {
   PAWN: 8,
 };
 
-/**
- * Piezas de ese color que ya no están en el tablero, es decir las que capturó
- * el rival. Es solo presentación: no altera ninguna regla.
- */
+// Piezas de ese color que ya no están: las que capturó el rival. Es solo
+// para mostrar, no toca ninguna regla.
 export function missingPieces(
   board: (PieceView | null)[][],
   color: Color,

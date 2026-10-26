@@ -19,7 +19,7 @@ public class BoardTest {
     static void testTableroInicial() {
         Board board = new Board();
         
-        // Verificar esquinas
+        // Las cuatro esquinas
         Piece rook = board.getPiece(new Position(0, 0));
         assert rook != null && rook.getType() == PieceType.ROOK && rook.getColor() == Color.BLACK 
             : "Se esperaba TORRE NEGRA en A8";
@@ -28,7 +28,7 @@ public class BoardTest {
         assert king != null && king.getType() == PieceType.KING && king.getColor() == Color.BLACK 
             : "Se esperaba REY NEGRO en E8";
             
-        // Verificar casillas vacias
+        // El centro arranca vacío
         assert board.getPiece(new Position(3, 3)) == null : "Se esperaba casilla vacia en D5";
         assert board.getPiece(new Position(4, 4)) == null : "Se esperaba casilla vacia en E4";
             
@@ -48,7 +48,7 @@ public class BoardTest {
     static void testMoverPieza() {
         Board board = new Board();
         
-        // Mover peon blanco de E2 a E4
+        // e2 a e4
         Move move = new Move(new Position(6, 4), new Position(4, 4));
         board.movePiece(move);
         
@@ -62,7 +62,7 @@ public class BoardTest {
     static void testMoverPiezaACasillaVacia() {
         Board board = new Board();
         
-        // Mover caballo de G1 a F3
+        // g1 a f3
         Move move = new Move(new Position(7, 6), new Position(5, 5));
         board.movePiece(move);
         
@@ -76,11 +76,11 @@ public class BoardTest {
     static void testCapturarPieza() {
         Board board = new Board();
         
-        // Colocar piezas manualmente para test de captura
+        // Armamos una captura a mano
         board.getSquare(new Position(3, 3)).setPiece(PieceFactory.create(PieceType.PAWN, Color.WHITE));
         board.getSquare(new Position(4, 4)).setPiece(PieceFactory.create(PieceType.PAWN, Color.BLACK));
         
-        // Peon blanco captura peon negro
+        // El peón blanco se come al negro
         Move move = new Move(new Position(3, 3), new Position(4, 4));
         board.movePiece(move);
         

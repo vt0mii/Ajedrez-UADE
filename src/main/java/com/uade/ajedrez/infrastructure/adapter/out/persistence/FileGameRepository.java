@@ -9,10 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
-/**
- * Adaptador de archivos para el puerto de repositorio. Los ids se validan en
- * {@link GameId}, así que un cliente no puede salir del directorio de partidas.
- */
+// Guarda y carga partidas como archivos. El id se valida en GameId, así que
+// no hay forma de salir del directorio de partidas.
 public class FileGameRepository implements GameRepositoryPort {
 
     private final Path storageDirectory;

@@ -4,12 +4,9 @@ import com.uade.ajedrez.domain.model.Board;
 import com.uade.ajedrez.domain.model.Move;
 import com.uade.ajedrez.domain.model.Piece;
 
-/**
- * Movimiento reversible sobre el tablero. Las reglas del ajedrez se validan
- * antes de ejecutarlo. Los comandos sobre el mismo tablero se deshacen en orden
- * inverso al de ejecución. El turno y el estado de la partida quedan fuera de la
- * responsabilidad de este comando.
- */
+// Movimiento que se puede deshacer. Antes de ejecutarlo, las reglas ya se
+// validaron. Si hay varios sobre el mismo tablero, se deshacen al revés.
+// El turno y el estado de la partida no son responsabilidad de esto.
 public class MoveCommand implements ICommand {
     private final Board board;
     private final Move move;

@@ -6,10 +6,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Agregado raíz de la partida. Contiene solo reglas: nada de consola, archivos
- * ni HTTP. Los adaptadores acceden a través de la capa de aplicación.
- */
+// La partida. Acá viven las reglas y nada más: no hay consola, archivos ni
+// HTTP. Los adaptadores entran por la capa de aplicación.
 public class ChessGame {
     private final GameId id;
     private final Board board;
@@ -43,9 +41,7 @@ public class ChessGame {
                 GameState.IN_PROGRESS, Collections.emptyList());
     }
 
-    /**
-     * Reconstruye una partida a partir de su estado persistido.
-     */
+    // Rearma la partida con lo que había en el archivo.
     public static ChessGame restore(GameId id, Board board, MovementService movementService,
             Turn turn, GameState state, List<Move> history) {
         if (id == null || board == null || movementService == null || turn == null || state == null) {
@@ -79,10 +75,8 @@ public class ChessGame {
         }
     }
 
-    /**
-     * Destinos legales desde una casilla para el jugador actual.
-     * Útil para el frontend sin reimplementar reglas.
-     */
+    // Casillas a las que puede ir la pieza del jugador de turno. El frontend usa
+    // esto para marcar los destinos y no repite ninguna regla.
     public List<String> legalMovesFrom(Position origin) {
         if (state.isFinished() || !board.getSquare(origin).hasPiece()) {
             return Collections.emptyList();

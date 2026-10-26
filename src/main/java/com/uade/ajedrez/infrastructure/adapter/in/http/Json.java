@@ -2,9 +2,7 @@ package com.uade.ajedrez.infrastructure.adapter.in.http;
 
 import java.util.List;
 
-/**
- * Utilidades mínimas para escribir JSON sin dependencias externas.
- */
+// Helpers para escribir JSON a mano, sin sumar dependencias.
 final class Json {
 
     private Json() {

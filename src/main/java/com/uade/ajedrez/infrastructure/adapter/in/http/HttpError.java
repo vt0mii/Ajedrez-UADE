@@ -1,9 +1,6 @@
 package com.uade.ajedrez.infrastructure.adapter.in.http;
 
-/**
- * Error propio del adaptador HTTP que ya trae el código de estado y el código
- * legible por la máquina que se devuelve en el body.
- */
+// Error del adaptador HTTP con el status y el código que van en el body.
 final class HttpError extends RuntimeException {
 
     private final int status;

@@ -19,11 +19,8 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-/**
- * Adaptador de entrada HTTP basado en el servidor que trae el JDK. Traduce
- * requests a casos de uso y sus resultados a JSON; no conoce ninguna regla del
- * juego.
- */
+// Adaptador HTTP con el servidor que ya viene en el JDK. Traduce requests a
+// casos de uso y los resultados a JSON; no conoce las reglas del juego.
 public class HttpGameServer {
 
     private final ChessGameUseCases useCases;
@@ -38,11 +35,8 @@ public class HttpGameServer {
         this.port = port;
     }
 
-    /**
-     * Arranca el servidor.
-     *
-     * @return el puerto real, útil cuando se pide el puerto 0 en los tests.
-     */
+    // Levanta el servidor y devuelve el puerto real. Nos sirve en los tests
+    // cuando pedimos el puerto 0.
     public int start() throws IOException {
         server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/api", this::handle);

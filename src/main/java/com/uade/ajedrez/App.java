@@ -13,16 +13,12 @@ import com.uade.ajedrez.infrastructure.adapter.out.persistence.FileGameRepositor
 import java.io.IOException;
 import java.nio.file.Path;
 
-/**
- * Punto de composición: único lugar que conecta los adaptadores concretos con
- * la aplicación. El adaptador de entrada se elige por argumento:
- *
- * <pre>
- * java -cp bin com.uade.ajedrez.App               # consola
- * java -cp bin com.uade.ajedrez.App --web         # HTTP en el puerto 8080
- * java -cp bin com.uade.ajedrez.App --web --port 9090
- * </pre>
- */
+// Arranca la app. Es el único lugar donde se eligen los adaptadores concretos.
+// Por defecto abre la consola; con --web levanta el servidor HTTP.
+//
+//   java -cp bin com.uade.ajedrez.App
+//   java -cp bin com.uade.ajedrez.App --web
+//   java -cp bin com.uade.ajedrez.App --web --port 9090
 public class App {
 
     private static final int DEFAULT_PORT = 8080;

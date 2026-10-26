@@ -14,10 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-/**
- * Serializador basado en Properties. Es un detalle de infraestructura: el
- * dominio no sabe que las partidas se guardan como archivos de texto.
- */
+// Serializa con Properties. Es un detalle de infraestructura: el dominio ni
+// se enteró de que las partidas terminan en archivos de texto.
 public final class GameSerializer {
 
     private static final String FORMAT_VERSION = "3";

@@ -17,10 +17,8 @@ function messageOf(error: unknown): string {
   return error instanceof ApiError ? error.message : "Error inesperado";
 }
 
-/**
- * Estado de una partida: carga inicial, sincronización y acciones. Toda la
- * validación vive en el backend; acá solo se maneja la selección visual.
- */
+// Estado de una partida: carga inicial, sincronización y acciones. Toda la
+// validación está en el backend; acá solo se maneja la selección visual.
 export function useGame(gameId: string) {
   const [game, setGame] = useState<GameView | null>(null);
   const [loading, setLoading] = useState(true);
@@ -68,7 +66,7 @@ export function useGame(gameId: string) {
         .getGame(gameId)
         .then(setGame)
         .catch(() => {
-          // Un fallo de polling no debe interrumpir la partida en curso.
+          // Si falla el polling, no cortamos la partida.
         });
     }, POLL_INTERVAL_MS);
 

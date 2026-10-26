@@ -19,9 +19,7 @@ public class Turn {
         this.turnNumber = 1;
     }
 
-    /**
-     * Reconstruye el turno a partir del estado persistido.
-     */
+    // Recupera el turno del archivo guardado.
     public static Turn restore(Player player1, Player player2, int currentIndex, int turnNumber) {
         if (currentIndex < 0 || currentIndex > 1) {
             throw new IllegalArgumentException("Current player index must be 0 or 1");

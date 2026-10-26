@@ -3,11 +3,9 @@
 const COOKIE_NAME = "chess-theme";
 const ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365;
 
-/**
- * Alterna entre tema oscuro y claro escribiendo `data-theme` en <html> y
- * guardando la preferencia en una cookie. El layout la lee en el servidor,
- * así que el próximo render ya sale con el tema correcto.
- */
+// Cambia entre claro y oscuro tocando data-theme en <html> y guardando la
+// preferencia en una cookie. El layout la lee en el servidor, así que el
+// próximo render ya sale con el tema bien.
 export function ThemeToggle() {
   function toggleTheme() {
     const root = document.documentElement;

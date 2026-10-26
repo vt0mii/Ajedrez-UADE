@@ -22,10 +22,8 @@ public class Board {
         }
     }
 
-    /**
-     * Crea un tablero vacío. Útil para cargar una posición guardada o para
-     * tests que arman un escenario específico.
-     */
+    // Tablero sin piezas. Sirve para cargar una partida guardada o para armar
+    // una posición a mano en los tests.
     public static Board empty() {
         return new Board(false);
     }
@@ -59,10 +57,8 @@ public class Board {
         return getSquare(position).getPiece();
     }
 
-    /**
-     * Copia la posición actual. Las piezas son inmutables, así que compartir las
-     * referencias es seguro y hace barata la simulación de movimientos.
-     */
+    // Copia el tablero. Las piezas no cambian, así que se comparten las mismas
+    // referencias; por eso simular movimientos sale barato.
     public Board copy() {
         Board copy = Board.empty();
         for (int row = 0; row < SIZE; row++) {

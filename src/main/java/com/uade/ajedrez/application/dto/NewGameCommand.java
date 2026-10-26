@@ -1,8 +1,5 @@
 package com.uade.ajedrez.application.dto;
 
-/**
- * Comando para iniciar una partida. Los nombres de los jugadores los provee la
- * interfaz de usuario.
- */
+// Datos para arrancar una partida. Los nombres los pone la interfaz.
 public record NewGameCommand(String whitePlayerName, String blackPlayerName) {
 }

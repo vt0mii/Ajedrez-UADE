@@ -1,9 +1,7 @@
 package com.uade.ajedrez.application.port.in;
 
-/**
- * Agrupación de los casos de uso para que los adaptadores de entrada dependan
- * de un solo objeto, sin perder las interfaces individuales.
- */
+// Todos los casos de uso juntos. Los adaptadores dependen de esta interfaz
+// y no tienen que inyectarse cinco objetos.
 public interface ChessGameUseCases extends CreateGameUseCase, GetGameUseCase,
         MakeMoveUseCase, LegalMovesUseCase, AbandonGameUseCase {
 }

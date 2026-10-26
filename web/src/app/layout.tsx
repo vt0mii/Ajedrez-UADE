@@ -27,8 +27,8 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  // El tema se guarda en una cookie para que el HTML ya salga con el correcto
-  // y no haya flash al cargar. Sin cookie, arranca en oscuro.
+  // Guardamos el tema en una cookie así el HTML ya sale bien
+  // y no hay flash al cargar. Sin cookie, arranca en oscuro.
   const storedTheme = (await cookies()).get("chess-theme")?.value;
   const theme = storedTheme === "light" ? "light" : "dark";
 
