@@ -5,7 +5,6 @@ import com.uade.ajedrez.application.dto.GameView.MoveView;
 import com.uade.ajedrez.application.dto.GameView.PieceView;
 import com.uade.ajedrez.domain.model.Board;
 import com.uade.ajedrez.domain.model.Color;
-import com.uade.ajedrez.domain.model.PieceType;
 
 import java.io.PrintStream;
 
