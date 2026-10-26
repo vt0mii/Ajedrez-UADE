@@ -5,6 +5,7 @@ import com.uade.ajedrez.domain.command.MoveCommandTest;
 import com.uade.ajedrez.domain.model.BoardTest;
 import com.uade.ajedrez.domain.model.ChessGameTest;
 import com.uade.ajedrez.domain.service.MovementServiceTest;
+import com.uade.ajedrez.infrastructure.adapter.in.http.HttpGameServerTest;
 import com.uade.ajedrez.infrastructure.adapter.out.persistence.GameSerializerTest;
 
 public class AllTests {
@@ -29,6 +30,9 @@ public class AllTests {
             System.out.println();
 
             GameSerializerTest.main(args);
+            System.out.println();
+
+            HttpGameServerTest.main(args);
             System.out.println();
 
             ErrorHandlingTest.main(args);
