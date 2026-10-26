@@ -28,7 +28,7 @@ No conoce consola, archivos, HTTP ni frameworks.
 
 - `model`: `ChessGame` (agregado raíz), `Board`, `Piece`, `Position`, `Move`, `Turn`, `Player`, `GameId`, `GameState`, `MoveResult`.
 - `strategy`: una estrategia de movimiento por tipo de pieza (`StratPawn`, `StratKnight`, ...).
-- `service`: `MovementService` valida movimientos, jaque, jaque mate y ahogado.
+- `service`: `MovementService` valida movimientos, jaque y jaque mate.
 - `command`: `ICommand` / `MoveCommand` con ejecución y deshacer a nivel de tablero.
 - `port/out`: `GameLogger`, el contrato de logging que implementa la infraestructura.
 - `exception`: `InvalidMoveInputException`, `GamePersistenceException`.
@@ -46,19 +46,21 @@ Orquesta casos de uso y traduce entre el dominio y el exterior.
 ### Infraestructura (`infrastructure`)
 
 - `adapter/in/console`: `ConsoleView` traduce texto a comandos y `ConsoleRenderer` dibuja el `GameView`. El loop de juego vive acá, no en el dominio.
+- `adapter/in/http`: `HttpGameServer` expone los casos de uso como API JSON usando el servidor que trae el JDK (sin frameworks); `GameViewJson` y `JsonBody` resuelven el contrato. Se arranca con `--web`.
 - `adapter/out/persistence`: `FileGameRepository` (archivos `.properties` en `games/`), `InMemoryGameRepository` (tests/demos) y `GameSerializer`.
 - `adapter/out/JavaGameLogger`: implementación de `GameLogger` con `java.util.logging`.
 
 ### Composición (`App`)
 
-Único lugar que conoce las implementaciones concretas. Para agregar el adaptador web en la próxima fase solo se modifica esta clase.
+Único lugar que conoce las implementaciones concretas. El adaptador de entrada se elige por argumento (`--web` o consola); agregar otro adaptador solo requiere tocar esta clase.
 
 ## Funcionalidades actuales
 
 - Tablero con disposición inicial y validación mediante estrategias por pieza.
-- Alternancia de turnos, detección de jaque, jaque mate y **ahogado (tablas)**.
+- Alternancia de turnos, detección de jaque y jaque mate.
 - Historial de movimientos y consulta de **movimientos legales por casilla** (pensado para el frontend).
 - Interfaz de consola con nombres de jugadores, comando `legal <casilla>`, `help` y `quit`.
+- Frontend web en `web/` (Next.js + Tailwind): tablero, historial, jaque, jaque mate, abandono, tema claro/oscuro y sincronización cada 2 segundos.
 - Persistencia de partidas por id en `games/`, con restauración de turno, estado e historial.
 - Ids de partida validados (`[A-Za-z0-9_-]{1,64}`), lo que evita path traversal al cargar archivos.
 - Manejo de entradas incorrectas, EOF y errores de persistencia.
@@ -95,6 +97,7 @@ java -ea -cp bin com.uade.ajedrez.domain.model.ChessGameTest
 java -ea -cp bin com.uade.ajedrez.domain.command.MoveCommandTest
 java -ea -cp bin com.uade.ajedrez.application.service.ChessGameServiceTest
 java -ea -cp bin com.uade.ajedrez.infrastructure.adapter.out.persistence.GameSerializerTest
+java -ea -cp bin com.uade.ajedrez.infrastructure.adapter.in.http.HttpGameServerTest
 java -ea -cp bin com.uade.ajedrez.ErrorHandlingTest
 ```
 
@@ -110,6 +113,24 @@ java -cp bin com.uade.ajedrez.App
 
 Al iniciar se piden los nombres de los jugadores (Enter usa `White` y `Black`). Luego se ingresa origen y destino separados por espacios, por ejemplo `e2 e4`.
 
+### Modo web
+
+```powershell
+java -cp bin com.uade.ajedrez.App --web              # http://localhost:8080
+java -cp bin com.uade.ajedrez.App --web --port 9090  # otro puerto
+```
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| `GET` | `/api/health` | Estado del servidor |
+| `POST` | `/api/games` | Crea una partida (`whitePlayerName`, `blackPlayerName`) |
+| `GET` | `/api/games/{id}` | Devuelve el `GameView` actual |
+| `POST` | `/api/games/{id}/moves` | Mueve una pieza (`from`, `to`) |
+| `GET` | `/api/games/{id}/legal-moves?from=e2` | Destinos legales desde una casilla |
+| `POST` | `/api/games/{id}/abandon` | Abandona la partida |
+
+Los errores devuelven `{ "error": "CODIGO", "message": "..." }`: `400` para entradas inválidas, `404` si la partida no existe y `409` si el movimiento viola las reglas. El diseño del frontend está en [`docs/DISENO-FRONT.md`](docs/DISENO-FRONT.md).
+
 Comandos disponibles:
 
 - `e2 e4`: realizar un movimiento.
@@ -118,6 +139,8 @@ Comandos disponibles:
 - `quit`: abandonar la partida.
 
 Cada partida se guarda automáticamente en `games/<id>.properties` después de cada movimiento.
+
+El frontend se levanta aparte: `cd web`, `npm install` y `npm run dev` (instrucciones completas en [`web/README.md`](web/README.md)).
 
 En IntelliJ IDEA, abrir la carpeta del proyecto, seleccionar **JDK 17** como Project SDK y ejecutar el `main` de `com.uade.ajedrez.App`.
 
@@ -133,7 +156,6 @@ En IntelliJ IDEA, abrir la carpeta del proyecto, seleccionar **JDK 17** como Pro
 
 ## Próximos pasos
 
-1. **Adaptador web** (`adapter/in/web`): servidor HTTP, JSON y endpoints `/api/games`, `/api/games/{id}`, `/api/games/{id}/moves` y `/api/games/{id}/legal-moves`. El `GameView` ya contiene todo lo que el frontend necesita.
-2. Integrar `MoveCommand` en `ChessGame` para exponer deshacer desde los casos de uso.
-3. Reglas restantes: enroque, promoción, captura al paso y tablas por repetición/50 movimientos.
-4. Migrar los tests a JUnit 5 y agregar un build reproducible (Maven o Gradle) cuando el equipo lo decida.
+1. Integrar `MoveCommand` en `ChessGame` para exponer deshacer desde los casos de uso.
+2. Reglas restantes: enroque, promoción, captura al paso y tablas por repetición/50 movimientos.
+3. Migrar los tests a JUnit 5 y agregar un build reproducible (Maven o Gradle) cuando el equipo lo decida.
