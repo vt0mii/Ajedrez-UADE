@@ -100,18 +100,13 @@ export function GameScreen({ gameId }: { gameId: string }) {
 
   return (
     <main className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-6 sm:px-6 lg:py-8">
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-        <div className="min-w-0">
-          <Link
-            href="/"
-            className="text-xs text-ink-400 transition-colors hover:text-ink-100"
-          >
-            ← Volver al inicio
-          </Link>
-          <h1 className="mt-1 truncate font-mono text-xs text-ink-400 sm:text-sm">
-            {game.id}
-          </h1>
-        </div>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <Link
+          href="/"
+          className="text-xs text-ink-400 transition-colors hover:text-ink-100"
+        >
+          ← Volver al inicio
+        </Link>
         <p className="text-[11px] text-ink-400">Sincronizado cada 2 s</p>
       </div>
 

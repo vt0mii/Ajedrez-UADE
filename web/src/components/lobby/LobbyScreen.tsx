@@ -119,7 +119,7 @@ export function LobbyScreen() {
             Retomar partida
           </h2>
           <p className="mt-1 text-xs text-ink-400">
-            Pegá el id que aparece en la URL o en el historial.
+            Pegá el id que aparece en la URL o en el panel de la partida.
           </p>
 
           <div className="mt-5 flex-1 space-y-4">

@@ -85,6 +85,9 @@ Si el backend rechaza la jugada, se muestra el mensaje en un toast.
 - Botón ☾/☀ de la cabecera: alternar entre tema oscuro y claro. La preferencia
   se guarda en una cookie y se mantiene al recargar.
 
+El ID de la partida aparece en el panel derecho, junto al botón para copiar el
+enlace.
+
 ## Sincronización
 
 El estado se refresca cada 2 segundos mientras la pestaña está visible. Alcanza

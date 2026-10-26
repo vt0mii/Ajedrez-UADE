@@ -69,12 +69,27 @@ export function GameStatus({
         ) : null}
       </div>
 
+      <div className="border-t border-ink-800 pt-4">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-[11px] font-medium tracking-[0.12em] text-ink-400 uppercase">
+            ID de partida
+          </p>
+          <button
+            type="button"
+            onClick={onCopyLink}
+            className="text-[11px] font-medium text-gold-300 transition-colors hover:text-gold-400"
+          >
+            Copiar enlace
+          </button>
+        </div>
+        <code className="mt-1.5 block font-mono text-[11px] leading-relaxed break-all text-ink-300">
+          {game.id}
+        </code>
+      </div>
+
       <div className="space-y-2 border-t border-ink-800 pt-4">
         <Button variant="ghost" className="w-full" onClick={onFlip}>
           Girar tablero
-        </Button>
-        <Button variant="ghost" className="w-full" onClick={onCopyLink}>
-          Copiar enlace
         </Button>
 
         {!finished && !confirming ? (
