@@ -99,6 +99,15 @@ public class ChessGameService implements ChessGameUseCases {
         return GameViewMapper.toView(game);
     }
 
+    @Override
+    public ReplaySession startReplay(String gameId) {
+        ChessGame game = findGame(gameId);
+        if (!game.isFinished()) {
+            throw new InvalidCommandException("Replay requires CHECKMATE or ABANDONED");
+        }
+        return new ReplaySession(game.startReplay());
+    }
+
     private ChessGame findGame(String gameId) {
         GameId id = parseGameId(gameId);
         return repository.findById(id)

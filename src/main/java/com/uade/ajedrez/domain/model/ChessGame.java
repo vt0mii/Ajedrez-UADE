@@ -1,6 +1,7 @@
 package com.uade.ajedrez.domain.model;
 
 import com.uade.ajedrez.domain.service.MovementService;
+import com.uade.ajedrez.domain.command.MoveCommand;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,7 +66,7 @@ public class ChessGame {
             return validation;
         }
 
-        board.movePiece(move);
+        new MoveCommand(board, move).execute();
         history.add(move);
         turn.nextTurn();
         updateState();
@@ -77,6 +78,13 @@ public class ChessGame {
         if (!state.isFinished()) {
             state = GameState.ABANDONED;
         }
+    }
+
+    public ChessReplay startReplay() {
+        if (!state.isFinished()) {
+            throw new IllegalStateException("Replay requires a finished game");
+        }
+        return new ChessReplay(this, movementService);
     }
 
     /**

@@ -5,5 +5,5 @@ package com.uade.ajedrez.application.port.in;
  * de un solo objeto, sin perder las interfaces individuales.
  */
 public interface ChessGameUseCases extends CreateGameUseCase, GetGameUseCase,
-        MakeMoveUseCase, LegalMovesUseCase, AbandonGameUseCase {
+        MakeMoveUseCase, LegalMovesUseCase, AbandonGameUseCase, ReplayGameUseCase {
 }

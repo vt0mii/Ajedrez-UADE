@@ -3,6 +3,8 @@ package com.uade.ajedrez.infrastructure.adapter.in.console;
 import com.uade.ajedrez.application.dto.GameView;
 import com.uade.ajedrez.application.dto.MoveCommand;
 import com.uade.ajedrez.application.dto.NewGameCommand;
+import com.uade.ajedrez.application.dto.ReplayView;
+import com.uade.ajedrez.application.service.ReplaySession;
 import com.uade.ajedrez.application.exception.GameNotFoundException;
 import com.uade.ajedrez.application.exception.InvalidCommandException;
 import com.uade.ajedrez.application.exception.MoveRejectedException;
@@ -46,7 +48,11 @@ public class ConsoleView {
     }
 
     public void start() {
-        String whiteName = ask("White player name (Enter for 'White'): ", "White");
+        String whiteName = ask("White player name (Enter for 'White'), or 'replay <id>': ", "White");
+        while (whiteName != null && whiteName.toLowerCase().startsWith("replay ")) {
+            showReplay(whiteName.substring("replay ".length()).trim());
+            whiteName = ask("White player name (Enter for 'White'), or 'replay <id>': ", "White");
+        }
         if (whiteName == null) {
             stopOnInputClosed();
             return;
@@ -71,6 +77,7 @@ public class ConsoleView {
             renderer.render(game);
             if (game.status().isFinished()) {
                 logger.info("Game ended: " + game.status());
+                finishedGameMenu(game.id());
                 return;
             }
 
@@ -90,7 +97,7 @@ public class ConsoleView {
                 continue;
             }
             if (line.equalsIgnoreCase("help")) {
-                renderer.show("Commands: 'e2 e4' to move, 'legal e2' to list moves, 'quit' to abandon.");
+                renderer.show("Commands: 'e2 e4' to move, 'legal e2' to list moves, 'quit' to abandon. Replay is available after the game ends.");
                 continue;
             }
             if (line.toLowerCase().startsWith("legal ")) {
@@ -117,6 +124,61 @@ public class ConsoleView {
                 renderer.show("Error: " + e.getMessage());
                 return;
             }
+        }
+    }
+
+    private void finishedGameMenu(String gameId) {
+        while (true) {
+            renderer.show("Enter 'replay' for this game, 'replay <id>' for a saved game, or 'exit':");
+            String line = readLine();
+            if (line == null || line.trim().equalsIgnoreCase("exit")
+                    || line.trim().equalsIgnoreCase("quit")) {
+                return;
+            }
+            line = line.trim();
+            if (line.equalsIgnoreCase("replay")) {
+                showReplay(gameId);
+            } else if (line.toLowerCase().startsWith("replay ")) {
+                showReplay(line.substring("replay ".length()).trim());
+            } else {
+                renderer.show("Use 'replay', 'replay <id>' or 'exit'.");
+            }
+        }
+    }
+
+    private void showReplay(String gameId) {
+        try {
+            ReplaySession session = useCases.startReplay(gameId);
+            ReplayView replay = session.current();
+            while (true) {
+                renderer.show("Replay " + gameId + " - move " + replay.position() + "/"
+                        + replay.totalMoves() + " - Result: " + replay.result());
+                renderer.render(replay.game());
+                renderer.show("Replay controls: 'next', 'prev', 'exit':");
+                String line = readLine();
+                if (line == null || line.trim().equalsIgnoreCase("exit")) {
+                    return;
+                }
+                switch (line.trim().toLowerCase()) {
+                    case "next":
+                        if (replay.position() == replay.totalMoves()) {
+                            renderer.show("End of replay.");
+                        }
+                        replay = session.next();
+                        break;
+                    case "prev":
+                        if (replay.position() == 0) {
+                            renderer.show("Start of replay.");
+                        }
+                        replay = session.previous();
+                        break;
+                    default:
+                        renderer.show("Use 'next', 'prev' or 'exit'.");
+                        break;
+                }
+            }
+        } catch (InvalidCommandException | GameNotFoundException | IllegalStateException e) {
+            renderer.show("Could not replay game: " + e.getMessage());
         }
     }
 

@@ -29,7 +29,8 @@ No conoce consola, archivos, HTTP ni frameworks.
 - `model`: `ChessGame` (agregado raíz), `Board`, `Piece`, `Position`, `Move`, `Turn`, `Player`, `GameId`, `GameState`, `MoveResult`.
 - `strategy`: una estrategia de movimiento por tipo de pieza (`StratPawn`, `StratKnight`, ...).
 - `service`: `MovementService` valida movimientos, jaque, jaque mate y ahogado.
-- `command`: `ICommand` / `MoveCommand` con ejecución y deshacer a nivel de tablero.
+- `command`: `ICommand` / `MoveCommand` con ejecución y deshacer a nivel de tablero, integrado en las jugadas y el replay.
+- `model/ChessReplay`: reproducción independiente desde el tablero inicial estándar, con avance y retroceso.
 - `port/out`: `GameLogger`, el contrato de logging que implementa la infraestructura.
 - `exception`: `InvalidMoveInputException`, `GamePersistenceException`.
 
@@ -62,7 +63,7 @@ Orquesta casos de uso y traduce entre el dominio y el exterior.
 - Persistencia de partidas por id en `games/`, con restauración de turno, estado e historial.
 - Ids de partida validados (`[A-Za-z0-9_-]{1,64}`), lo que evita path traversal al cargar archivos.
 - Manejo de entradas incorrectas, EOF y errores de persistencia.
-- Comando de movimiento con ejecución y deshacer a nivel de tablero; su integración en el flujo de la partida queda pendiente.
+- Replay de partidas finalizadas por `CHECKMATE` o `ABANDONED`, tanto recién terminadas como guardadas, con avance y retroceso sin modificar la partida ni los archivos.
 
 ## Requisitos
 
@@ -94,6 +95,7 @@ java -ea -cp bin com.uade.ajedrez.domain.service.MovementServiceTest
 java -ea -cp bin com.uade.ajedrez.domain.model.ChessGameTest
 java -ea -cp bin com.uade.ajedrez.domain.command.MoveCommandTest
 java -ea -cp bin com.uade.ajedrez.application.service.ChessGameServiceTest
+java -ea -cp bin com.uade.ajedrez.application.service.ReplayTest
 java -ea -cp bin com.uade.ajedrez.infrastructure.adapter.out.persistence.GameSerializerTest
 java -ea -cp bin com.uade.ajedrez.ErrorHandlingTest
 ```
@@ -119,6 +121,16 @@ Comandos disponibles:
 
 Cada partida se guarda automáticamente en `games/<id>.properties` después de cada movimiento.
 
+### Replay
+
+Al finalizar una partida, ingresar `replay` para reproducirla o `replay <id>` para reproducir otra partida guardada. `exit` cierra el programa desde ese menú. También se puede ingresar `replay <id>` en el primer pedido de nombre de jugador, sin crear una partida nueva. Al salir de esa reproducción se vuelve al pedido de nombre.
+
+La reproducción siempre muestra primero el tablero inicial estándar. Los controles son `next` (avanzar una jugada), `prev` (retroceder una jugada) y `exit` (salir del replay). Al llegar a los extremos se mantiene la posición. Una partida abandonada sin movimientos también puede reproducirse.
+
+Solo se admiten partidas en `CHECKMATE` o `ABANDONED`; `IN_PROGRESS` y `CHECK` se rechazan. Se muestra el resultado original separado del estado de la posición que se está viendo: el abandono no agrega un movimiento al historial.
+
+El replay reconstruye comandos desde el historial de coordenadas existente sobre un tablero independiente. No guarda cambios, no altera la partida original y no modifica el formato de persistencia. Cada sesión tiene su propia navegación. No se agregan reglas de tablas, promoción, enroque ni captura al paso.
+
 En IntelliJ IDEA, abrir la carpeta del proyecto, seleccionar **JDK 17** como Project SDK y ejecutar el `main` de `com.uade.ajedrez.App`.
 
 ## Excepciones y logging
@@ -134,6 +146,6 @@ En IntelliJ IDEA, abrir la carpeta del proyecto, seleccionar **JDK 17** como Pro
 ## Próximos pasos
 
 1. **Adaptador web** (`adapter/in/web`): servidor HTTP, JSON y endpoints `/api/games`, `/api/games/{id}`, `/api/games/{id}/moves` y `/api/games/{id}/legal-moves`. El `GameView` ya contiene todo lo que el frontend necesita.
-2. Integrar `MoveCommand` en `ChessGame` para exponer deshacer desde los casos de uso.
+2. Exponer deshacer jugadas durante la partida activa (actualmente el retroceso se ofrece solo dentro del replay).
 3. Reglas restantes: enroque, promoción, captura al paso y tablas por repetición/50 movimientos.
 4. Migrar los tests a JUnit 5 y agregar un build reproducible (Maven o Gradle) cuando el equipo lo decida.

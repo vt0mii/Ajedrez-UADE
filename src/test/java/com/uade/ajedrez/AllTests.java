@@ -1,6 +1,7 @@
 package com.uade.ajedrez;
 
 import com.uade.ajedrez.application.service.ChessGameServiceTest;
+import com.uade.ajedrez.application.service.ReplayTest;
 import com.uade.ajedrez.domain.command.MoveCommandTest;
 import com.uade.ajedrez.domain.model.BoardTest;
 import com.uade.ajedrez.domain.model.ChessGameTest;
@@ -26,6 +27,7 @@ public class AllTests {
             System.out.println();
 
             ChessGameServiceTest.main(args);
+            ReplayTest.main(args);
             System.out.println();
 
             GameSerializerTest.main(args);
