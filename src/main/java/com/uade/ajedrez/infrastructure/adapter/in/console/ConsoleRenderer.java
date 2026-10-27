@@ -5,13 +5,10 @@ import com.uade.ajedrez.application.dto.GameView.MoveView;
 import com.uade.ajedrez.application.dto.GameView.PieceView;
 import com.uade.ajedrez.domain.model.Board;
 import com.uade.ajedrez.domain.model.Color;
-import com.uade.ajedrez.domain.model.PieceType;
 
 import java.io.PrintStream;
 
-/**
- * Solo presentación: dibuja el modelo de lectura, sin reglas del juego.
- */
+// Solo dibuja el GameView. No decide nada del juego.
 public class ConsoleRenderer {
 
     private final PrintStream out;

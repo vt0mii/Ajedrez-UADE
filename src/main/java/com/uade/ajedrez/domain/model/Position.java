@@ -19,10 +19,8 @@ public class Position {
         return column;
     }
 
-    /**
-     * Convierte esta posición a notación algebraica, por ejemplo fila 6 /
-     * columna 4 -> "e2". La fila 0 es el rango 8 y la fila 7 el rango 1.
-     */
+    // Pasa la posición a notación de ajedrez: fila 6 / columna 4 es "e2".
+    // La fila 0 es el rango 8 y la fila 7 el rango 1.
     public String toAlgebraic() {
         char file = (char) ('a' + column);
         int rank = Board.SIZE - row;

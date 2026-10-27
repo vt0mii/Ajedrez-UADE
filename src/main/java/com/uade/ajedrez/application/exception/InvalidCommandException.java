@@ -1,10 +1,7 @@
 package com.uade.ajedrez.application.exception;
 
-/**
- * Se lanza cuando la entrada no se puede interpretar (id de partida inválido,
- * coordenadas incorrectas, nombres vacíos, etc.). Se separa de las violaciones
- * de reglas a propósito.
- */
+// Entrada que no se puede interpretar: id inválido, coordenada mal escrita,
+// nombre vacío, etc. Es distinto de una jugada que rompe las reglas.
 public class InvalidCommandException extends RuntimeException {
     public InvalidCommandException(String message) {
         super(message);

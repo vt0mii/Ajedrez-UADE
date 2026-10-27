@@ -15,10 +15,8 @@ import com.uade.ajedrez.domain.service.MovementService;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Servicio de aplicación: orquesta el dominio y los puertos de salida. No
- * contiene detalles de presentación ni de persistencia.
- */
+// Caso de uso principal: coordina el dominio con el repositorio y el logger.
+// No sabe nada de consola, HTTP ni archivos.
 public class ChessGameService implements ChessGameUseCases {
 
     private static final int MAX_PLAYER_NAME_LENGTH = 40;

@@ -78,11 +78,8 @@ public class MovementService {
         return copy;
     }
 
-    /**
-     * Usa la validación completa (incluye el filtro de jaque). Si no, un
-     * movimiento pseudo-legal que no resuelve el jaque podría ocultar un mate
-     * real.
-     */
+    // Usa la validación completa, que incluye el filtro de jaque. Si no, una
+    // jugada pseudo-legal podría tapar un mate.
     private boolean hasAnyLegalMove(Board board, Color playerColor) {
         for (int row = 0; row < Board.SIZE; row++) {
             for (int column = 0; column < Board.SIZE; column++) {

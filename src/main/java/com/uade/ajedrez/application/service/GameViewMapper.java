@@ -9,10 +9,8 @@ import com.uade.ajedrez.domain.model.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Convierte el agregado de dominio en el modelo de lectura que consumen los
- * adaptadores de entrada.
- */
+// Pasa del objeto de dominio (ChessGame) al GameView que consumen los
+// adaptadores. Es solo traducción, no toma decisiones.
 public final class GameViewMapper {
 
     private GameViewMapper() {
@@ -60,7 +58,7 @@ public final class GameViewMapper {
         if (game.getState() != GameState.CHECKMATE) {
             return null;
         }
-        // El jugador que tiene el turno es el que recibió el jaque mate.
+        // El que tiene el turno es el que quedó en jaque mate.
         return game.getCurrentTurn() == Color.WHITE ? Color.BLACK : Color.WHITE;
     }
 }

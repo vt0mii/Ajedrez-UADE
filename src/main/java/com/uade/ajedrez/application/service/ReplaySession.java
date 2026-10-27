@@ -3,7 +3,7 @@ package com.uade.ajedrez.application.service;
 import com.uade.ajedrez.application.dto.ReplayView;
 import com.uade.ajedrez.domain.model.ChessReplay;
 
-/** Sesion transitoria sin acceso al repositorio. */
+// Sesión de replay en memoria. No toca el repositorio ni la partida guardada.
 public final class ReplaySession {
     private final ChessReplay replay;
 

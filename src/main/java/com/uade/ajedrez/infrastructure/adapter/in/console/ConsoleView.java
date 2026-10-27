@@ -15,11 +15,8 @@ import com.uade.ajedrez.domain.port.out.GameLogger;
 import java.util.List;
 import java.util.Scanner;
 
-/**
- * Adaptador de entrada. Traduce el texto de la consola a llamadas de casos de
- * uso y muestra los modelos de lectura resultantes. El bucle del juego vive
- * acá, no en el dominio.
- */
+// Adaptador de consola: lee texto, llama a los casos de uso y muestra el
+// resultado. El loop del juego está acá, no en el dominio.
 public class ConsoleView {
 
     private final ChessGameUseCases useCases;
@@ -218,9 +215,7 @@ public class ConsoleView {
         return answer.isEmpty() ? defaultValue : answer;
     }
 
-    /**
-     * @return la siguiente línea, o null si la entrada se cerró (EOF).
-     */
+    // Devuelve la próxima línea o null si se cerró la entrada (EOF).
     private String readLine() {
         if (!scanner.hasNextLine()) {
             return null;

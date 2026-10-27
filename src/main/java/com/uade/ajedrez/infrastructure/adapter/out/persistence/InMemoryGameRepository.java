@@ -8,9 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Adaptador en memoria. Útil para tests, demos o cuando no se quiere persistir.
- */
+// Repositorio en memoria. Va bien para tests, demos o para no persistir nada.
 public class InMemoryGameRepository implements GameRepositoryPort {
 
     private final Map<String, ChessGame> games = new ConcurrentHashMap<>();

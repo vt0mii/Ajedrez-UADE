@@ -4,13 +4,8 @@ import com.uade.ajedrez.application.dto.GameView;
 import com.uade.ajedrez.application.dto.MoveCommand;
 
 public interface MakeMoveUseCase {
-    /**
-     * Aplica un movimiento y devuelve el nuevo estado de la partida.
-     *
-     * @throws com.uade.ajedrez.application.exception.MoveRejectedException
-     *         cuando el movimiento no es legal
-     * @throws com.uade.ajedrez.application.exception.GameNotFoundException
-     *         cuando la partida no existe
-     */
+    // Aplica una jugada y devuelve cómo quedó la partida.
+    // Tira MoveRejectedException si la jugada no es legal y GameNotFoundException
+    // si el id no existe.
     GameView makeMove(String gameId, MoveCommand command);
 }

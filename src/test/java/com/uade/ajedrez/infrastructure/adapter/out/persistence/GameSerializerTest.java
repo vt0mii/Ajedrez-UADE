@@ -39,7 +39,7 @@ public class GameSerializerTest {
             GameView created = firstService.createGame(new NewGameCommand("Tomi", "Juan"));
             firstService.makeMove(created.id(), new MoveCommand("e2", "e4"));
 
-            // Una raíz de composición nueva carga la partida desde el disco.
+            // Otra instancia del servicio lee la partida del disco.
             FileGameRepository secondRepository = new FileGameRepository(directory, movementService);
             ChessGameService secondService = new ChessGameService(secondRepository, movementService);
             GameView loaded = secondService.getGame(created.id());
@@ -53,7 +53,7 @@ public class GameSerializerTest {
             assert loaded.board()[4][4] != null : "El peon deberia estar en E4";
             assert loaded.board()[6][4] == null : "E2 deberia estar vacio";
 
-            // La partida cargada debe poder seguir jugándose (regresión:
+            // Y tiene que poder seguir jugándose (regresión:
             // movementService era null).
             GameView continued = secondService.makeMove(created.id(), new MoveCommand("e7", "e5"));
             assert continued.turn() == Color.WHITE : "El turno deberia volver a blancas";

@@ -47,19 +47,21 @@ Orquesta casos de uso y traduce entre el dominio y el exterior.
 ### Infraestructura (`infrastructure`)
 
 - `adapter/in/console`: `ConsoleView` traduce texto a comandos y `ConsoleRenderer` dibuja el `GameView`. El loop de juego vive acá, no en el dominio.
+- `adapter/in/http`: `HttpGameServer` expone los casos de uso como API JSON usando el servidor que trae el JDK (sin frameworks); `GameViewJson` y `JsonBody` resuelven el contrato. Se arranca con `--web`.
 - `adapter/out/persistence`: `FileGameRepository` (archivos `.properties` en `games/`), `InMemoryGameRepository` (tests/demos) y `GameSerializer`.
 - `adapter/out/JavaGameLogger`: implementación de `GameLogger` con `java.util.logging`.
 
 ### Composición (`App`)
 
-Único lugar que conoce las implementaciones concretas. Para agregar el adaptador web en la próxima fase solo se modifica esta clase.
+Único lugar que conoce las implementaciones concretas. El adaptador de entrada se elige por argumento (`--web` o consola); agregar otro adaptador solo requiere tocar esta clase.
 
 ## Funcionalidades actuales
 
 - Tablero con disposición inicial y validación mediante estrategias por pieza.
-- Alternancia de turnos, detección de jaque, jaque mate y **ahogado (tablas)**.
+- Alternancia de turnos, detección de jaque y jaque mate.
 - Historial de movimientos y consulta de **movimientos legales por casilla** (pensado para el frontend).
 - Interfaz de consola con nombres de jugadores, comando `legal <casilla>`, `help` y `quit`.
+- Frontend web en `web/` (Next.js + Tailwind): tablero, historial, jaque, jaque mate, abandono, tema claro/oscuro y sincronización cada 2 segundos.
 - Persistencia de partidas por id en `games/`, con restauración de turno, estado e historial.
 - Ids de partida validados (`[A-Za-z0-9_-]{1,64}`), lo que evita path traversal al cargar archivos.
 - Manejo de entradas incorrectas, EOF y errores de persistencia.
@@ -97,6 +99,7 @@ java -ea -cp bin com.uade.ajedrez.domain.command.MoveCommandTest
 java -ea -cp bin com.uade.ajedrez.application.service.ChessGameServiceTest
 java -ea -cp bin com.uade.ajedrez.application.service.ReplayTest
 java -ea -cp bin com.uade.ajedrez.infrastructure.adapter.out.persistence.GameSerializerTest
+java -ea -cp bin com.uade.ajedrez.infrastructure.adapter.in.http.HttpGameServerTest
 java -ea -cp bin com.uade.ajedrez.ErrorHandlingTest
 ```
 
@@ -119,6 +122,24 @@ Comandos disponibles:
 - `help`: mostrar la ayuda.
 - `quit`: abandonar la partida.
 
+### Modo web
+
+```powershell
+java -cp bin com.uade.ajedrez.App --web              # http://localhost:8080
+java -cp bin com.uade.ajedrez.App --web --port 9090  # otro puerto
+```
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| `GET` | `/api/health` | Estado del servidor |
+| `POST` | `/api/games` | Crea una partida (`whitePlayerName`, `blackPlayerName`) |
+| `GET` | `/api/games/{id}` | Devuelve el `GameView` actual |
+| `POST` | `/api/games/{id}/moves` | Mueve una pieza (`from`, `to`) |
+| `GET` | `/api/games/{id}/legal-moves?from=e2` | Destinos legales desde una casilla |
+| `POST` | `/api/games/{id}/abandon` | Abandona la partida |
+
+Los errores devuelven `{ "error": "CODIGO", "message": "..." }`: `400` para entradas inválidas, `404` si la partida no existe y `409` si el movimiento viola las reglas. El diseño del frontend está en [`docs/DISENO-FRONT.md`](docs/DISENO-FRONT.md).
+
 Cada partida se guarda automáticamente en `games/<id>.properties` después de cada movimiento.
 
 ### Replay
@@ -130,6 +151,8 @@ La reproducción siempre muestra primero el tablero inicial estándar. Los contr
 Solo se admiten partidas en `CHECKMATE` o `ABANDONED`; `IN_PROGRESS` y `CHECK` se rechazan. Se muestra el resultado original separado del estado de la posición que se está viendo: el abandono no agrega un movimiento al historial.
 
 El replay reconstruye comandos desde el historial de coordenadas existente sobre un tablero independiente. No guarda cambios, no altera la partida original y no modifica el formato de persistencia. Cada sesión tiene su propia navegación. No se agregan reglas de tablas, promoción, enroque ni captura al paso.
+
+El frontend se levanta aparte: `cd web`, `npm install` y `npm run dev` (instrucciones completas en [`web/README.md`](web/README.md)).
 
 En IntelliJ IDEA, abrir la carpeta del proyecto, seleccionar **JDK 17** como Project SDK y ejecutar el `main` de `com.uade.ajedrez.App`.
 
@@ -145,7 +168,6 @@ En IntelliJ IDEA, abrir la carpeta del proyecto, seleccionar **JDK 17** como Pro
 
 ## Próximos pasos
 
-1. **Adaptador web** (`adapter/in/web`): servidor HTTP, JSON y endpoints `/api/games`, `/api/games/{id}`, `/api/games/{id}/moves` y `/api/games/{id}/legal-moves`. El `GameView` ya contiene todo lo que el frontend necesita.
-2. Exponer deshacer jugadas durante la partida activa (actualmente el retroceso se ofrece solo dentro del replay).
-3. Reglas restantes: enroque, promoción, captura al paso y tablas por repetición/50 movimientos.
-4. Migrar los tests a JUnit 5 y agregar un build reproducible (Maven o Gradle) cuando el equipo lo decida.
+1. Exponer deshacer jugadas durante la partida activa (hoy el retroceso solo existe dentro del replay).
+2. Reglas restantes: enroque, promoción, captura al paso y tablas por repetición/50 movimientos.
+3. Migrar los tests a JUnit 5 y agregar un build reproducible (Maven o Gradle) cuando el equipo lo decida.

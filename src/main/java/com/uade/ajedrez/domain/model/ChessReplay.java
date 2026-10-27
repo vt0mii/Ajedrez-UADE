@@ -6,7 +6,7 @@ import com.uade.ajedrez.domain.service.MovementService;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Reproduccion aislada del historial, siempre desde la posicion estandar. */
+// Reproduce el historial desde la posición inicial estándar, sin tocar la partida original.
 public final class ChessReplay {
     private final GameId id;
     private final Player white;
@@ -60,7 +60,7 @@ public final class ChessReplay {
         return true;
     }
 
-    /** Devuelve una copia: el consumidor no puede modificar el tablero del replay. */
+    // Devuelve una copia, así el consumidor no puede modificar el tablero del replay.
     public ChessGame snapshot() {
         return ChessGame.restore(id, board.copy(), movementService,
                 Turn.restore(white, black, position % 2, position / 2 + 1),
