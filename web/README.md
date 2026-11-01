@@ -66,7 +66,8 @@ src/
 └── lib/
     ├── api.ts              # cliente tipado del backend
     ├── board.ts            # helpers de coordenadas y presentación
-    └── types.ts            # contrato GameView
+    ├── status.ts           # etiquetas y colores del estado de la partida
+    └── types.ts            # contrato GameView y GameSummary
 ```
 
 ## Flujo de una jugada
@@ -77,6 +78,16 @@ src/
 4. La respuesta reemplaza el `GameView` en pantalla.
 
 Si el backend rechaza la jugada, se muestra el mensaje en un toast.
+
+## Partidas guardadas
+
+El lobby pide `GET /api/games` y muestra las partidas de `games/` ordenadas por
+la última modificación. Cada fila trae jugadores, estado, turno, cantidad de
+jugadas, última jugada y fecha; al hacer clic se abre la partida.
+
+El backend ya guarda después de cada movimiento. El botón **Guardar partida**
+del panel derecho llama a `POST /api/games/{id}/save` y confirma con un toast
+cuando el archivo quedó actualizado.
 
 ## Atajos
 

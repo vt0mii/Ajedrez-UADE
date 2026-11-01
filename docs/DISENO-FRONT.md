@@ -62,11 +62,13 @@ java -cp bin com.uade.ajedrez.App --web      # HTTP en http://localhost:8080
 
 | Método | Ruta | Body | Respuesta |
 |--------|------|------|-----------|
+| `GET` | `/api/games` | — | `200` + `{ "games": [GameSummary] }` |
 | `POST` | `/api/games` | `{ "whitePlayerName": "...", "blackPlayerName": "..." }` | `201` + `GameView` |
 | `GET` | `/api/games/{id}` | — | `200` + `GameView` |
 | `POST` | `/api/games/{id}/moves` | `{ "from": "e2", "to": "e4" }` | `200` + `GameView` |
 | `GET` | `/api/games/{id}/legal-moves?from=e2` | — | `200` + `{ "moves": ["e3","e4"] }` |
 | `POST` | `/api/games/{id}/abandon` | — | `200` + `GameView` |
+| `POST` | `/api/games/{id}/save` | — | `200` + `GameView` |
 | `GET` | `/api/health` | — | `200` + `{ "status": "ok" }` |
 
 ### Formato de `GameView`
@@ -92,6 +94,33 @@ java -cp bin com.uade.ajedrez.App --web      # HTTP en http://localhost:8080
 - `board` es una matriz de 8×8, `board[0][0]` = **a8**, `board[7][7]` = **h1**.
   Las casillas vacías son `null`.
 - `winner` es `null` salvo en `CHECKMATE`.
+
+### Formato de `GameSummary`
+
+`GET /api/games` no devuelve el tablero: alcanza para reconocer la partida en el
+lobby.
+
+```json
+{
+  "games": [
+    {
+      "id": "g_8f2c...",
+      "status": "IN_PROGRESS",
+      "turn": "BLACK",
+      "turnNumber": 1,
+      "whitePlayer": "Ana",
+      "blackPlayer": "Beto",
+      "moveCount": 1,
+      "lastMove": { "from": "e2", "to": "e4" },
+      "updatedAt": 1762000000000
+    }
+  ]
+}
+```
+
+- `updatedAt` son milisegundos desde epoch; sale de la fecha del archivo.
+- Las partidas vienen de la más reciente a la más vieja.
+- Los archivos corruptos se ignoran para no romper el listado completo.
 
 ### Errores
 
@@ -148,7 +177,8 @@ web/
     │   └── useGame.ts          # estado + polling + acciones
     └── lib/
         ├── api.ts              # cliente tipado de la API
-        ├── types.ts            # GameView, Color, PieceType, GameState
+        ├── types.ts            # GameView, GameSummary, Color, PieceType, GameState
+        ├── status.ts           # etiquetas y colores del estado
         └── board.ts            # helpers de coordenadas y agrupado de historial
 ```
 
@@ -265,7 +295,10 @@ va primero para que la partida quede visible sin scrollear.
 
 - Título y subtítulo.
 - Tarjeta **Nueva partida**: dos inputs (blancas / negras), botón primario.
-- Tarjeta **Retomar partida**: input de id + botón.
+- Tarjeta **Retomar partida**: input de id + botón, como respaldo manual.
+- Sección **Partidas guardadas**: lista las partidas de `games/` con jugadores,
+  estado, turno, cantidad de jugadas, última jugada y fecha. Un clic abre la
+  partida. Tiene botón para actualizar el listado.
 - Si el backend no responde: aviso claro con el comando para levantarlo.
 
 ---

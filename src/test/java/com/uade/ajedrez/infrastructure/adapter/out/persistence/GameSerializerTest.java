@@ -4,6 +4,7 @@ import com.uade.ajedrez.application.dto.GameView;
 import com.uade.ajedrez.application.dto.MoveCommand;
 import com.uade.ajedrez.application.dto.NewGameCommand;
 import com.uade.ajedrez.application.service.ChessGameService;
+import com.uade.ajedrez.application.port.out.SavedGame;
 import com.uade.ajedrez.domain.exception.GamePersistenceException;
 import com.uade.ajedrez.domain.model.*;
 import com.uade.ajedrez.domain.service.MovementService;
@@ -11,7 +12,9 @@ import com.uade.ajedrez.domain.service.MovementService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Properties;
 import java.util.stream.Stream;
 
@@ -25,6 +28,7 @@ public class GameSerializerTest {
         testArchivoInexistente();
         testVersionNoSoportada();
         testGuardarEnDirectorio();
+        testListarPartidas();
 
         System.out.println("\nTodos los tests de GameSerializer pasaron!");
     }
@@ -126,6 +130,40 @@ public class GameSerializerTest {
                 assert e.getCause() instanceof IOException : "Deberia conservar la causa";
             }
             System.out.println("V testGuardarEnDirectorio paso");
+        } finally {
+            deleteRecursively(directory);
+        }
+    }
+
+    static void testListarPartidas() throws IOException {
+        Path directory = Files.createTempDirectory("chess-list-");
+        try {
+            MovementService movementService = new MovementService();
+            FileGameRepository repository = new FileGameRepository(directory, movementService);
+            ChessGameService service = new ChessGameService(repository, movementService);
+
+            GameView first = service.createGame(new NewGameCommand("Ana", "Beto"));
+            service.makeMove(first.id(), new MoveCommand("e2", "e4"));
+            GameView second = service.createGame(new NewGameCommand("Caro", "Dani"));
+
+            // Forzamos las fechas para no depender del reloj al ordenar.
+            Files.setLastModifiedTime(directory.resolve(first.id() + ".properties"),
+                    FileTime.fromMillis(1_000_000));
+            Files.setLastModifiedTime(directory.resolve(second.id() + ".properties"),
+                    FileTime.fromMillis(2_000_000));
+
+            List<SavedGame> games = repository.findAll();
+            assert games.size() == 2 : "Deberian listarse las dos partidas";
+            assert games.get(0).game().getId().getValue().equals(second.id())
+                    : "La partida mas reciente deberia ir primero";
+            assert games.get(1).game().getId().getValue().equals(first.id());
+            assert games.get(1).game().getHistory().size() == 1 : "Deberia traer el historial";
+
+            // Un archivo roto no deberia romper el listado.
+            Files.writeString(directory.resolve("roto.properties"), "formatVersion=99");
+            assert repository.findAll().size() == 2 : "El archivo roto deberia ignorarse";
+
+            System.out.println("V testListarPartidas paso");
         } finally {
             deleteRecursively(directory);
         }

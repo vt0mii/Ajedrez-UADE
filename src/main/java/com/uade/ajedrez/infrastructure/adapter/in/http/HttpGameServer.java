@@ -86,6 +86,10 @@ public class HttpGameServer {
         }
 
         if (parts.length == 3 && parts[2].equals("games")) {
+            if (method.equals("GET")) {
+                respondJson(exchange, 200, GameViewJson.gamesToJson(useCases.listGames()));
+                return;
+            }
             requireMethod(method, "POST");
             createGame(exchange);
             return;
@@ -119,6 +123,10 @@ public class HttpGameServer {
             case "legal-moves" -> {
                 requireMethod(method, "GET");
                 legalMoves(exchange, gameId);
+            }
+            case "save" -> {
+                requireMethod(method, "POST");
+                respondJson(exchange, 200, GameViewJson.toJson(useCases.saveGame(gameId)));
             }
             default -> throw new HttpError(404, "NOT_FOUND", "Unknown game action: " + action);
         }

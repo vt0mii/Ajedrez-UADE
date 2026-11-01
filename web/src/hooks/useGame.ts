@@ -26,6 +26,7 @@ export function useGame(gameId: string) {
   const [selected, setSelected] = useState<string | null>(null);
   const [legalMoves, setLegalMoves] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
 
   const clearSelection = useCallback(() => {
@@ -137,6 +138,20 @@ export function useGame(gameId: string) {
     }
   }
 
+  // Guardado manual. El backend ya guarda después de cada jugada; esto solo
+  // confirma que el archivo quedó actualizado.
+  async function save() {
+    setSaving(true);
+    try {
+      setGame(await api.saveGame(gameId));
+      notify("Partida guardada.", "info");
+    } catch (cause) {
+      notify(messageOf(cause));
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return {
     game,
     loading,
@@ -144,11 +159,13 @@ export function useGame(gameId: string) {
     selected,
     legalMoves,
     busy,
+    saving,
     notice,
     dismissNotice: () => setNotice(null),
     notify,
     selectSquare,
     clearSelection,
     abandon,
+    save,
   };
 }

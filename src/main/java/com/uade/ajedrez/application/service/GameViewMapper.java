@@ -1,6 +1,7 @@
 package com.uade.ajedrez.application.service;
 
 import com.uade.ajedrez.application.dto.GameView;
+import com.uade.ajedrez.application.dto.GameSummaryView;
 import com.uade.ajedrez.application.dto.GameView.MoveView;
 import com.uade.ajedrez.application.dto.GameView.PieceView;
 import com.uade.ajedrez.application.dto.GameView.PlayerView;
@@ -52,6 +53,23 @@ public final class GameViewMapper {
 
     private static MoveView toMoveView(Move move) {
         return new MoveView(move.getOrigin().toAlgebraic(), move.getDestination().toAlgebraic());
+    }
+
+    // Versión corta para el listado: sin tablero, solo lo que hace falta para
+    // reconocer la partida y decidir si abrirla.
+    public static GameSummaryView toSummary(ChessGame game, long updatedAt) {
+        Turn turn = game.getTurn();
+        List<Move> history = game.getHistory();
+        return new GameSummaryView(
+                game.getId().getValue(),
+                game.getState(),
+                game.getCurrentTurn(),
+                turn.getTurnNumber(),
+                turn.getPlayer(Color.WHITE).getName(),
+                turn.getPlayer(Color.BLACK).getName(),
+                history.size(),
+                history.isEmpty() ? null : toMoveView(history.get(history.size() - 1)),
+                updatedAt);
     }
 
     private static Color winnerOf(ChessGame game) {

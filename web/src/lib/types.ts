@@ -34,3 +34,19 @@ export type GameView = {
   lastMove: MoveView | null;
   winner: Color | null;
 };
+
+// Resumen de una partida guardada para el listado del lobby. No lleva el
+// tablero: alcanza para reconocerla y decidir si abrirla.
+export type GameSummary = {
+  id: string;
+  status: GameState;
+  turn: Color;
+  turnNumber: number;
+  whitePlayer: string;
+  blackPlayer: string;
+  moveCount: number;
+  lastMove: MoveView | null;
+  // Milisegundos desde epoch, tal como lo manda el backend.
+  updatedAt: number;
+};
+

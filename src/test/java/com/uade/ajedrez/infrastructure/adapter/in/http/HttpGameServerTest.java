@@ -29,6 +29,8 @@ public class HttpGameServerTest {
             testCrearPartidaYMover();
             testMovimientoIlegal();
             testPartidaInexistente();
+            testListarPartidas();
+            testGuardarPartida();
             testRutaDesconocida();
         } finally {
             server.stop();
@@ -94,6 +96,38 @@ public class HttpGameServerTest {
                 : "el error deberia ser GAME_NOT_FOUND";
 
         System.out.println("V testPartidaInexistente paso");
+    }
+
+    static void testListarPartidas() throws Exception {
+        HttpResponse<String> created = post("/games",
+                "{\"whitePlayerName\":\"Lista\",\"blackPlayerName\":\"Resumen\"}");
+        assert created.statusCode() == 201 : "crear partida deberia responder 201";
+
+        HttpResponse<String> listed = get("/games");
+
+        assert listed.statusCode() == 200 : "listar partidas deberia responder 200";
+        assert listed.body().startsWith("{\"games\":[") : "deberia devolver un array de partidas";
+        assert listed.body().contains("\"whitePlayer\":\"Lista\"")
+                : "el resumen deberia incluir al jugador blanco";
+        assert listed.body().contains("\"moveCount\":0") : "el resumen deberia incluir la cantidad de jugadas";
+
+        System.out.println("V testListarPartidas paso");
+    }
+
+    static void testGuardarPartida() throws Exception {
+        String gameId = JsonBody.stringField(createGame().body(), "id");
+        post("/games/" + gameId + "/moves", "{\"from\":\"d2\",\"to\":\"d4\"}");
+
+        HttpResponse<String> saved = post("/games/" + gameId + "/save", "");
+
+        assert saved.statusCode() == 200 : "guardar deberia responder 200";
+        assert saved.body().contains("\"lastMove\":{\"from\":\"d2\",\"to\":\"d4\"}")
+                : "guardar deberia devolver la partida completa";
+
+        HttpResponse<String> missing = post("/games/g_inexistente/save", "");
+        assert missing.statusCode() == 404 : "guardar una partida inexistente deberia responder 404";
+
+        System.out.println("V testGuardarPartida paso");
     }
 
     static void testRutaDesconocida() throws Exception {

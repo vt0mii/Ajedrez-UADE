@@ -1,6 +1,7 @@
 package com.uade.ajedrez.infrastructure.adapter.in.http;
 
 import com.uade.ajedrez.application.dto.GameView;
+import com.uade.ajedrez.application.dto.GameSummaryView;
 import com.uade.ajedrez.application.dto.GameView.MoveView;
 import com.uade.ajedrez.application.dto.GameView.PieceView;
 import com.uade.ajedrez.application.dto.GameView.PlayerView;
@@ -26,6 +27,31 @@ final class GameViewJson {
         field(json, "history", history(game.history())).append(',');
         field(json, "lastMove", game.lastMove() == null ? "null" : move(game.lastMove())).append(',');
         field(json, "winner", game.winner() == null ? "null" : Json.quote(game.winner().name()));
+        return json.append('}').toString();
+    }
+
+    static String gamesToJson(List<GameSummaryView> games) {
+        StringBuilder json = new StringBuilder("{\"games\":[");
+        for (int index = 0; index < games.size(); index++) {
+            if (index > 0) {
+                json.append(',');
+            }
+            json.append(summary(games.get(index)));
+        }
+        return json.append("]}").toString();
+    }
+
+    private static String summary(GameSummaryView game) {
+        StringBuilder json = new StringBuilder("{");
+        field(json, "id", Json.quote(game.id())).append(',');
+        field(json, "status", Json.quote(game.status().name())).append(',');
+        field(json, "turn", Json.quote(game.turn().name())).append(',');
+        field(json, "turnNumber", String.valueOf(game.turnNumber())).append(',');
+        field(json, "whitePlayer", Json.quote(game.whitePlayer())).append(',');
+        field(json, "blackPlayer", Json.quote(game.blackPlayer())).append(',');
+        field(json, "moveCount", String.valueOf(game.moveCount())).append(',');
+        field(json, "lastMove", game.lastMove() == null ? "null" : move(game.lastMove())).append(',');
+        field(json, "updatedAt", String.valueOf(game.updatedAt()));
         return json.append('}').toString();
     }
 

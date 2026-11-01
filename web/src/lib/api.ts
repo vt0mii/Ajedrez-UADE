@@ -48,6 +48,10 @@ export const api = {
       body: JSON.stringify({ whitePlayerName, blackPlayerName }),
     }),
 
+  // Partidas guardadas, de la más reciente a la más vieja.
+  listGames: () =>
+    request<{ games: import("./types").GameSummary[] }>("/api/games"),
+
   getGame: (gameId: string) =>
     request<import("./types").GameView>(`/api/games/${gameId}`),
 
@@ -64,6 +68,13 @@ export const api = {
 
   abandonGame: (gameId: string) =>
     request<import("./types").GameView>(`/api/games/${gameId}/abandon`, {
+      method: "POST",
+    }),
+
+  // Vuelve a escribir la partida en disco. El autoguardado ya existe; esto es
+  // para que el jugador pueda forzarlo.
+  saveGame: (gameId: string) =>
+    request<import("./types").GameView>(`/api/games/${gameId}/save`, {
       method: "POST",
     }),
 };

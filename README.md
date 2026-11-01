@@ -38,9 +38,9 @@ No conoce consola, archivos, HTTP ni frameworks.
 
 Orquesta casos de uso y traduce entre el dominio y el exterior.
 
-- `port/in`: `CreateGameUseCase`, `GetGameUseCase`, `MakeMoveUseCase`, `LegalMovesUseCase`, `AbandonGameUseCase` (y `ChessGameUseCases` como agregado de conveniencia).
-- `port/out`: `GameRepositoryPort`.
-- `dto`: `NewGameCommand`, `MoveCommand`, `GameView` con el tablero, turno, estado, historial y movimientos legales.
+- `port/in`: `CreateGameUseCase`, `GetGameUseCase`, `MakeMoveUseCase`, `LegalMovesUseCase`, `AbandonGameUseCase`, `ReplayGameUseCase`, `ListGamesUseCase`, `SaveGameUseCase` (y `ChessGameUseCases` como agregado de conveniencia).
+- `port/out`: `GameRepositoryPort`, `SavedGame`.
+- `dto`: `NewGameCommand`, `MoveCommand`, `GameView` con el tablero, turno, estado, historial y movimientos legales, y `GameSummaryView` para el listado.
 - `service`: `ChessGameService` implementa los casos de uso y `GameViewMapper` arma el modelo de lectura.
 - `exception`: errores de aplicación (`GameNotFoundException`, `MoveRejectedException`, `InvalidCommandException`).
 
@@ -61,7 +61,7 @@ Orquesta casos de uso y traduce entre el dominio y el exterior.
 - Alternancia de turnos, detección de jaque y jaque mate.
 - Historial de movimientos y consulta de **movimientos legales por casilla** (pensado para el frontend).
 - Interfaz de consola con nombres de jugadores, comando `legal <casilla>`, `help` y `quit`.
-- Frontend web en `web/` (Next.js + Tailwind): tablero, historial, jaque, jaque mate, abandono, tema claro/oscuro y sincronización cada 2 segundos.
+- Frontend web en `web/` (Next.js + Tailwind): tablero, historial, jaque, jaque mate, abandono, guardado manual, listado de partidas guardadas en el lobby, tema claro/oscuro y sincronización cada 2 segundos.
 - Persistencia de partidas por id en `games/`, con restauración de turno, estado e historial.
 - Ids de partida validados (`[A-Za-z0-9_-]{1,64}`), lo que evita path traversal al cargar archivos.
 - Manejo de entradas incorrectas, EOF y errores de persistencia.
@@ -132,15 +132,17 @@ java -cp bin com.uade.ajedrez.App --web --port 9090  # otro puerto
 | Método | Ruta | Descripción |
 |--------|------|-------------|
 | `GET` | `/api/health` | Estado del servidor |
+| `GET` | `/api/games` | Lista las partidas guardadas con un resumen |
 | `POST` | `/api/games` | Crea una partida (`whitePlayerName`, `blackPlayerName`) |
 | `GET` | `/api/games/{id}` | Devuelve el `GameView` actual |
 | `POST` | `/api/games/{id}/moves` | Mueve una pieza (`from`, `to`) |
 | `GET` | `/api/games/{id}/legal-moves?from=e2` | Destinos legales desde una casilla |
 | `POST` | `/api/games/{id}/abandon` | Abandona la partida |
+| `POST` | `/api/games/{id}/save` | Vuelve a guardar la partida |
 
 Los errores devuelven `{ "error": "CODIGO", "message": "..." }`: `400` para entradas inválidas, `404` si la partida no existe y `409` si el movimiento viola las reglas. El diseño del frontend está en [`docs/DISENO-FRONT.md`](docs/DISENO-FRONT.md).
 
-Cada partida se guarda automáticamente en `games/<id>.properties` después de cada movimiento.
+Cada partida se guarda automáticamente en `games/<id>.properties` después de cada movimiento. El lobby lista esas partidas y las abre con un clic; el botón **Guardar** de la pantalla de juego fuerza el guardado cuando haga falta.
 
 ### Replay
 

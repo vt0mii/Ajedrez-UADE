@@ -1,6 +1,7 @@
 package com.uade.ajedrez.application.service;
 
 import com.uade.ajedrez.application.dto.GameView;
+import com.uade.ajedrez.application.dto.GameSummaryView;
 import com.uade.ajedrez.application.dto.MoveCommand;
 import com.uade.ajedrez.application.dto.NewGameCommand;
 import com.uade.ajedrez.application.exception.GameNotFoundException;
@@ -104,6 +105,21 @@ public class ChessGameService implements ChessGameUseCases {
             throw new InvalidCommandException("Replay requires CHECKMATE or ABANDONED");
         }
         return new ReplaySession(game.startReplay());
+    }
+
+    @Override
+    public List<GameSummaryView> listGames() {
+        return repository.findAll().stream()
+                .map(saved -> GameViewMapper.toSummary(saved.game(), saved.updatedAt()))
+                .toList();
+    }
+
+    @Override
+    public GameView saveGame(String gameId) {
+        ChessGame game = findGame(gameId);
+        repository.save(game);
+        logger.info("Game saved: " + gameId);
+        return GameViewMapper.toView(game);
     }
 
     private ChessGame findGame(String gameId) {

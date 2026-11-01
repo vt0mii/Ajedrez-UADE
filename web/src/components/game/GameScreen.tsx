@@ -21,11 +21,13 @@ export function GameScreen({ gameId }: { gameId: string }) {
     selected,
     legalMoves,
     busy,
+    saving,
     notice,
     notify,
     selectSquare,
     clearSelection,
     abandon,
+    save,
   } = useGame(gameId);
 
   const [flipped, setFlipped] = useState(false);
@@ -146,8 +148,10 @@ export function GameScreen({ gameId }: { gameId: string }) {
           <GameStatus
             game={game}
             busy={busy}
+            saving={saving}
             onFlip={() => setFlipped((value) => !value)}
             onAbandon={abandon}
+            onSave={save}
             onCopyLink={copyLink}
           />
         </aside>

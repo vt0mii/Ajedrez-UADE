@@ -4,6 +4,7 @@ import com.uade.ajedrez.application.dto.*;
 import com.uade.ajedrez.application.exception.InvalidCommandException;
 import com.uade.ajedrez.application.exception.GameNotFoundException;
 import com.uade.ajedrez.application.port.out.GameRepositoryPort;
+import com.uade.ajedrez.application.port.out.SavedGame;
 import com.uade.ajedrez.domain.model.*;
 import com.uade.ajedrez.domain.service.MovementService;
 import com.uade.ajedrez.infrastructure.adapter.out.persistence.*;
@@ -15,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -200,5 +202,6 @@ public class ReplayTest {
         CountingRepository(GameRepositoryPort delegate) { this.delegate = delegate; }
         public void save(ChessGame game) { saves++; delegate.save(game); }
         public Optional<ChessGame> findById(GameId id) { return delegate.findById(id); }
+        public List<SavedGame> findAll() { return delegate.findAll(); }
     }
 }
