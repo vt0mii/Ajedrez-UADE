@@ -40,6 +40,9 @@ public class HttpGameServer {
     public int start() throws IOException {
         server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/api", this::handle);
+        // Todo lo que no sea /api cae acá. Sin esto, el servidor del JDK
+        // responde "No context found for request" y no se entiende nada.
+        server.createContext("/", this::handleRoot);
         server.start();
 
         int actualPort = server.getAddress().getPort();
@@ -72,6 +75,25 @@ public class HttpGameServer {
             logger.error("Unhandled error in the HTTP adapter", error);
             sendError(exchange, 500, "INTERNAL_ERROR", "Unexpected error");
         }
+    }
+
+    // La raíz no es parte de la API: avisamos dónde está el frontend para que
+    // abrir el puerto equivocado no termine en un 404 sin explicación.
+    private void handleRoot(HttpExchange exchange) throws IOException {
+        if ("OPTIONS".equals(exchange.getRequestMethod())) {
+            respondEmpty(exchange, 204);
+            return;
+        }
+
+        String path = exchange.getRequestURI().getPath();
+        if (!"/".equals(path)) {
+            sendError(exchange, 404, "NOT_FOUND", "Unknown route: " + path);
+            return;
+        }
+
+        respondJson(exchange, 200,
+                "{\"status\":\"ok\",\"message\":\"API del ajedrez. El frontend corre en http://localhost:3000\","
+                        + "\"api\":\"/api\"}");
     }
 
     private void route(HttpExchange exchange) throws IOException {

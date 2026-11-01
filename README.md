@@ -129,6 +129,9 @@ java -cp bin com.uade.ajedrez.App --web              # http://localhost:8080
 java -cp bin com.uade.ajedrez.App --web --port 9090  # otro puerto
 ```
 
+El puerto del backend es solo la API. La interfaz se abre en
+<http://localhost:3000> cuando corre el frontend (`npm run dev`).
+
 | Método | Ruta | Descripción |
 |--------|------|-------------|
 | `GET` | `/api/health` | Estado del servidor |

@@ -14,6 +14,7 @@ public class HttpGameServerTest {
 
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
     private static String baseUrl;
+    private static String rootUrl;
 
     public static void main(String[] args) throws Exception {
         System.out.println("Ejecutando tests del adaptador HTTP...\n");
@@ -22,7 +23,9 @@ public class HttpGameServerTest {
                 new ChessGameService(new InMemoryGameRepository(), new MovementService()),
                 GameLogger.noop(),
                 0);
-        baseUrl = "http://localhost:" + server.start() + "/api";
+        int port = server.start();
+        baseUrl = "http://localhost:" + port + "/api";
+        rootUrl = "http://localhost:" + port;
 
         try {
             testHealth();
@@ -32,6 +35,7 @@ public class HttpGameServerTest {
             testListarPartidas();
             testGuardarPartida();
             testRutaDesconocida();
+            testRaiz();
         } finally {
             server.stop();
         }
@@ -138,12 +142,31 @@ public class HttpGameServerTest {
         System.out.println("V testRutaDesconocida paso");
     }
 
+    static void testRaiz() throws Exception {
+        HttpResponse<String> root = getFrom(rootUrl + "/");
+
+        assert root.statusCode() == 200 : "la raiz deberia responder 200";
+        assert root.body().contains("http://localhost:3000")
+                : "la raiz deberia indicar donde esta el frontend";
+
+        HttpResponse<String> other = getFrom(rootUrl + "/favicon.ico");
+        assert other.statusCode() == 404 : "una ruta fuera de /api deberia responder 404";
+        assert other.body().contains("\"error\":\"NOT_FOUND\"")
+                : "la ruta desconocida deberia devolver JSON";
+
+        System.out.println("V testRaiz paso");
+    }
+
     private static HttpResponse<String> createGame() throws Exception {
         return post("/games", "{\"whitePlayerName\":\"Ana\",\"blackPlayerName\":\"Beto\"}");
     }
 
     private static HttpResponse<String> get(String path) throws Exception {
-        return CLIENT.send(HttpRequest.newBuilder(URI.create(baseUrl + path)).GET().build(),
+        return getFrom(baseUrl + path);
+    }
+
+    private static HttpResponse<String> getFrom(String url) throws Exception {
+        return CLIENT.send(HttpRequest.newBuilder(URI.create(url)).GET().build(),
                 HttpResponse.BodyHandlers.ofString());
     }
 
