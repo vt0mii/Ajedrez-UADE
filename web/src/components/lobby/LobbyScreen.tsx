@@ -10,8 +10,6 @@ import { api, ApiError, API_URL } from "@/lib/api";
 import { STATUS_STYLES } from "@/lib/status";
 import type { GameSummary } from "@/lib/types";
 
-type Pending = "create" | "resume" | null;
-
 // Fecha corta para el listado. Se arma en el cliente porque el formato
 // depende del navegador; el backend manda milisegundos desde epoch.
 function formatDate(timestamp: number) {
@@ -25,8 +23,7 @@ export function LobbyScreen() {
   const router = useRouter();
   const [white, setWhite] = useState("");
   const [black, setBlack] = useState("");
-  const [gameId, setGameId] = useState("");
-  const [pending, setPending] = useState<Pending>(null);
+  const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState<GameSummary[] | null>(null);
   const [loadingSaved, setLoadingSaved] = useState(true);
@@ -82,32 +79,14 @@ export function LobbyScreen() {
 
   async function createGame(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setPending("create");
+    setCreating(true);
     setError(null);
     try {
       const game = await api.createGame(white.trim(), black.trim());
       router.push(`/game/${game.id}`);
     } catch (cause) {
       setError(cause instanceof ApiError ? cause.message : "Error inesperado");
-      setPending(null);
-    }
-  }
-
-  async function resumeGame(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const id = gameId.trim();
-    if (!id) {
-      return;
-    }
-
-    setPending("resume");
-    setError(null);
-    try {
-      const game = await api.getGame(id);
-      router.push(`/game/${game.id}`);
-    } catch (cause) {
-      setError(cause instanceof ApiError ? cause.message : "Error inesperado");
-      setPending(null);
+      setCreating(false);
     }
   }
 
@@ -123,8 +102,11 @@ export function LobbyScreen() {
           Ingeniería de Software · UADE
         </p>
         <h1 className="mt-4 font-serif text-5xl leading-[1.03] text-ink-100 sm:text-6xl">
-          El clásico, con las reglas en Java y el tablero en la web.
+          Ajedrez
         </h1>
+        <p className="mt-3 text-sm text-ink-300">
+          Medina Cotos · Tortora · Umerez · Quintana
+        </p>
         <p className="mt-5 max-w-xl text-sm leading-relaxed text-ink-300 sm:text-base">
           Cada jugada la valida el dominio. El frontend solo dibuja el tablero y
           espera la respuesta del servidor: no hay reglas duplicadas en
@@ -132,7 +114,7 @@ export function LobbyScreen() {
         </p>
       </div>
 
-      <div className="mt-10 grid gap-5 md:grid-cols-2">
+      <div className="mt-10 max-w-2xl">
         <form
           onSubmit={createGame}
           className="rounded-2xl border border-ink-800 bg-ink-900/60 p-6"
@@ -144,7 +126,7 @@ export function LobbyScreen() {
             Elegí los nombres o dejá que el servidor los complete.
           </p>
 
-          <div className="mt-5 space-y-4">
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <Input
               id="white-player"
               label="Blancas"
@@ -165,43 +147,8 @@ export function LobbyScreen() {
             />
           </div>
 
-          <Button type="submit" className="mt-5 w-full" disabled={pending !== null}>
-            {pending === "create" ? "Creando…" : "Empezar partida"}
-          </Button>
-        </form>
-
-        <form
-          onSubmit={resumeGame}
-          className="flex flex-col rounded-2xl border border-ink-800 bg-ink-900/60 p-6"
-        >
-          <h2 className="text-sm font-semibold tracking-tight text-ink-100">
-            Retomar partida
-          </h2>
-          <p className="mt-1 text-xs text-ink-400">
-            Pegá el id que aparece en la URL o en el panel de la partida.
-          </p>
-
-          <div className="mt-5 flex-1 space-y-4">
-            <Input
-              id="game-id"
-              label="ID de partida"
-              placeholder="g_..."
-              value={gameId}
-              onChange={(event) => setGameId(event.target.value)}
-              className="font-mono"
-              autoComplete="off"
-              spellCheck={false}
-              hint="La partida se guarda sola después de cada jugada."
-            />
-          </div>
-
-          <Button
-            type="submit"
-            variant="ghost"
-            className="mt-5 w-full"
-            disabled={pending !== null || gameId.trim().length === 0}
-          >
-            {pending === "resume" ? "Abriendo…" : "Abrir partida"}
+          <Button type="submit" className="mt-5 w-full" disabled={creating}>
+            {creating ? "Creando…" : "Empezar partida"}
           </Button>
         </form>
       </div>

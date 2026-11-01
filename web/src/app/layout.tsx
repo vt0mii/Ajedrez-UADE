@@ -22,8 +22,9 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "Ajedrez UADE",
-  description: "Ajedrez con arquitectura hexagonal: dominio Java y frontend Next.js.",
+  title: "Ajedrez — Ingeniería de Software",
+  description:
+    "Ajedrez con arquitectura hexagonal: dominio Java y frontend Next.js. Medina Cotos, Tortora, Umerez y Quintana.",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
@@ -46,14 +47,16 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
               <span className="piece text-xl leading-none text-gold-400 transition-transform group-hover:-rotate-6">
                 ♞
               </span>
-              <span className="text-sm font-semibold tracking-tight text-ink-100">
-                Ajedrez UADE
+              <span className="flex flex-col leading-tight">
+                <span className="text-sm font-semibold tracking-tight text-ink-100">
+                  Ajedrez
+                </span>
+                <span className="text-[10px] font-medium tracking-[0.14em] text-ink-400 uppercase">
+                  Ingeniería de Software
+                </span>
               </span>
             </Link>
             <div className="flex items-center gap-2">
-              <span className="hidden rounded-full border border-ink-800 px-2.5 py-1 text-[10px] font-medium tracking-[0.14em] text-ink-400 uppercase sm:inline">
-                Puertos y adaptadores
-              </span>
               <ThemeToggle />
             </div>
           </div>
@@ -63,8 +66,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
 
         <footer className="border-t border-ink-800/60">
           <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-1 px-4 py-4 text-xs text-ink-400 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-            <span>Trabajo práctico de Ingeniería de Software · UADE</span>
-            <span>Java 17 · Next.js · Tailwind CSS</span>
+            <span>Ingeniería de Software · UADE</span>
+            <span>Medina Cotos · Tortora · Umerez · Quintana</span>
           </div>
         </footer>
       </body>

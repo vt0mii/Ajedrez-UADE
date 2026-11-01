@@ -1,4 +1,4 @@
-# Ajedrez UADE
+# Ajedrez
 
 Trabajo práctico de la materia **Ingeniería de Software** de **UADE**.
 
@@ -12,6 +12,9 @@ Desarrollamos un ajedrez en Java aplicando **arquitectura hexagonal (puertos y a
 - Tomas Nahuel Medina Cotos
 
 ## Arquitectura
+
+Las decisiones de diseño y los diagramas de clases están en
+[`docs/JUSTIFICACION.md`](docs/JUSTIFICACION.md).
 
 Las dependencias apuntan siempre hacia el núcleo:
 
@@ -175,4 +178,4 @@ En IntelliJ IDEA, abrir la carpeta del proyecto, seleccionar **JDK 17** como Pro
 
 1. Exponer deshacer jugadas durante la partida activa (hoy el retroceso solo existe dentro del replay).
 2. Reglas restantes: enroque, promoción, captura al paso y tablas por repetición/50 movimientos.
-3. Migrar los tests a JUnit 5 y agregar un build reproducible (Maven o Gradle) cuando el equipo lo decida.
+3. Migrar los tests a JUnit 5 manteniendo el build actual con `build.ps1`.

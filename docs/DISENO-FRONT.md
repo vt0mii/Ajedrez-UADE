@@ -153,7 +153,7 @@ web/
     ├── app/
     │   ├── layout.tsx          # shell: header, fondo, tipografía
     │   ├── globals.css         # Tailwind + variables de tema
-    │   ├── page.tsx            # Lobby: crear / retomar partida
+    │   ├── page.tsx            # Lobby: crear y abrir partidas guardadas
     │   └── game/[id]/page.tsx  # Pantalla de juego
     ├── components/
     │   ├── board/
@@ -166,7 +166,7 @@ web/
     │   │   ├── GameStatus.tsx  # estado, turno, acciones
     │   │   └── ResultBanner.tsx
     │   ├── lobby/
-    │   │   └── LobbyScreen.tsx # crear / retomar partida
+    │   │   └── LobbyScreen.tsx # crear y abrir partidas guardadas
     │   ├── game/
     │   │   └── GameScreen.tsx  # layout de la partida y atajos
     │   └── ui/
@@ -295,7 +295,6 @@ va primero para que la partida quede visible sin scrollear.
 
 - Título y subtítulo.
 - Tarjeta **Nueva partida**: dos inputs (blancas / negras), botón primario.
-- Tarjeta **Retomar partida**: input de id + botón, como respaldo manual.
 - Sección **Partidas guardadas**: lista las partidas de `games/` con jugadores,
   estado, turno, cantidad de jugadas, última jugada y fecha. Un clic abre la
   partida. Tiene botón para actualizar el listado.
