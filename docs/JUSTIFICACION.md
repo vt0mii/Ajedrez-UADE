@@ -112,11 +112,18 @@ versionar sin herramientas extra.
 partidas ni a varios procesos escribiendo a la vez. Para el alcance del TP
 alcanza.
 
-### 2.8. El `GameId` también es un nombre de archivo seguro
+### 2.8. El `GameId` se genera con UUID y también es un nombre de archivo seguro
 
 `GameId` valida el formato `[A-Za-z0-9_-]{1,64}`. Como el id se usa para armar
 la ruta del archivo, esa validación evita path traversal sin agregar código
 extra en el repositorio.
+
+**Cómo se genera:** `ChessGameService.createGame` arma el id con
+`"g_" + UUID.randomUUID().toString().replace("-", "")`. El resultado tiene 34
+caracteres: el prefijo `g_` y 32 dígitos hexadecimales. El prefijo separa las
+partidas de cualquier otro archivo del directorio y el UUID aleatorio evita
+colisiones sin necesidad de un contador compartido. Ese mismo id viaja en la URL
+del frontend (`/game/<id>`) y se usa como nombre de `games/<id>.properties`.
 
 La alternativa era aceptar cualquier id y sanitizarlo al guardar. La
 descartamos porque la validación en el dominio deja el repositorio más simple y

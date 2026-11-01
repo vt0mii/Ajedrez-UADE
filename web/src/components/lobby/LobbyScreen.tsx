@@ -97,7 +97,7 @@ export function LobbyScreen() {
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:py-16">
-      <div className="max-w-2xl">
+      <div className="text-center">
         <p className="text-[11px] font-medium tracking-[0.2em] text-gold-400 uppercase">
           Ingeniería de Software · UADE
         </p>
@@ -107,51 +107,49 @@ export function LobbyScreen() {
         <p className="mt-3 text-sm text-ink-300">
           Medina Cotos · Tortora · Umerez · Quintana
         </p>
-        <p className="mt-5 max-w-xl text-sm leading-relaxed text-ink-300 sm:text-base">
+        <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-ink-300 sm:text-base">
           Cada jugada la valida el dominio. El frontend solo dibuja el tablero y
           espera la respuesta del servidor: no hay reglas duplicadas en
           TypeScript.
         </p>
       </div>
 
-      <div className="mt-10 max-w-2xl">
-        <form
-          onSubmit={createGame}
-          className="rounded-2xl border border-ink-800 bg-ink-900/60 p-6"
-        >
-          <h2 className="text-sm font-semibold tracking-tight text-ink-100">
-            Nueva partida
-          </h2>
-          <p className="mt-1 text-xs text-ink-400">
-            Elegí los nombres o dejá que el servidor los complete.
-          </p>
+      <form
+        onSubmit={createGame}
+        className="mt-10 rounded-2xl border border-ink-800 bg-ink-900/60 p-6"
+      >
+        <h2 className="text-sm font-semibold tracking-tight text-ink-100">
+          Nueva partida
+        </h2>
+        <p className="mt-1 text-xs text-ink-400">
+          Elegí los nombres o dejá que el servidor los complete.
+        </p>
 
-          <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <Input
-              id="white-player"
-              label="Blancas"
-              placeholder="White"
-              maxLength={40}
-              value={white}
-              onChange={(event) => setWhite(event.target.value)}
-              autoComplete="off"
-            />
-            <Input
-              id="black-player"
-              label="Negras"
-              placeholder="Black"
-              maxLength={40}
-              value={black}
-              onChange={(event) => setBlack(event.target.value)}
-              autoComplete="off"
-            />
-          </div>
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <Input
+            id="white-player"
+            label="Blancas"
+            placeholder="White"
+            maxLength={40}
+            value={white}
+            onChange={(event) => setWhite(event.target.value)}
+            autoComplete="off"
+          />
+          <Input
+            id="black-player"
+            label="Negras"
+            placeholder="Black"
+            maxLength={40}
+            value={black}
+            onChange={(event) => setBlack(event.target.value)}
+            autoComplete="off"
+          />
+        </div>
 
-          <Button type="submit" className="mt-5 w-full" disabled={creating}>
-            {creating ? "Creando…" : "Empezar partida"}
-          </Button>
-        </form>
-      </div>
+        <Button type="submit" className="mt-5 w-full" disabled={creating}>
+          {creating ? "Creando…" : "Empezar partida"}
+        </Button>
+      </form>
 
       <section className="mt-10 rounded-2xl border border-ink-800 bg-ink-900/60 p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -236,7 +234,7 @@ export function LobbyScreen() {
         ) : null}
       </section>
 
-      <p className="mt-8 text-xs text-ink-400">
+      <p className="mt-8 text-center text-xs text-ink-400">
         Backend: <span className="font-mono text-ink-300">{API_URL}</span>
       </p>
 
