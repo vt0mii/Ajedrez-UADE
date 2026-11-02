@@ -17,6 +17,7 @@ public class ChessGameTest {
         testHistorial();
         testMovimientosLegales();
         testJaqueMateActualizaEstado();
+        testTablasPorAhogado();
 
         System.out.println("\nTodos los tests de ChessGame pasaron!");
     }
@@ -120,6 +121,25 @@ public class ChessGameTest {
         assert game.isFinished() : "La partida deberia estar terminada";
 
         System.out.println("V testJaqueMateActualizaEstado paso");
+    }
+
+    static void testTablasPorAhogado() {
+        Board board = Board.empty();
+        board.getSquare(Position.fromAlgebraic("a8")).setPiece(PieceFactory.create(PieceType.KING, Color.BLACK));
+        board.getSquare(Position.fromAlgebraic("c6")).setPiece(PieceFactory.create(PieceType.KING, Color.WHITE));
+        board.getSquare(Position.fromAlgebraic("b5")).setPiece(PieceFactory.create(PieceType.QUEEN, Color.WHITE));
+
+        ChessGame game = ChessGame.newGame(new GameId("draw-test"),
+                new Player("Blanco", Color.WHITE), new Player("Negro", Color.BLACK),
+                board, new MovementService());
+
+        MoveResult result = game.makeMove(move("b5", "b6"));
+
+        assert result.wasPossible() : "B5-B6 deberia ser legal";
+        assert game.getState() == GameState.DRAW : "Deberia quedar en tablas por ahogado";
+        assert game.isFinished() : "Las tablas terminan la partida";
+
+        System.out.println("V testTablasPorAhogado paso");
     }
 
     private static ChessGame newGame() {

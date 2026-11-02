@@ -46,6 +46,7 @@ public final class ChessReplay {
         if (states.size() == position) {
             Color color = currentColor();
             states.add(movementService.isCheckmate(board, color) ? GameState.CHECKMATE
+                    : movementService.isStalemate(board, color) ? GameState.DRAW
                     : movementService.isInCheck(board, color) ? GameState.CHECK : GameState.IN_PROGRESS);
         }
         return true;

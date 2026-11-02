@@ -22,4 +22,14 @@ export const STATUS_STYLES: Record<
     label: "Abandonada",
     className: "bg-ink-800 text-ink-300 ring-ink-700",
   },
+  DRAW: {
+    label: "Tablas",
+    className: "bg-ink-800 text-ink-200 ring-ink-700",
+  },
 };
+
+// Los tres finales posibles. Lo usan el tablero, el panel y el lobby para no
+// repetir la misma comparación en cada archivo.
+export function isFinishedStatus(status: GameState): boolean {
+  return status === "CHECKMATE" || status === "ABANDONED" || status === "DRAW";
+}

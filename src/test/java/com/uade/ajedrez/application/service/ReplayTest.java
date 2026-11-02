@@ -25,6 +25,7 @@ public class ReplayTest {
         testCaptureAndIsolation();
         testActiveGamesRejected();
         testCheckmate();
+        testDraw();
         testEmptyHistory();
         testSavedGameUnchanged();
         testConsole();
@@ -105,6 +106,21 @@ public class ReplayTest {
         assert replay.previous().game().status() == GameState.IN_PROGRESS;
         assert replay.next().game().status() == GameState.CHECKMATE;
         assertSameGame(original, service.getGame(id));
+    }
+
+    private static void testDraw() {
+        MovementService movement = new MovementService();
+        InMemoryGameRepository repository = new InMemoryGameRepository();
+        ChessGame game = ChessGame.restore(new GameId("draw-test"), new Board(), movement,
+                new Turn(new Player("White", Color.WHITE), new Player("Black", Color.BLACK)),
+                GameState.DRAW, List.of());
+        repository.save(game);
+
+        ChessGameService service = new ChessGameService(repository, movement);
+        ReplaySession replay = service.startReplay("draw-test");
+        assert replay.current().result() == GameState.DRAW : "El resultado deberia ser tablas";
+        assert replay.current().totalMoves() == 0;
+        assert replay.current().game().status() == GameState.IN_PROGRESS;
     }
 
     private static void testEmptyHistory() {

@@ -4,9 +4,10 @@ public enum GameState {
     IN_PROGRESS,
     CHECK,
     CHECKMATE,
-    ABANDONED;
+    ABANDONED,
+    DRAW;
 
     public boolean isFinished() {
-        return this == CHECKMATE || this == ABANDONED;
+        return this == CHECKMATE || this == ABANDONED || this == DRAW;
     }
 }

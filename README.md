@@ -1,8 +1,8 @@
 # Ajedrez
 
-Trabajo práctico de la materia **Ingeniería de Software** de **UADE**.
+Trabajo práctico de **Ingeniería de Software** de **UADE**.
 
-Desarrollamos un ajedrez en Java aplicando **arquitectura hexagonal (puertos y adaptadores)**. El objetivo es que el núcleo de reglas de negocio sea independiente de la interfaz de usuario, de la persistencia y de cualquier framework, de modo que se puedan agregar nuevos adaptadores (por ejemplo, una API HTTP para un frontend web) sin tocar el dominio.
+Es un ajedrez hecho en Java con arquitectura hexagonal (puertos y adaptadores). La idea es que las reglas del juego queden en un núcleo que no sabe nada de la consola, los archivos, HTTP ni los frameworks. Alrededor de ese núcleo hay adaptadores; por eso el mismo motor se puede jugar desde la terminal o desde la web.
 
 ## Integrantes
 
@@ -16,7 +16,7 @@ Desarrollamos un ajedrez en Java aplicando **arquitectura hexagonal (puertos y a
 Las decisiones de diseño y los diagramas de clases están en
 [`docs/JUSTIFICACION.md`](docs/JUSTIFICACION.md).
 
-Las dependencias apuntan siempre hacia el núcleo:
+Las dependencias siempre apuntan hacia el núcleo:
 
 ```
 domain  <-  application  <-  infrastructure
@@ -27,72 +27,72 @@ domain  <-  application  <-  infrastructure
 
 ### Dominio (`domain`)
 
-No conoce consola, archivos, HTTP ni frameworks.
+Acá están las reglas y nada más: no hay consola, archivos, HTTP ni frameworks.
 
-- `model`: `ChessGame` (agregado raíz), `Board`, `Piece`, `Position`, `Move`, `Turn`, `Player`, `GameId`, `GameState`, `MoveResult`.
+- `model`: `ChessGame` (el agregado raíz), `Board`, `Piece`, `Position`, `Move`, `Turn`, `Player`, `GameId`, `GameState` y `MoveResult`.
 - `strategy`: una estrategia de movimiento por tipo de pieza (`StratPawn`, `StratKnight`, ...).
-- `service`: `MovementService` valida movimientos, jaque, jaque mate y ahogado.
-- `command`: `ICommand` / `MoveCommand` con ejecución y deshacer a nivel de tablero, integrado en las jugadas y el replay.
-- `model/ChessReplay`: reproducción independiente desde el tablero inicial estándar, con avance y retroceso.
+- `service`: `MovementService` se encarga de validar jugadas, jaque, jaque mate y ahogado.
+- `command`: `ICommand` / `MoveCommand` permiten ejecutar y deshacer una jugada sobre el tablero; lo usan tanto la partida como el replay.
+- `model/ChessReplay`: reproduce el historial desde el tablero inicial y puede avanzar o retroceder.
 - `port/out`: `GameLogger`, el contrato de logging que implementa la infraestructura.
-- `exception`: `InvalidMoveInputException`, `GamePersistenceException`.
+- `exception`: `InvalidMoveInputException` y `GamePersistenceException`.
 
 ### Aplicación (`application`)
 
-Orquesta casos de uso y traduce entre el dominio y el exterior.
+Orquesta los casos de uso y traduce entre el dominio y el exterior.
 
-- `port/in`: `CreateGameUseCase`, `GetGameUseCase`, `MakeMoveUseCase`, `LegalMovesUseCase`, `AbandonGameUseCase`, `ReplayGameUseCase`, `ListGamesUseCase`, `SaveGameUseCase` (y `ChessGameUseCases` como agregado de conveniencia).
-- `port/out`: `GameRepositoryPort`, `SavedGame`.
-- `dto`: `NewGameCommand`, `MoveCommand`, `GameView` con el tablero, turno, estado, historial y movimientos legales, y `GameSummaryView` para el listado.
+- `port/in`: `CreateGameUseCase`, `GetGameUseCase`, `MakeMoveUseCase`, `LegalMovesUseCase`, `AbandonGameUseCase`, `ReplayGameUseCase`, `ListGamesUseCase` y `SaveGameUseCase`. `ChessGameUseCases` los agrupa para que los adaptadores dependan de una sola interfaz.
+- `port/out`: `GameRepositoryPort` y `SavedGame`.
+- `dto`: `NewGameCommand`, `MoveCommand`, `GameView` (tablero, turno, estado, historial y movimientos legales) y `GameSummaryView` para el listado.
 - `service`: `ChessGameService` implementa los casos de uso y `GameViewMapper` arma el modelo de lectura.
-- `exception`: errores de aplicación (`GameNotFoundException`, `MoveRejectedException`, `InvalidCommandException`).
+- `exception`: `GameNotFoundException`, `MoveRejectedException` e `InvalidCommandException`.
 
 ### Infraestructura (`infrastructure`)
 
-- `adapter/in/console`: `ConsoleView` traduce texto a comandos y `ConsoleRenderer` dibuja el `GameView`. El loop de juego vive acá, no en el dominio.
-- `adapter/in/http`: `HttpGameServer` expone los casos de uso como API JSON usando el servidor que trae el JDK (sin frameworks); `GameViewJson` y `JsonBody` resuelven el contrato. Se arranca con `--web`.
-- `adapter/out/persistence`: `FileGameRepository` (archivos `.properties` en `games/`), `InMemoryGameRepository` (tests/demos) y `GameSerializer`.
+- `adapter/in/console`: `ConsoleView` traduce el texto a comandos y `ConsoleRenderer` dibuja el `GameView`. El loop del juego está acá, no en el dominio.
+- `adapter/in/http`: `HttpGameServer` publica los casos de uso como API JSON con el servidor que trae el JDK, sin frameworks. `GameViewJson` y `JsonBody` se ocupan del contrato. Se arranca con `--web`.
+- `adapter/out/persistence`: `FileGameRepository` (archivos `.properties` en `games/`), `InMemoryGameRepository` (tests y demos) y `GameSerializer`.
 - `adapter/out/JavaGameLogger`: implementación de `GameLogger` con `java.util.logging`.
 
 ### Composición (`App`)
 
-Único lugar que conoce las implementaciones concretas. El adaptador de entrada se elige por argumento (`--web` o consola); agregar otro adaptador solo requiere tocar esta clase.
+Es el único lugar que conoce las implementaciones concretas. Según el argumento (`--web` o consola) elige el adaptador de entrada. Si mañana aparece otro adaptador, solo se toca esta clase.
 
-## Funcionalidades actuales
+## Qué se puede hacer hoy
 
-- Tablero con disposición inicial y validación mediante estrategias por pieza.
-- Alternancia de turnos, detección de jaque y jaque mate.
-- Historial de movimientos y consulta de **movimientos legales por casilla** (pensado para el frontend).
-- Interfaz de consola con nombres de jugadores, comando `legal <casilla>`, `help` y `quit`.
-- Frontend web en `web/` (Next.js + Tailwind): tablero, historial, jaque, jaque mate, abandono, guardado manual, listado de partidas guardadas en el lobby, tema claro/oscuro y sincronización cada 2 segundos.
-- Persistencia de partidas por id en `games/`, con restauración de turno, estado e historial.
-- Ids de partida validados (`[A-Za-z0-9_-]{1,64}`), lo que evita path traversal al cargar archivos.
+- Jugar con todas las piezas; cada una tiene su propia validación de movimientos.
+- Alternar turnos y detectar jaque, jaque mate y tablas por ahogado.
+- Ver el historial y consultar los movimientos legales de una casilla (lo usa la web).
+- Jugar desde la consola con nombres de jugadores y los comandos `legal <casilla>`, `help` y `quit`.
+- Jugar desde la web (`web/`, Next.js + Tailwind): tablero, historial, jaque, jaque mate, tablas, abandono, guardado manual, listado de partidas en el lobby, tema claro/oscuro y sincronización cada 2 segundos.
+- Guardar cada partida por id en `games/` y retomarla después con el turno, el estado y el historial.
+- Revisar partidas terminadas por jaque mate, abandono o tablas, tanto en consola como en la web, sin tocar la partida original.
+- Ids de partida validados (`[A-Za-z0-9_-]{1,64}`), así un id no puede salirse de `games/`.
 - Manejo de entradas incorrectas, EOF y errores de persistencia.
-- Replay de partidas finalizadas por `CHECKMATE` o `ABANDONED`, tanto recién terminadas como guardadas, con avance y retroceso sin modificar la partida ni los archivos.
 
 ## Requisitos
 
 - **JDK 17** o superior, con `java` y `javac` en el `PATH`.
-- **PowerShell** para ejecutar el script de compilación.
+- **PowerShell** para correr el script de compilación.
 - Opcional: **IntelliJ IDEA** con el SDK del proyecto configurado.
 
-El proyecto no requiere dependencias externas ni utiliza Maven o Gradle.
+No hay dependencias externas, ni Maven, ni Gradle.
 
-## Compilación y tests
+## Compilar y correr los tests
 
-El script limpia `bin/`, compila el código principal y los tests, y ejecuta la suite con aserciones habilitadas:
+El script limpia `bin/`, compila el código principal y los tests, y ejecuta todo con las aserciones activadas:
 
 ```powershell
 .\build.ps1
 ```
 
-Para volver a ejecutar todos los tests:
+Para volver a correr la suite completa:
 
 ```powershell
 java -ea -cp bin com.uade.ajedrez.AllTests
 ```
 
-Tests individuales:
+También podés ejecutar un test suelto:
 
 ```powershell
 java -ea -cp bin com.uade.ajedrez.domain.model.BoardTest
@@ -106,9 +106,11 @@ java -ea -cp bin com.uade.ajedrez.infrastructure.adapter.in.http.HttpGameServerT
 java -ea -cp bin com.uade.ajedrez.ErrorHandlingTest
 ```
 
-Los tests usan aserciones de Java; es necesario incluir `-ea`.
+Los tests usan `assert` de Java, así que hace falta el `-ea`.
 
-## Ejecución
+## Cómo jugar
+
+### Consola
 
 Después de compilar:
 
@@ -116,24 +118,25 @@ Después de compilar:
 java -cp bin com.uade.ajedrez.App
 ```
 
-Al iniciar se piden los nombres de los jugadores (Enter usa `White` y `Black`). Luego se ingresa origen y destino separados por espacios, por ejemplo `e2 e4`.
+Al arrancar te pide los nombres de los jugadores (Enter usa `White` y `Black`). Después escribís origen y destino separados por un espacio, por ejemplo `e2 e4`.
 
-Comandos disponibles:
+Comandos:
 
-- `e2 e4`: realizar un movimiento.
-- `legal e2`: listar los destinos legales de la pieza en `e2`.
+- `e2 e4`: hacer una jugada.
+- `legal e2`: ver los destinos legales de la pieza que está en `e2`.
 - `help`: mostrar la ayuda.
 - `quit`: abandonar la partida.
 
-### Modo web
+### Web
 
 ```powershell
 java -cp bin com.uade.ajedrez.App --web              # http://localhost:8080
 java -cp bin com.uade.ajedrez.App --web --port 9090  # otro puerto
 ```
 
-El puerto del backend es solo la API. La interfaz se abre en
-<http://localhost:3000> cuando corre el frontend (`npm run dev`).
+El backend solo expone la API. La interfaz se abre en <http://localhost:3000> cuando corre el frontend con `npm run dev`.
+
+### API
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
@@ -145,37 +148,40 @@ El puerto del backend es solo la API. La interfaz se abre en
 | `GET` | `/api/games/{id}/legal-moves?from=e2` | Destinos legales desde una casilla |
 | `POST` | `/api/games/{id}/abandon` | Abandona la partida |
 | `POST` | `/api/games/{id}/save` | Vuelve a guardar la partida |
+| `GET` | `/api/games/{id}/replay?position=N` | Devuelve la posición `N` del replay de una partida terminada |
 
-Los errores devuelven `{ "error": "CODIGO", "message": "..." }`: `400` para entradas inválidas, `404` si la partida no existe y `409` si el movimiento viola las reglas. El diseño del frontend está en [`docs/DISENO-FRONT.md`](docs/DISENO-FRONT.md).
+Los errores vienen como `{ "error": "CODIGO", "message": "..." }`: `400` para entradas inválidas, `404` si la partida no existe y `409` cuando la jugada rompe las reglas. El diseño del frontend está en [`docs/DISENO-FRONT.md`](docs/DISENO-FRONT.md).
 
-Cada partida se guarda automáticamente en `games/<id>.properties` después de cada movimiento. El lobby lista esas partidas y las abre con un clic; el botón **Guardar** de la pantalla de juego fuerza el guardado cuando haga falta.
+Cada partida se guarda sola en `games/<id>.properties` después de cada movimiento. El lobby lista esas partidas y las abre con un clic; el botón **Guardar** de la pantalla de juego vuelve a escribir el archivo cuando hace falta.
 
 ### Replay
 
-Al finalizar una partida, ingresar `replay` para reproducirla o `replay <id>` para reproducir otra partida guardada. `exit` cierra el programa desde ese menú. También se puede ingresar `replay <id>` en el primer pedido de nombre de jugador, sin crear una partida nueva. Al salir de esa reproducción se vuelve al pedido de nombre.
+Cuando termina una partida podés escribir `replay` para verla de nuevo, o `replay <id>` para abrir otra partida guardada. `exit` cierra el programa desde ese menú. También podés escribir `replay <id>` en el primer pedido de nombre, sin crear una partida nueva; al salir volvés a ese pedido.
 
-La reproducción siempre muestra primero el tablero inicial estándar. Los controles son `next` (avanzar una jugada), `prev` (retroceder una jugada) y `exit` (salir del replay). Al llegar a los extremos se mantiene la posición. Una partida abandonada sin movimientos también puede reproducirse.
+El replay arranca siempre desde el tablero inicial. En consola se maneja con `next` (avanzar), `prev` (retroceder) y `exit` (salir). Si llegás a un extremo, la posición se queda ahí. Una partida abandonada sin movimientos también se puede reproducir.
 
-Solo se admiten partidas en `CHECKMATE` o `ABANDONED`; `IN_PROGRESS` y `CHECK` se rechazan. Se muestra el resultado original separado del estado de la posición que se está viendo: el abandono no agrega un movimiento al historial.
+Solo se pueden reproducir partidas terminadas (`CHECKMATE`, `ABANDONED` o `DRAW`). `IN_PROGRESS` y `CHECK` se rechazan. El resultado original se muestra aparte del estado de la posición que estás viendo: ni el abandono ni las tablas agregan una jugada al historial.
 
-El replay reconstruye comandos desde el historial de coordenadas existente sobre un tablero independiente. No guarda cambios, no altera la partida original y no modifica el formato de persistencia. Cada sesión tiene su propia navegación. No se agregan reglas de tablas, promoción, enroque ni captura al paso.
+El replay arma las jugadas de nuevo sobre un tablero propio a partir del historial de coordenadas. No guarda cambios, no modifica la partida original ni el formato de los archivos. Cada sesión navega por su cuenta.
 
-El frontend se levanta aparte: `cd web`, `npm install` y `npm run dev` (instrucciones completas en [`web/README.md`](web/README.md)).
+En la web, el replay se abre desde el cartel de fin de partida o desde el enlace **Replay** del lobby. La pantalla `/game/{id}/replay` le pide cada posición al backend con `GET /api/games/{id}/replay?position=N` y se maneja con los botones o con las flechas ← →, Inicio y Fin. El endpoint no guarda sesión en el servidor: solo devuelve el `GameView` de la posición pedida. Todavía no hay promoción, enroque, captura al paso ni tablas por repetición o material insuficiente.
 
-En IntelliJ IDEA, abrir la carpeta del proyecto, seleccionar **JDK 17** como Project SDK y ejecutar el `main` de `com.uade.ajedrez.App`.
+El frontend se levanta aparte: `cd web`, `npm install` y `npm run dev`. Las instrucciones completas están en [`web/README.md`](web/README.md).
+
+En IntelliJ IDEA, abrí la carpeta del proyecto, elegí **JDK 17** como Project SDK y ejecutá el `main` de `com.uade.ajedrez.App`.
 
 ## Excepciones y logging
 
-`ChessGameService` recibe el puerto `GameLogger`; `App` inyecta `JavaGameLogger`, que escribe en la consola/`stderr` mediante `java.util.logging`.
+`ChessGameService` recibe el puerto `GameLogger`; `App` le pasa `JavaGameLogger`, que escribe en la consola y en `stderr` con `java.util.logging`.
 
-- **INFO**: creación de partida, movimientos válidos, abandono y fin de partida.
-- **WARNING**: entradas inválidas y movimientos rechazados.
+- **INFO**: creación de partida, jugadas válidas, abandono y fin de partida.
+- **WARNING**: entradas inválidas y jugadas rechazadas.
 - **SEVERE**: fallas inesperadas, con causa y traza.
 
-`InvalidMoveInputException` identifica errores de formato o coordenadas. Las jugadas que incumplen las reglas se informan con `MoveResult` y, en la capa de aplicación, con `MoveRejectedException` (que conserva el `Reason` para mapearlo a un futuro código HTTP). `GamePersistenceException` envuelve errores de lectura/escritura o datos guardados inválidos conservando la causa original.
+`InvalidMoveInputException` marca errores de formato o coordenadas. Las jugadas que rompen las reglas se informan con `MoveResult` y, en la capa de aplicación, con `MoveRejectedException` (que conserva el `Reason` para mapearlo a un código HTTP). `GamePersistenceException` envuelve errores de lectura, escritura o datos guardados inválidos, y conserva la causa original.
 
-## Próximos pasos
+## Lo que sigue
 
-1. Exponer deshacer jugadas durante la partida activa (hoy el retroceso solo existe dentro del replay).
-2. Reglas restantes: enroque, promoción, captura al paso y tablas por repetición/50 movimientos.
-3. Migrar los tests a JUnit 5 manteniendo el build actual con `build.ps1`.
+1. Poder deshacer jugadas durante una partida activa (hoy el retroceso solo existe en el replay).
+2. Sumar las reglas que faltan: enroque, promoción, captura al paso y tablas por repetición o por 50 movimientos.
+3. Migrar los tests a JUnit 5 sin cambiar el build con `build.ps1`.

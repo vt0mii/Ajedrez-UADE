@@ -69,6 +69,7 @@ java -cp bin com.uade.ajedrez.App --web      # HTTP en http://localhost:8080
 | `GET` | `/api/games/{id}/legal-moves?from=e2` | — | `200` + `{ "moves": ["e3","e4"] }` |
 | `POST` | `/api/games/{id}/abandon` | — | `200` + `GameView` |
 | `POST` | `/api/games/{id}/save` | — | `200` + `GameView` |
+| `GET` | `/api/games/{id}/replay?position=N` | — | `200` + `ReplayView` (`400` si la partida no terminó) |
 | `GET` | `/api/health` | — | `200` + `{ "status": "ok" }` |
 
 ### Formato de `GameView`
@@ -93,7 +94,29 @@ java -cp bin com.uade.ajedrez.App --web      # HTTP en http://localhost:8080
 
 - `board` es una matriz de 8×8, `board[0][0]` = **a8**, `board[7][7]` = **h1**.
   Las casillas vacías son `null`.
-- `winner` es `null` salvo en `CHECKMATE`.
+- `winner` es `null` salvo en `CHECKMATE`. En `ABANDONED` y `DRAW` también es
+  `null`; el resultado se muestra a partir de `status`.
+
+### Formato de `ReplayView`
+
+El replay devuelve el tablero de una posición del historial junto con el
+resultado final de la partida:
+
+```json
+{
+  "game": { "id": "g_8f2c...", "status": "IN_PROGRESS", "turn": "BLACK", "board": ["..."], "history": ["..."] },
+  "position": 3,
+  "totalMoves": 8,
+  "result": "CHECKMATE"
+}
+```
+
+- `position` viene clampeada entre `0` y `totalMoves`, así que pedir `-5` o
+  `999` devuelve un extremo válido.
+- `game.status` es el estado de la posición que se está viendo; `result` es el
+  final real de la partida.
+- Solo hay replay para partidas terminadas: `CHECKMATE`, `ABANDONED` o `DRAW`.
+  Una partida `IN_PROGRESS` o `CHECK` responde `400`.
 
 ### Formato de `GameSummary`
 
@@ -154,7 +177,8 @@ web/
     │   ├── layout.tsx          # shell: header, fondo, tipografía
     │   ├── globals.css         # Tailwind + variables de tema
     │   ├── page.tsx            # Lobby: crear y abrir partidas guardadas
-    │   └── game/[id]/page.tsx  # Pantalla de juego
+    │   ├── game/[id]/page.tsx  # Pantalla de juego
+    │   └── game/[id]/replay/page.tsx  # Pantalla de replay
     ├── components/
     │   ├── board/
     │   │   ├── ChessBoard.tsx  # grilla 8x8 + interacción
@@ -168,7 +192,8 @@ web/
     │   ├── lobby/
     │   │   └── LobbyScreen.tsx # crear y abrir partidas guardadas
     │   ├── game/
-    │   │   └── GameScreen.tsx  # layout de la partida y atajos
+    │   │   ├── GameScreen.tsx  # layout de la partida y atajos
+    │   │   └── ReplayScreen.tsx # tablero, historial y controles del replay
     │   └── ui/
     │       ├── Button.tsx
     │       ├── Input.tsx
@@ -189,6 +214,7 @@ web/
 | `lib/api.ts` | `fetch` + parseo + errores tipados | reglas del juego |
 | `hooks/useGame.ts` | estado, polling, mutaciones | dibujar |
 | `ChessBoard.tsx` | layout y clicks | saber si el movimiento es válido |
+| `ReplayScreen.tsx` | pedir posiciones y navegar el historial | reconstruir jugadas o validar reglas |
 | `Piece.tsx` | glifo/color | lógica |
 
 ### Flujo de una jugada
@@ -206,6 +232,20 @@ No hay ajedrez en TypeScript: **el front nunca decide si un movimiento es legal*
 (`document.visibilityState`). Sirve para "hotseat" en dos dispositivos y para
 retomar una partida abierta en otra pestaña. Si más adelante hace falta, se
 cambia por SSE sin tocar los componentes.
+
+### Replay
+
+El replay está disponible para partidas terminadas por **jaque mate**,
+**abandono** o **tablas**. Se llega desde el overlay de fin de partida
+(**Ver replay**) o desde el enlace **Replay** que aparece en el lobby para esas
+partidas.
+
+`ReplayScreen` pide al backend una posición por vez con
+`GET /api/games/{id}/replay?position=N`. No reconstruye jugadas ni guarda
+historial local: muestra el `GameView` que devuelve el servidor y mueve el
+puntero. Los controles son **Inicio**, **Anterior**, **Siguiente** y **Final**;
+también responden las flechas ← →, `Inicio` y `Fin`. El panel derecho muestra
+el estado de la posición actual y, separado, el resultado final de la partida.
 
 ---
 
@@ -297,7 +337,8 @@ va primero para que la partida quede visible sin scrollear.
 - Tarjeta **Nueva partida**: dos inputs (blancas / negras), botón primario.
 - Sección **Partidas guardadas**: lista las partidas de `games/` con jugadores,
   estado, turno, cantidad de jugadas, última jugada y fecha. Un clic abre la
-  partida. Tiene botón para actualizar el listado.
+  partida. Las partidas terminadas muestran además un enlace **Replay**. Tiene
+  botón para actualizar el listado.
 - Si el backend no responde: aviso claro con el comando para levantarlo.
 
 ---

@@ -2,6 +2,7 @@ package com.uade.ajedrez.infrastructure.adapter.in.http;
 
 import com.uade.ajedrez.application.dto.GameView;
 import com.uade.ajedrez.application.dto.GameSummaryView;
+import com.uade.ajedrez.application.dto.ReplayView;
 import com.uade.ajedrez.application.dto.GameView.MoveView;
 import com.uade.ajedrez.application.dto.GameView.PieceView;
 import com.uade.ajedrez.application.dto.GameView.PlayerView;
@@ -28,6 +29,15 @@ final class GameViewJson {
         field(json, "lastMove", game.lastMove() == null ? "null" : move(game.lastMove())).append(',');
         field(json, "winner", game.winner() == null ? "null" : Json.quote(game.winner().name()));
         return json.append('}').toString();
+    }
+
+    // El replay es un GameView más el puntero dentro del historial. El estado
+    // del tablero corresponde a la posición pedida; `result` es el final real.
+    static String replayToJson(ReplayView replay) {
+        return "{\"game\":" + toJson(replay.game())
+                + ",\"position\":" + replay.position()
+                + ",\"totalMoves\":" + replay.totalMoves()
+                + ",\"result\":" + Json.quote(replay.result().name()) + "}";
     }
 
     static String gamesToJson(List<GameSummaryView> games) {

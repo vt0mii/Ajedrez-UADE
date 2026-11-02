@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api";
 import { pieceAt } from "@/lib/board";
+import { isFinishedStatus } from "@/lib/status";
 import type { GameView } from "@/lib/types";
 
 const POLL_INTERVAL_MS = 2000;
@@ -95,7 +96,7 @@ export function useGame(gameId: string) {
   }
 
   async function selectSquare(square: string) {
-    if (!game || busy || game.status === "CHECKMATE" || game.status === "ABANDONED") {
+    if (!game || busy || isFinishedStatus(game.status)) {
       return;
     }
 

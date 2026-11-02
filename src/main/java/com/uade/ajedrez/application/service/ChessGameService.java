@@ -4,6 +4,7 @@ import com.uade.ajedrez.application.dto.GameView;
 import com.uade.ajedrez.application.dto.GameSummaryView;
 import com.uade.ajedrez.application.dto.MoveCommand;
 import com.uade.ajedrez.application.dto.NewGameCommand;
+import com.uade.ajedrez.application.dto.ReplayView;
 import com.uade.ajedrez.application.exception.GameNotFoundException;
 import com.uade.ajedrez.application.exception.InvalidCommandException;
 import com.uade.ajedrez.application.exception.MoveRejectedException;
@@ -102,9 +103,20 @@ public class ChessGameService implements ChessGameUseCases {
     public ReplaySession startReplay(String gameId) {
         ChessGame game = findGame(gameId);
         if (!game.isFinished()) {
-            throw new InvalidCommandException("Replay requires CHECKMATE or ABANDONED");
+            throw new InvalidCommandException("Replay requires CHECKMATE, ABANDONED or DRAW");
         }
         return new ReplaySession(game.startReplay());
+    }
+
+    @Override
+    public ReplayView replayAt(String gameId, int position) {
+        ReplaySession session = startReplay(gameId);
+        ReplayView view = session.current();
+        int target = Math.max(0, Math.min(position, view.totalMoves()));
+        while (view.position() < target) {
+            view = session.next();
+        }
+        return view;
     }
 
     @Override

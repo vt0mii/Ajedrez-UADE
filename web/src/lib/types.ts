@@ -4,7 +4,12 @@ export type Color = "WHITE" | "BLACK";
 
 export type PieceType = "PAWN" | "KNIGHT" | "BISHOP" | "ROOK" | "QUEEN" | "KING";
 
-export type GameState = "IN_PROGRESS" | "CHECK" | "CHECKMATE" | "ABANDONED";
+export type GameState =
+  | "IN_PROGRESS"
+  | "CHECK"
+  | "CHECKMATE"
+  | "ABANDONED"
+  | "DRAW";
 
 export type PieceView = {
   type: PieceType;
@@ -48,5 +53,14 @@ export type GameSummary = {
   lastMove: MoveView | null;
   // Milisegundos desde epoch, tal como lo manda el backend.
   updatedAt: number;
+};
+
+// Una posición del replay: el tablero en ese momento, el puntero dentro del
+// historial y el resultado real de la partida.
+export type ReplayView = {
+  game: GameView;
+  position: number;
+  totalMoves: number;
+  result: GameState;
 };
 

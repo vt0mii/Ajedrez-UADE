@@ -183,7 +183,40 @@ estado inconsistente si se cortaba a mitad de camino.
 **Consecuencia:** se puede navegar el replay sin riesgo y la partida original
 queda intacta. El costo es mantener una segunda estructura de navegación.
 
-### 2.13. Listado tolerante a archivos rotos
+### 2.13. El replay web no guarda sesión en el servidor
+
+La pantalla de replay del frontend pide una posición concreta con
+`GET /api/games/{id}/replay?position=N`. El servidor reconstruye la partida,
+avanza hasta esa jugada y devuelve el `GameView` junto con el total de
+movimientos y el resultado final. No hay un objeto de sesión vivo entre
+requests.
+
+La alternativa era exponer `startReplay` con un id de sesión y reutilizar el
+`ReplaySession` de la consola. La descartamos porque obligaba a mantener estado
+en memoria, a limpiarlo y a lidiar con sesiones vencidas para una pantalla que
+solo necesita mostrar posiciones.
+
+**Consecuencia:** cada paso del replay es un request independiente y el
+servidor queda sin estado; el costo es reconstruir el historial en cada
+consulta. Con partidas del TP (decenas de jugadas) no es un problema.
+
+### 2.14. Tablas por ahogado dentro del dominio
+
+Agregamos `DRAW` a `GameState` y `MovementService.isStalemate`. Después de cada
+jugada, `ChessGame` revisa en este orden: jaque mate, ahogado y jaque. Si el
+jugador en turno no está en jaque pero no tiene ninguna jugada legal, la
+partida termina en tablas.
+
+La alternativa era dejar las tablas fuera del alcance, como estaba al
+principio. La descartamos porque el enunciado pide replay para partidas
+terminadas y las tablas son un final posible; sin el estado, una partida
+ahogada quedaba "en juego" para siempre.
+
+**Consecuencia:** `DRAW` se guarda en el archivo como cualquier otro estado,
+entra al replay y se muestra como **Tablas** en la web. Siguen afuera las tablas
+por repetición, por 50 movimientos y por material insuficiente.
+
+### 2.15. Listado tolerante a archivos rotos
 
 `FileGameRepository.findAll` lee todos los `.properties`, ignora los que no se
 pueden parsear y ordena por fecha de modificación. Un archivo corrupto no
@@ -196,7 +229,7 @@ acceso a todas las partidas buenas.
 **Consecuencia:** una partida rota desaparece del listado sin aviso. Nos pareció
 mejor que bloquear todo; el error queda disponible al intentar abrirla por id.
 
-### 2.14. Autoguardado y guardado manual
+### 2.16. Autoguardado y guardado manual
 
 La partida se guarda sola después de cada jugada y al crearse. Además, la
 pantalla de juego tiene un botón **Guardar partida** que vuelve a persistir y
@@ -209,7 +242,7 @@ poder retomarla desde el lobby.
 **Consecuencia:** hay escrituras frecuentes a disco, pero son archivos chicos y
 el volumen del TP es bajo.
 
-### 2.15. Tests ejecutables sin JUnit
+### 2.17. Tests ejecutables sin JUnit
 
 Los tests son clases con `main` y aserciones de Java, ejecutadas con `-ea` desde
 `build.ps1`. No hay JUnit ni un runner externo.
@@ -323,6 +356,7 @@ classDiagram
             CHECK
             CHECKMATE
             ABANDONED
+            DRAW
         }
         class Reason {
             <<enumeration>>
@@ -349,6 +383,7 @@ classDiagram
             +validateMove(Board, Move, Color) MoveResult
             +isInCheck(Board, Color) boolean
             +isCheckmate(Board, Color) boolean
+            +isStalemate(Board, Color) boolean
         }
     }
 
@@ -450,6 +485,7 @@ classDiagram
             +listGames() List~GameSummaryView~
             +saveGame(String) GameView
             +startReplay(String) ReplaySession
+            +replayAt(String, int) ReplayView
         }
         class GameViewMapper {
             +toView(ChessGame) GameView
@@ -533,7 +569,8 @@ adaptadores dependan de una sola interfaz.
 ## 4. Qué queda afuera
 
 - Enroque, promoción y captura al paso.
-- Tablas por repetición, 50 movimientos o material insuficiente.
+- Tablas por repetición, 50 movimientos o material insuficiente (el ahogado ya
+  está implementado).
 - Autenticación y partidas multiusuario reales.
 - Deshacer jugadas durante una partida activa (hoy solo existe en el replay).
 - Migración a JUnit manteniendo el build con `build.ps1`.

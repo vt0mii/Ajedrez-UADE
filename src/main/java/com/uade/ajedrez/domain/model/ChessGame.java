@@ -112,6 +112,8 @@ public class ChessGame {
         Color currentColor = getCurrentTurn();
         if (movementService.isCheckmate(board, currentColor)) {
             state = GameState.CHECKMATE;
+        } else if (movementService.isStalemate(board, currentColor)) {
+            state = GameState.DRAW;
         } else if (movementService.isInCheck(board, currentColor)) {
             state = GameState.CHECK;
         } else {

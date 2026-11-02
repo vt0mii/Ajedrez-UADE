@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { playerOf } from "@/lib/board";
-import { STATUS_STYLES } from "@/lib/status";
+import { isFinishedStatus, STATUS_STYLES } from "@/lib/status";
 import type { GameView } from "@/lib/types";
 
 type GameStatusProps = {
@@ -28,7 +28,7 @@ export function GameStatus({
   const [confirming, setConfirming] = useState(false);
   const status = STATUS_STYLES[game.status];
   const turnPlayer = playerOf(game, game.turn);
-  const finished = game.status === "CHECKMATE" || game.status === "ABANDONED";
+  const finished = isFinishedStatus(game.status);
 
   return (
     <section className="space-y-4 rounded-xl border border-ink-800 bg-ink-900/60 p-4">

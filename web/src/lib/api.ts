@@ -77,6 +77,13 @@ export const api = {
     request<import("./types").GameView>(`/api/games/${gameId}/save`, {
       method: "POST",
     }),
+
+  // Pide una posición del historial de una partida terminada. El backend
+  // reconstruye el tablero; el frontend no repite las reglas.
+  replay: (gameId: string, position: number) =>
+    request<import("./types").ReplayView>(
+      `/api/games/${gameId}/replay?position=${position}`,
+    ),
 };
 
 export { API_URL };

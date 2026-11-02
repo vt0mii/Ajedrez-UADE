@@ -11,6 +11,7 @@ import { Toast } from "@/components/ui/Toast";
 import { useGame } from "@/hooks/useGame";
 import { API_URL } from "@/lib/api";
 import { missingPieces, oppositeColor, playerOf } from "@/lib/board";
+import { isFinishedStatus } from "@/lib/status";
 import type { Color } from "@/lib/types";
 
 export function GameScreen({ gameId }: { gameId: string }) {
@@ -89,7 +90,7 @@ export function GameScreen({ gameId }: { gameId: string }) {
 
   const bottomColor: Color = flipped ? "BLACK" : "WHITE";
   const topColor = oppositeColor(bottomColor);
-  const finished = game.status === "CHECKMATE" || game.status === "ABANDONED";
+  const finished = isFinishedStatus(game.status);
 
   async function copyLink() {
     try {

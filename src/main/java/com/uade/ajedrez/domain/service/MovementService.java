@@ -67,6 +67,11 @@ public class MovementService {
         return !hasAnyLegalMove(board, playerColor);
     }
 
+    // Tablas por ahogado: no está en jaque pero tampoco tiene jugadas legales.
+    public boolean isStalemate(Board board, Color playerColor) {
+        return !isInCheck(board, playerColor) && !hasAnyLegalMove(board, playerColor);
+    }
+
     private boolean leavesKingInCheck(Board board, Move move, Color playerColor) {
         Board simulatedBoard = simulateMove(board, move);
         return isInCheck(simulatedBoard, playerColor);

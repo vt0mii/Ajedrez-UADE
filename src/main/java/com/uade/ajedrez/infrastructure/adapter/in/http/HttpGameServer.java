@@ -150,6 +150,10 @@ public class HttpGameServer {
                 requireMethod(method, "POST");
                 respondJson(exchange, 200, GameViewJson.toJson(useCases.saveGame(gameId)));
             }
+            case "replay" -> {
+                requireMethod(method, "GET");
+                replay(exchange, gameId);
+            }
             default -> throw new HttpError(404, "NOT_FOUND", "Unknown game action: " + action);
         }
     }
@@ -176,6 +180,22 @@ public class HttpGameServer {
 
         List<String> moves = useCases.legalMoves(gameId, from);
         respondJson(exchange, 200, "{\"moves\":" + Json.stringArray(moves) + "}");
+    }
+
+    // El frontend pide una posición del historial y recibe el tablero de ese
+    // momento. No hay sesión guardada en el servidor: cada request es independiente.
+    private void replay(HttpExchange exchange, String gameId) throws IOException {
+        String raw = queryParameter(exchange.getRequestURI(), "position");
+        int position = 0;
+        if (raw != null && !raw.isBlank()) {
+            try {
+                position = Integer.parseInt(raw);
+            } catch (NumberFormatException error) {
+                throw new HttpError(400, "INVALID_INPUT", "Invalid position: " + raw);
+            }
+        }
+
+        respondJson(exchange, 200, GameViewJson.replayToJson(useCases.replayAt(gameId, position)));
     }
 
     private static String required(String body, String field) {

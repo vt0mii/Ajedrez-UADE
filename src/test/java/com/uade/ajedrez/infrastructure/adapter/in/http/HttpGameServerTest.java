@@ -34,6 +34,7 @@ public class HttpGameServerTest {
             testPartidaInexistente();
             testListarPartidas();
             testGuardarPartida();
+            testReplay();
             testRutaDesconocida();
             testRaiz();
         } finally {
@@ -132,6 +133,29 @@ public class HttpGameServerTest {
         assert missing.statusCode() == 404 : "guardar una partida inexistente deberia responder 404";
 
         System.out.println("V testGuardarPartida paso");
+    }
+
+    static void testReplay() throws Exception {
+        String gameId = JsonBody.stringField(createGame().body(), "id");
+        post("/games/" + gameId + "/moves", "{\"from\":\"e2\",\"to\":\"e4\"}");
+        post("/games/" + gameId + "/abandon", "");
+
+        HttpResponse<String> replay = get("/games/" + gameId + "/replay?position=1");
+
+        assert replay.statusCode() == 200 : "el replay deberia responder 200";
+        assert replay.body().contains("\"position\":1") : "deberia devolver la posicion pedida";
+        assert replay.body().contains("\"totalMoves\":1") : "deberia informar el total de jugadas";
+        assert replay.body().contains("\"result\":\"ABANDONED\"") : "deberia conservar el resultado";
+        assert replay.body().contains("\"turn\":\"BLACK\"") : "el tablero deberia ser el de la jugada 1";
+
+        HttpResponse<String> invalidPosition = get("/games/" + gameId + "/replay?position=abc");
+        assert invalidPosition.statusCode() == 400 : "una posicion invalida deberia responder 400";
+
+        String activeId = JsonBody.stringField(createGame().body(), "id");
+        HttpResponse<String> rejected = get("/games/" + activeId + "/replay");
+        assert rejected.statusCode() == 400 : "una partida activa no deberia tener replay";
+
+        System.out.println("V testReplay paso");
     }
 
     static void testRutaDesconocida() throws Exception {

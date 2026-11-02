@@ -1,13 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Toast } from "@/components/ui/Toast";
 import { api, ApiError, API_URL } from "@/lib/api";
-import { STATUS_STYLES } from "@/lib/status";
+import { isFinishedStatus, STATUS_STYLES } from "@/lib/status";
 import type { GameSummary } from "@/lib/types";
 
 // Fecha corta para el listado. Se arma en el cliente porque el formato
@@ -193,11 +194,11 @@ export function LobbyScreen() {
               const moves = game.moveCount === 1 ? "1 jugada" : `${game.moveCount} jugadas`;
 
               return (
-                <li key={game.id}>
+                <li key={game.id} className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => openSaved(game)}
-                    className="group flex w-full flex-col gap-2 py-3 text-left transition-colors hover:bg-ink-800/40 sm:flex-row sm:items-center sm:justify-between sm:px-2"
+                    className="group flex min-w-0 flex-1 flex-col gap-2 py-3 text-left transition-colors hover:bg-ink-800/40 sm:flex-row sm:items-center sm:justify-between sm:px-2"
                   >
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
@@ -227,6 +228,14 @@ export function LobbyScreen() {
                       </span>
                     </div>
                   </button>
+                  {isFinishedStatus(game.status) ? (
+                    <Link
+                      href={`/game/${game.id}/replay`}
+                      className="shrink-0 rounded-lg border border-ink-700 px-2.5 py-1.5 text-[11px] font-medium text-ink-300 transition-colors hover:border-gold-400/40 hover:text-gold-300"
+                    >
+                      Replay
+                    </Link>
+                  ) : null}
                 </li>
               );
             })}
