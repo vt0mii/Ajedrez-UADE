@@ -57,6 +57,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
               </span>
             </Link>
             <div className="flex items-center gap-2">
+              <Link
+                href="/docs"
+                className="rounded-lg px-2.5 py-1.5 text-sm text-ink-300 transition-colors hover:bg-ink-900/60 hover:text-ink-100 sm:px-3"
+              >
+                <span className="sm:hidden">Docs</span>
+                <span className="hidden sm:inline">Documentación</span>
+              </Link>
               <ThemeToggle />
             </div>
           </div>

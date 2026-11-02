@@ -54,10 +54,13 @@ src/
 ├── app/
 │   ├── layout.tsx          # shell: header, footer, tipografías
 │   ├── page.tsx            # lobby
+│   ├── docs/page.tsx       # índice de documentación
+│   ├── docs/[slug]/page.tsx # documento markdown
 │   ├── game/[id]/page.tsx  # partida (param en el servidor)
 │   └── game/[id]/replay/page.tsx # replay de una partida terminada
 ├── components/
 │   ├── board/              # ChessBoard, Square, Piece
+│   ├── docs/               # DocsScreen, DocsNav, DocsToc, DocMarkdown
 │   ├── panels/             # PlayerCard, MoveHistory, GameStatus, ResultBanner
 │   ├── lobby/              # LobbyScreen
 │   ├── game/               # GameScreen, ReplayScreen
@@ -67,6 +70,8 @@ src/
 └── lib/
     ├── api.ts              # cliente tipado del backend
     ├── board.ts            # helpers de coordenadas y presentación
+    ├── docs.ts             # lista, lectura y links de los documentos
+    ├── markdown.ts         # slugs y extracción de títulos
     ├── status.ts           # etiquetas y colores del estado de la partida
     └── types.ts            # contrato GameView y GameSummary
 ```
@@ -101,6 +106,16 @@ La pantalla `/game/[id]/replay` pide cada posición con
 **Anterior**, **Siguiente** y **Final**, o con las flechas ← →, `Inicio` y `Fin`.
 El frontend no reconstruye jugadas: solo muestra el tablero que devuelve el
 backend para cada posición.
+
+## Documentación
+
+`/docs` lee los markdown del repositorio (`README.md`, `web/README.md` y
+`docs/*.md`) y los muestra con un menú de documentos y un índice lateral. La
+lista está fija en `lib/docs.ts`; los enlaces entre documentos se traducen a
+rutas de la app y el render usa `react-markdown` con `remark-gfm`.
+
+La pantalla es un Server Component: lee los archivos con `node:fs` en cada
+request, así que no hay que copiar los documentos ni reconstruir el HTML a mano.
 
 ## Atajos
 

@@ -177,6 +177,8 @@ web/
     │   ├── layout.tsx          # shell: header, fondo, tipografía
     │   ├── globals.css         # Tailwind + variables de tema
     │   ├── page.tsx            # Lobby: crear y abrir partidas guardadas
+    │   ├── docs/page.tsx       # índice de documentación
+    │   ├── docs/[slug]/page.tsx # documento markdown
     │   ├── game/[id]/page.tsx  # Pantalla de juego
     │   └── game/[id]/replay/page.tsx  # Pantalla de replay
     ├── components/
@@ -184,6 +186,11 @@ web/
     │   │   ├── ChessBoard.tsx  # grilla 8x8 + interacción
     │   │   ├── Square.tsx      # casilla, coordenadas, resaltados
     │   │   └── Piece.tsx       # glifo de pieza
+    │   ├── docs/
+    │   │   ├── DocsScreen.tsx  # layout de la documentación
+    │   │   ├── DocsNav.tsx     # menú de documentos
+    │   │   ├── DocsToc.tsx     # índice del documento
+    │   │   └── DocMarkdown.tsx # render de markdown y links internos
     │   ├── panels/
     │   │   ├── PlayerCard.tsx  # nombre, color, capturadas, turno
     │   │   ├── MoveHistory.tsx # lista de jugadas en pares
@@ -204,6 +211,8 @@ web/
         ├── api.ts              # cliente tipado de la API
         ├── types.ts            # GameView, GameSummary, Color, PieceType, GameState
         ├── status.ts           # etiquetas y colores del estado
+        ├── docs.ts             # lista, lectura y links de los documentos
+        ├── markdown.ts         # slugs y extracción de títulos
         └── board.ts            # helpers de coordenadas y agrupado de historial
 ```
 
@@ -215,6 +224,8 @@ web/
 | `hooks/useGame.ts` | estado, polling, mutaciones | dibujar |
 | `ChessBoard.tsx` | layout y clicks | saber si el movimiento es válido |
 | `ReplayScreen.tsx` | pedir posiciones y navegar el historial | reconstruir jugadas o validar reglas |
+| `lib/docs.ts` | listar, leer y enlazar los documentos | renderizar markdown |
+| `DocMarkdown.tsx` | renderizar markdown y sus links internos | decidir qué documentos existen |
 | `Piece.tsx` | glifo/color | lógica |
 
 ### Flujo de una jugada
@@ -246,6 +257,19 @@ historial local: muestra el `GameView` que devuelve el servidor y mueve el
 puntero. Los controles son **Inicio**, **Anterior**, **Siguiente** y **Final**;
 también responden las flechas ← →, `Inicio` y `Fin`. El panel derecho muestra
 el estado de la posición actual y, separado, el resultado final de la partida.
+
+### Documentación
+
+`/docs` muestra los documentos del repositorio: `README.md`, `web/README.md` y
+los archivos de `docs/`. `lib/docs.ts` tiene la lista fija de documentos, lee
+cada archivo con `node:fs` y traduce los enlaces entre `.md` a rutas de la web;
+`DocMarkdown.tsx` los renderiza con `react-markdown` y `remark-gfm`.
+
+La pantalla tiene el menú de documentos, el contenido y un índice lateral con
+los `h2` y `h3`. Los ids de los títulos salen de `lib/markdown.ts`, así los
+enlaces del índice funcionan sin JavaScript. La lista es fija para que un slug
+inventado no pueda leer otra parte del disco. Como los documentos están fuera
+de `web/`, `lib/docs.ts` resuelve la raíz del repo desde `process.cwd()`.
 
 ---
 

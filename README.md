@@ -13,8 +13,9 @@ Es un ajedrez hecho en Java con arquitectura hexagonal (puertos y adaptadores). 
 
 ## Arquitectura
 
-Las decisiones de diseño y los diagramas de clases están en
-[`docs/JUSTIFICACION.md`](docs/JUSTIFICACION.md).
+La explicación completa, capa por capa, está en
+[`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md). Las decisiones de diseño y los
+diagramas de clases están en [`docs/JUSTIFICACION.md`](docs/JUSTIFICACION.md).
 
 Las dependencias siempre apuntan hacia el núcleo:
 
@@ -65,6 +66,7 @@ Es el único lugar que conoce las implementaciones concretas. Según el argument
 - Ver el historial y consultar los movimientos legales de una casilla (lo usa la web).
 - Jugar desde la consola con nombres de jugadores y los comandos `legal <casilla>`, `help` y `quit`.
 - Jugar desde la web (`web/`, Next.js + Tailwind): tablero, historial, jaque, jaque mate, tablas, abandono, guardado manual, listado de partidas en el lobby, tema claro/oscuro y sincronización cada 2 segundos.
+- Leer la arquitectura, las decisiones y las guías desde `/docs`, con los markdown del repositorio renderizados en la web.
 - Guardar cada partida por id en `games/` y retomarla después con el turno, el estado y el historial.
 - Revisar partidas terminadas por jaque mate, abandono o tablas, tanto en consola como en la web, sin tocar la partida original.
 - Ids de partida validados (`[A-Za-z0-9_-]{1,64}`), así un id no puede salirse de `games/`.
@@ -135,6 +137,8 @@ java -cp bin com.uade.ajedrez.App --web --port 9090  # otro puerto
 ```
 
 El backend solo expone la API. La interfaz se abre en <http://localhost:3000> cuando corre el frontend con `npm run dev`.
+
+La web también tiene una sección `/docs` que lee los `.md` del repositorio y los muestra con su índice. No hay contenido duplicado: si se edita un documento, se ve el cambio al recargar.
 
 ### API
 
