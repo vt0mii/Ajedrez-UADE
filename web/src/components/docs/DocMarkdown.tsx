@@ -25,10 +25,40 @@ function reactText(node: ReactNode): string {
   return "";
 }
 
+// Saca el lenguaje del bloque (`powershell`, `java`, `mermaid`, etc.) para
+// mostrarlo en la barra superior del bloque de código.
+function codeLanguage(children: ReactNode): string | undefined {
+  const nodes = Array.isArray(children) ? children : [children];
+
+  for (const child of nodes) {
+    if (isValidElement<{ className?: string }>(child)) {
+      const match = child.props.className?.match(/language-([\w-]+)/);
+      if (match) {
+        return match[1];
+      }
+    }
+  }
+
+  return undefined;
+}
+
 const COMPONENTS: Components = {
   h2: ({ children }) => <h2 id={slugify(reactText(children))}>{children}</h2>,
   h3: ({ children }) => <h3 id={slugify(reactText(children))}>{children}</h3>,
   h4: ({ children }) => <h4 id={slugify(reactText(children))}>{children}</h4>,
+
+  // Los bloques de código van dentro de una tarjeta con el lenguaje arriba.
+  // Así no se confunden con párrafos ni con el resto del texto.
+  pre: ({ children }) => {
+    const language = codeLanguage(children);
+
+    return (
+      <div className="doc-code">
+        {language && <span className="doc-code-lang">{language}</span>}
+        <pre>{children}</pre>
+      </div>
+    );
+  },
 
   // Los links entre documentos (`docs/...`, `web/README.md`) se convierten en
   // rutas de la web. Lo externo se abre aparte; el resto queda igual.
