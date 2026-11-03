@@ -370,6 +370,59 @@ html[data-theme="light"] {
   }
 
   /*
+   * En el artículo no se dibuja el diagrama: queda una tarjeta que baja hasta
+   * la sección de diagramas, donde el dibujo puede usar todo el ancho.
+   */
+  .doc-content .doc-diagram-link {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 0.75rem;
+    margin: 1.5rem 0;
+    border: 1px dashed color-mix(in oklab, var(--color-ink-600) 80%, transparent);
+    border-radius: 0.9rem;
+    background-color: color-mix(in oklab, var(--color-ink-900) 70%, transparent);
+    padding: 0.85rem 1.1rem;
+    text-decoration: none;
+    transition:
+      border-color 150ms ease,
+      background-color 150ms ease;
+  }
+
+  .doc-content .doc-diagram-link:hover {
+    border-color: var(--color-gold-500);
+    background-color: color-mix(
+      in oklab,
+      var(--color-gold-500) 8%,
+      var(--color-ink-900)
+    );
+  }
+
+  .doc-diagram-link-label {
+    font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-gold-300);
+  }
+
+  .doc-diagram-link-title {
+    color: var(--color-ink-100);
+    font-weight: 600;
+  }
+
+  .doc-diagram-link-cta {
+    margin-left: auto;
+    font-size: 0.78rem;
+    color: var(--color-ink-400);
+  }
+
+  .doc-diagram-link:hover .doc-diagram-link-cta {
+    color: var(--color-gold-300);
+  }
+
+  /*
    * Tablas: también como tarjeta, con encabezado propio y filas alternadas.
    * Se mantiene el scroll horizontal para que no rompan el layout en móvil.
    */

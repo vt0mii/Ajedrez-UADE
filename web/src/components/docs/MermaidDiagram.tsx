@@ -20,7 +20,15 @@ function readDiagramSize(svg: string): DiagramSize | null {
 
 // Renderiza un bloque ```mermaid``` del markdown. Mermaid se carga solo en el
 // cliente y solo cuando aparece un diagrama, así no pesa en el resto del sitio.
-export function MermaidDiagram({ chart }: { chart: string }) {
+// En la sección de diagramas (`gallery`) el bloque tiene todo el ancho de la
+// página, así que solo deja scroll para los que no entran ni siquiera ahí.
+export function MermaidDiagram({
+  chart,
+  variant = "inline",
+}: {
+  chart: string;
+  variant?: "inline" | "gallery";
+}) {
   const reactId = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const renderCount = useRef(0);
 
@@ -94,8 +102,10 @@ export function MermaidDiagram({ chart }: { chart: string }) {
   }
 
   // Un diagrama más ancho que la columna se muestra a tamaño natural y con
-  // scroll propio; si entra, se ajusta al ancho como una imagen.
-  const wide = Boolean(size && size.width > 1100);
+  // scroll propio; si entra, se ajusta al ancho como una imagen. En la galería
+  // el límite es el ancho de la sección, que es bastante más generoso.
+  const limit = variant === "gallery" ? 1600 : 1100;
+  const wide = Boolean(size && size.width > limit);
 
   return (
     <div className="doc-mermaid">
@@ -105,8 +115,9 @@ export function MermaidDiagram({ chart }: { chart: string }) {
       <div
         className="doc-mermaid-body"
         data-wide={wide ? "true" : undefined}
+        data-variant={variant}
         style={
-          wide
+          wide && variant === "inline"
             ? {
                 maxHeight: "76vh",
                 overflow: "auto",
