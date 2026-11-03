@@ -326,6 +326,50 @@ html[data-theme="light"] {
   }
 
   /*
+   * Diagramas Mermaid: la misma tarjeta que un bloque de código, pero con el
+   * dibujo centrado y scroll horizontal para los diagramas más anchos.
+   */
+  .doc-mermaid {
+    overflow: hidden;
+    border: 1px solid var(--color-ink-600);
+    border-radius: 0.9rem;
+    background-color: var(--color-ink-900);
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.04) inset,
+      0 18px 40px -32px color-mix(in oklab, var(--color-ink-950) 85%, transparent);
+  }
+
+  .doc-mermaid-body {
+    overflow-x: auto;
+    padding: 1.25rem;
+  }
+
+  .doc-mermaid-body[data-wide="true"] {
+    padding: 1rem 1.25rem;
+  }
+
+  .doc-mermaid-body svg {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+  }
+
+  .doc-mermaid-body[data-wide="true"] svg {
+    display: block;
+    max-width: none;
+    height: auto;
+  }
+
+  .doc-mermaid-canvas {
+    margin: 0 auto;
+  }
+
+  .doc-mermaid-canvas svg {
+    max-width: none;
+  }
+
+  /*
    * Tablas: también como tarjeta, con encabezado propio y filas alternadas.
    * Se mantiene el scroll horizontal para que no rompan el layout en móvil.
    */
@@ -381,6 +425,7 @@ html[data-theme="light"] {
 
   /* En claro una sombra negra fuerte ensucia la tarjeta; va una más suave. */
   html[data-theme="light"] .doc-code,
+  html[data-theme="light"] .doc-mermaid,
   html[data-theme="light"] .doc-content .doc-table {
     box-shadow:
       0 1px 0 rgb(255 255 255 / 0.8) inset,

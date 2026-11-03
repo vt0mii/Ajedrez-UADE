@@ -6,6 +6,7 @@ import type { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { docHref } from "@/lib/docs";
 import { slugify } from "@/lib/markdown";
+import { MermaidDiagram } from "./MermaidDiagram";
 
 // Saca el texto plano de los hijos de un título, incluso si adentro hay
 // código, negrita o links. Así el id coincide con el del índice.
@@ -48,9 +49,13 @@ const COMPONENTS: Components = {
   h4: ({ children }) => <h4 id={slugify(reactText(children))}>{children}</h4>,
 
   // Los bloques de código van dentro de una tarjeta con el lenguaje arriba.
-  // Así no se confunden con párrafos ni con el resto del texto.
+  // Los de Mermaid se dibujan como diagramas y el resto queda como código.
   pre: ({ children }) => {
     const language = codeLanguage(children);
+
+    if (language === "mermaid") {
+      return <MermaidDiagram chart={reactText(children).trim()} />;
+    }
 
     return (
       <div className="doc-code">

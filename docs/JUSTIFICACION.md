@@ -553,7 +553,209 @@ classDiagram
 `ReplayGameUseCase`, `ListGamesUseCase` y `SaveGameUseCase`) para que los
 adaptadores dependan de una sola interfaz.
 
-### 3.3. Flujo de una jugada
+### 3.3. Interfaces y comunicación con el frontend
+
+Este documento se queda con los contratos. Las clases del tablero ya están en
+3.1; acá interesa qué interfaz usa cada adaptador, quién la implementa y cómo
+entra el frontend. La web no importa ninguna clase Java: habla HTTP y recibe
+JSON con la misma forma que los DTOs.
+
+#### 3.3.1. Del navegador al caso de uso
+
+El frontend solo conoce un cliente HTTP. Del otro lado, el adaptador HTTP
+traduce cada request a un método de `ChessGameUseCases`; no sabe qué clases hay
+detrás.
+
+```mermaid
+classDiagram
+    direction LR
+
+    class ApiClient {
+        <<cliente web>>
+        +createGame()
+        +makeMove()
+        +replay()
+    }
+
+    class HttpGameServer {
+        <<adaptador HTTP>>
+        -ChessGameUseCases useCases
+        +start() int
+        +stop()
+    }
+
+    class ChessGameUseCases {
+        <<interface>>
+        +createGame()
+        +makeMove()
+        +replayAt()
+    }
+
+    ApiClient ..> HttpGameServer : HTTP + JSON
+    HttpGameServer --> ChessGameUseCases : usa
+```
+
+`ApiClient` vive en `web/src/lib/api.ts` y devuelve DTOs (`GameView`,
+`GameSummaryView`, `ReplayView`). `HttpGameServer` depende de la interfaz
+`ChessGameUseCases`, nunca de `ChessGameService`. Esa es la inversión de
+dependencias: el adaptador no elige la implementación.
+
+#### 3.3.2. Los ocho puertos de entrada
+
+Cada caso de uso tiene su propia interfaz. `ChessGameUseCases` las extiende a
+todas para que los adaptadores se inyecten un solo objeto.
+
+```mermaid
+classDiagram
+    direction RL
+
+    class ChessGameUseCases {
+        <<interface>>
+    }
+
+    class CreateGameUseCase {
+        <<interface>>
+        +createGame(NewGameCommand) GameView
+    }
+    class GetGameUseCase {
+        <<interface>>
+        +getGame(String) GameView
+    }
+    class MakeMoveUseCase {
+        <<interface>>
+        +makeMove(String, MoveCommand) GameView
+    }
+    class LegalMovesUseCase {
+        <<interface>>
+        +legalMoves(String, String) List~String~
+    }
+    class AbandonGameUseCase {
+        <<interface>>
+        +abandonGame(String) GameView
+    }
+    class ReplayGameUseCase {
+        <<interface>>
+        +startReplay(String) ReplaySession
+        +replayAt(String, int) ReplayView
+    }
+    class ListGamesUseCase {
+        <<interface>>
+        +listGames() List~GameSummaryView~
+    }
+    class SaveGameUseCase {
+        <<interface>>
+        +saveGame(String) GameView
+    }
+
+    CreateGameUseCase <|-- ChessGameUseCases
+    GetGameUseCase <|-- ChessGameUseCases
+    MakeMoveUseCase <|-- ChessGameUseCases
+    LegalMovesUseCase <|-- ChessGameUseCases
+    AbandonGameUseCase <|-- ChessGameUseCases
+    ReplayGameUseCase <|-- ChessGameUseCases
+    ListGamesUseCase <|-- ChessGameUseCases
+    SaveGameUseCase <|-- ChessGameUseCases
+```
+
+| Interfaz | Responsabilidad |
+|----------|-----------------|
+| `CreateGameUseCase` | Crear una partida y devolver su estado inicial |
+| `GetGameUseCase` | Traer el estado actual de una partida |
+| `MakeMoveUseCase` | Validar, aplicar y guardar una jugada |
+| `LegalMovesUseCase` | Devolver los destinos legales desde una casilla |
+| `AbandonGameUseCase` | Marcar la partida como abandonada |
+| `ReplayGameUseCase` | Reconstruir una posición del historial |
+| `ListGamesUseCase` | Listar las partidas guardadas para el lobby |
+| `SaveGameUseCase` | Forzar el guardado de una partida |
+
+#### 3.3.3. El servicio y los puertos de salida
+
+`ChessGameService` implementa todos los casos de uso y, para trabajar, depende
+de dos puertos de salida. Las implementaciones concretas se eligen una sola vez
+en `App`.
+
+```mermaid
+classDiagram
+    direction TB
+
+    class ChessGameService {
+        <<implementación>>
+        -GameRepositoryPort repository
+        -MovementService movementService
+        -GameLogger logger
+    }
+
+    class ChessGameUseCases {
+        <<interface>>
+    }
+
+    class GameRepositoryPort {
+        <<interface>>
+        +save(ChessGame)
+        +findById(GameId) Optional~ChessGame~
+        +findAll() List~SavedGame~
+    }
+
+    class GameLogger {
+        <<interface>>
+        +info(String)
+        +warning(String)
+        +error(String, Throwable)
+    }
+
+    class FileGameRepository {
+        <<adaptador>>
+    }
+    class InMemoryGameRepository {
+        <<adaptador>>
+    }
+    class JavaGameLogger {
+        <<adaptador>>
+    }
+
+    class ChessGame
+    class MovementService
+
+    ChessGameService ..|> ChessGameUseCases : implementa
+    ChessGameService --> GameRepositoryPort
+    ChessGameService --> GameLogger
+    ChessGameService ..> ChessGame : orquesta
+    ChessGameService ..> MovementService : valida
+
+    FileGameRepository ..|> GameRepositoryPort
+    InMemoryGameRepository ..|> GameRepositoryPort
+    JavaGameLogger ..|> GameLogger
+    FileGameRepository ..> ChessGame : persiste
+```
+
+- `FileGameRepository` guarda en `games/*.properties` y
+  `InMemoryGameRepository` hace lo mismo en memoria para los tests.
+- `JavaGameLogger` implementa `GameLogger` con `java.util.logging`.
+- Cambiar el almacenamiento o el logger no toca ni el adaptador HTTP ni las
+  reglas del ajedrez.
+
+#### 3.3.4. Contrato HTTP
+
+Esta tabla une las tres piezas: lo que llama la web, el endpoint que atiende
+`HttpGameServer`, el puerto de entrada que se ejecuta y el DTO que vuelve.
+
+| Acción en la web (`lib/api.ts`) | Request | Puerto de entrada | Respuesta |
+|---------------------------------|---------|-------------------|-----------|
+| `createGame(...)` | `POST /api/games` | `CreateGameUseCase.createGame` | `GameView` |
+| `listGames()` | `GET /api/games` | `ListGamesUseCase.listGames` | `GameSummaryView[]` |
+| `getGame(id)` | `GET /api/games/{id}` | `GetGameUseCase.getGame` | `GameView` |
+| `legalMoves(id, from)` | `GET /api/games/{id}/legal-moves?from=e2` | `LegalMovesUseCase.legalMoves` | `{ moves: string[] }` |
+| `makeMove(id, from, to)` | `POST /api/games/{id}/moves` | `MakeMoveUseCase.makeMove` | `GameView` |
+| `abandonGame(id)` | `POST /api/games/{id}/abandon` | `AbandonGameUseCase.abandonGame` | `GameView` |
+| `saveGame(id)` | `POST /api/games/{id}/save` | `SaveGameUseCase.saveGame` | `GameView` |
+| `replay(id, position)` | `GET /api/games/{id}/replay?position=N` | `ReplayGameUseCase.replayAt` | `ReplayView` |
+
+El frontend no repite ninguna regla: solo pide destinos legales, manda origen y
+destino, y reemplaza el tablero con el `GameView` que devuelve el backend. Las
+interfaces de entrada son el contrato que permite que la consola y la web usen
+el mismo motor sin conocerse entre sí.
+
+### 3.4. Flujo de una jugada
 
 1. El navegador pide los destinos legales con `GET /api/games/{id}/legal-moves`.
 2. `HttpGameServer` llama a `ChessGameService.legalMoves`.

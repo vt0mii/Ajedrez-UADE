@@ -156,6 +156,10 @@ Los casos de uso están separados en interfaces chicas:
 `ChessGameUseCases` las agrupa para que los adaptadores dependan de una sola
 interfaz. Si mañana se agrega otro caso de uso, se suma a esta interfaz y listo.
 
+Los diagramas de estas interfaces, de sus implementaciones y de cómo las usa el
+frontend están en
+[`JUSTIFICACION.md`](docs/JUSTIFICACION.md#3-3-interfaces-y-comunicacion-con-el-frontend).
+
 ### 3.2. `ChessGameService`
 
 `ChessGameService` implementa todos los casos de uso y coordina tres cosas:
