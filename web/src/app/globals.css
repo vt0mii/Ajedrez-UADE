@@ -370,8 +370,8 @@ html[data-theme="light"] {
   }
 
   /*
-   * En el artículo no se dibuja el diagrama: queda una tarjeta que baja hasta
-   * la sección de diagramas, donde el dibujo puede usar todo el ancho.
+   * En el artículo no se dibuja el diagrama: queda una tarjeta que lleva a la
+   * pantalla de diagramas, donde el dibujo puede usar todo el ancho.
    */
   .doc-content .doc-diagram-link {
     display: flex;

@@ -64,6 +64,12 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
                 <span className="sm:hidden">Docs</span>
                 <span className="hidden sm:inline">Documentación</span>
               </Link>
+              <Link
+                href="/docs/diagramas"
+                className="hidden rounded-lg px-2.5 py-1.5 text-sm text-ink-300 transition-colors hover:bg-ink-900/60 hover:text-ink-100 sm:inline-block sm:px-3"
+              >
+                Diagramas de flujo
+              </Link>
               <ThemeToggle />
             </div>
           </div>

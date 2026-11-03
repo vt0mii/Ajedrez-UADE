@@ -45,8 +45,12 @@ function codeLanguage(children: ReactNode): string | undefined {
 }
 
 // En el artículo, cada diagrama Mermaid deja un marcador `[[diagrama-N]]`.
-// Acá se convierte en una tarjeta que baja hasta la sección de diagramas.
-function diagramLink(diagrams: Diagram[], marker: string) {
+// Acá se convierte en una tarjeta que lleva a la pantalla de diagramas.
+function diagramLink(
+  diagrams: Diagram[],
+  marker: string,
+  hrefFor: (diagram: Diagram) => string,
+) {
   const index = diagrams.findIndex((diagram) => diagram.id === marker);
 
   if (index < 0) {
@@ -56,15 +60,21 @@ function diagramLink(diagrams: Diagram[], marker: string) {
   const diagram = diagrams[index];
 
   return (
-    <a href={`#${diagram.id}`} className="doc-diagram-link group">
+    <Link
+      href={hrefFor(diagram)}
+      className="doc-diagram-link group"
+    >
       <span className="doc-diagram-link-label">Diagrama {index + 1}</span>
       <span className="doc-diagram-link-title">{diagram.title}</span>
-      <span className="doc-diagram-link-cta">Ver en la sección de diagramas ↓</span>
-    </a>
+      <span className="doc-diagram-link-cta">Ver el diagrama →</span>
+    </Link>
   );
 }
 
-function createComponents(diagrams: Diagram[]): Components {
+function createComponents(
+  diagrams: Diagram[],
+  hrefFor: (diagram: Diagram) => string,
+): Components {
   return {
     h2: ({ children }) => <h2 id={slugify(reactText(children))}>{children}</h2>,
     h3: ({ children }) => <h3 id={slugify(reactText(children))}>{children}</h3>,
@@ -74,7 +84,7 @@ function createComponents(diagrams: Diagram[]): Components {
     // por la tarjeta sin tocar la estructura del resto del texto.
     p: ({ children }) => {
       const marker = /^\[\[(diagrama-\d+)\]\]$/.exec(reactText(children).trim());
-      const card = marker ? diagramLink(diagrams, marker[1]) : null;
+      const card = marker ? diagramLink(diagrams, marker[1], hrefFor) : null;
 
       return card ?? <p>{children}</p>;
     },
@@ -136,12 +146,18 @@ function createComponents(diagrams: Diagram[]): Components {
 export function DocMarkdown({
   content,
   diagrams = [],
+  diagramHref,
 }: {
   content: string;
   diagrams?: Diagram[];
+  // Destino de la tarjeta que reemplaza a cada diagrama en el texto. Por
+  // defecto baja al ancla local; la pantalla de docs lo apunta a /docs/diagramas.
+  diagramHref?: (diagram: Diagram) => string;
 }) {
+  const hrefFor = diagramHref ?? ((diagram: Diagram) => `#${diagram.id}`);
+
   return (
-    <Markdown remarkPlugins={[remarkGfm]} components={createComponents(diagrams)}>
+    <Markdown remarkPlugins={[remarkGfm]} components={createComponents(diagrams, hrefFor)}>
       {content}
     </Markdown>
   );

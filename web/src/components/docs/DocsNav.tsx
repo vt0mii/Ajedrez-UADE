@@ -34,6 +34,23 @@ export function DocsNav({ activeSlug }: { activeSlug: string }) {
             </li>
           );
         })}
+
+        {/* Los diagramas también tienen su propia pantalla, fuera de la
+            columna de lectura. */}
+        <li className="shrink-0 border-ink-800/70 lg:mt-2 lg:shrink lg:border-t lg:pt-3">
+          <Link
+            href="/docs/diagramas"
+            aria-current={activeSlug === "diagramas" ? "page" : undefined}
+            className="block rounded-lg border border-transparent px-3 py-2 text-ink-300 transition-colors hover:border-ink-700 hover:bg-ink-900/60 hover:text-ink-100"
+          >
+            <span className="text-sm font-medium whitespace-nowrap lg:whitespace-normal">
+              Diagramas de flujo
+            </span>
+            <span className="mt-0.5 hidden font-mono text-[10px] text-ink-400 lg:block">
+              Todos los diagramas
+            </span>
+          </Link>
+        </li>
       </ul>
     </nav>
   );

@@ -53,6 +53,14 @@ export function MermaidDiagram({
     return () => observer.disconnect();
   }, []);
 
+  // Avisa que el SVG ya está en el DOM. La pantalla de diagramas escucha este
+  // evento para reacomodar el scroll cuando la página entra por un ancla.
+  useEffect(() => {
+    if (svg) {
+      window.dispatchEvent(new Event("mermaid:rendered"));
+    }
+  }, [svg]);
+
   useEffect(() => {
     let active = true;
 
