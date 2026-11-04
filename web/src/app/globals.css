@@ -506,6 +506,9 @@ html[data-theme="light"] {
 @media print {
   @page {
     margin: 16mm 14mm;
+    /* Chrome pinta los márgenes con el fondo de la página, no con el del
+       body. Con el mismo token, toda la hoja queda del mismo color. */
+    background: var(--color-ink-950);
   }
 
   body > header,
