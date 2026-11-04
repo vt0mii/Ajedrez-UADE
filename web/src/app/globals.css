@@ -496,3 +496,141 @@ html[data-theme="light"] {
     border: 1px solid color-mix(in oklab, var(--color-ink-700) 70%, transparent);
   }
 }
+
+/*
+ * Exportación a PDF. Los navegadores aplican estas reglas al imprimir o al
+ * generar el PDF con Edge/Chrome. La hoja queda parecida a la web, pero sin
+ * header, menús, índice ni scroll interno: los diagramas se escalan al ancho
+ * de la página y los anchos se pueden leer haciendo zoom en el PDF.
+ */
+@media print {
+  @page {
+    margin: 16mm 14mm;
+  }
+
+  body > header,
+  body > footer,
+  .no-print {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    background-image: none !important;
+  }
+
+  .print-page {
+    margin: 0 !important;
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  .doc-content {
+    margin-top: 0 !important;
+  }
+
+  .doc-content h1,
+  .doc-content h2,
+  .doc-content h3,
+  .doc-content h4 {
+    break-after: avoid;
+  }
+
+  .doc-content p,
+  .doc-content li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  .doc-code,
+  .doc-content .doc-table,
+  .doc-mermaid,
+  figure,
+  blockquote,
+  pre {
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+
+  .doc-mermaid-body,
+  .doc-mermaid-body[data-wide="true"] {
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0.4rem 0 !important;
+  }
+
+  /* La etiqueta "mermaid" es una ayuda de pantalla; en papel no aporta. */
+  .doc-mermaid .doc-code-lang {
+    display: none !important;
+  }
+
+  .doc-mermaid-body svg,
+  .doc-mermaid-body[data-wide="true"] svg {
+    display: block;
+    width: auto !important;
+    height: auto !important;
+    max-width: 100% !important;
+    max-height: 214mm !important;
+  }
+
+  .doc-mermaid-canvas {
+    width: auto !important;
+  }
+
+  .doc-mermaid-canvas svg {
+    width: auto !important;
+    max-width: 100% !important;
+    max-height: 214mm !important;
+  }
+
+  /*
+   * La pantalla de diagramas se exporta apaisada: entra más ancho por hoja.
+   * Cada documento arranca en una página y cada diagrama siguiente también,
+   * así el título nunca queda solo al pie de la página anterior.
+   */
+  .print-landscape section[id^="doc-"] {
+    break-before: page;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    border-top: 0 !important;
+  }
+
+  .print-landscape section[id^="doc-"] > header {
+    break-after: avoid;
+    margin-bottom: 3mm !important;
+  }
+
+  /* En la hoja alcanza con el nombre del documento; la ruta del archivo no. */
+  .print-landscape section[id^="doc-"] > header p {
+    display: none !important;
+  }
+
+  .print-landscape section[id^="doc-"] > header h2 {
+    margin-top: 0 !important;
+    font-size: 16pt !important;
+  }
+
+  .print-landscape section[id^="doc-"] > div {
+    margin-top: 4mm !important;
+  }
+
+  .print-landscape figure {
+    margin: 0 !important;
+    break-inside: avoid;
+  }
+
+  .print-landscape figure + figure {
+    break-before: page;
+  }
+
+  .print-landscape figcaption {
+    margin-bottom: 3mm !important;
+    break-after: avoid;
+  }
+
+  .print-landscape .doc-mermaid-body svg,
+  .print-landscape .doc-mermaid-canvas svg {
+    max-height: 130mm !important;
+  }
+}

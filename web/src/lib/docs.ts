@@ -8,6 +8,9 @@ export type DocMeta = {
   // Ruta relativa a la raíz del repo. Se usa para leer el archivo y también
   // para mostrarla en la pantalla, así se sabe de dónde sale cada documento.
   path: string;
+  // PDF ya exportado, relativo a `docs/export`. Solo los documentos que se
+  // entregan tienen versión descargable.
+  pdf?: string;
 };
 
 // La lista es fija a propósito: ordena el menú y evita que un slug inventado
@@ -19,6 +22,7 @@ export const DOCS: readonly DocMeta[] = [
     description:
       "Cómo se conectan el dominio, la aplicación, la infraestructura y la web.",
     path: "docs/ARQUITECTURA.md",
+    pdf: "ARQUITECTURA.pdf",
   },
   {
     slug: "justificacion",
@@ -26,6 +30,7 @@ export const DOCS: readonly DocMeta[] = [
     description:
       "Las decisiones del trabajo práctico y por qué las tomamos así.",
     path: "docs/JUSTIFICACION.md",
+    pdf: "JUSTIFICACION.pdf",
   },
   {
     slug: "diseno-front",
@@ -33,6 +38,7 @@ export const DOCS: readonly DocMeta[] = [
     description:
       "Contrato de la API, pantallas, temas y criterios visuales de la web.",
     path: "docs/DISENO-FRONT.md",
+    pdf: "DISENO-FRONT.pdf",
   },
   {
     slug: "readme",
@@ -73,6 +79,27 @@ export function readDoc(doc: DocMeta): string | null {
       /* turbopackIgnore: true */
       path.join(/* turbopackIgnore: true */ repoRoot(), doc.path),
       "utf8",
+    );
+  } catch {
+    return null;
+  }
+}
+
+// PDF de la pantalla de diagramas. Comparte carpeta con los de cada documento.
+export const DIAGRAMS_PDF = "DIAGRAMAS-DE-FLUJO.pdf";
+
+// Lee un PDF exportado. El nombre siempre sale de `DOCS` o de `DIAGRAMS_PDF`,
+// nunca de la URL, así que no se puede salir de `docs/export`.
+export function readExport(name: string): Buffer | null {
+  try {
+    return readFileSync(
+      /* turbopackIgnore: true */
+      path.join(
+        /* turbopackIgnore: true */ repoRoot(),
+        "docs",
+        "export",
+        name,
+      ),
     );
   } catch {
     return null;

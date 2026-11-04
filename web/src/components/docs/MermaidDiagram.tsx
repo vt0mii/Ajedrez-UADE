@@ -22,12 +22,13 @@ function readDiagramSize(svg: string): DiagramSize | null {
 // cliente y solo cuando aparece un diagrama, así no pesa en el resto del sitio.
 // En la sección de diagramas (`gallery`) el bloque tiene todo el ancho de la
 // página, así que solo deja scroll para los que no entran ni siquiera ahí.
+// En `print` no hay tope de altura: el PDF lo escala al ancho de la hoja.
 export function MermaidDiagram({
   chart,
   variant = "inline",
 }: {
   chart: string;
-  variant?: "inline" | "gallery";
+  variant?: "inline" | "gallery" | "print";
 }) {
   const reactId = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const renderCount = useRef(0);
@@ -112,20 +113,22 @@ export function MermaidDiagram({
   // Un diagrama más ancho que la columna se muestra a tamaño natural y con
   // scroll propio; si entra, se ajusta al ancho como una imagen. En la galería
   // el límite es el ancho de la sección, que es bastante más generoso.
-  const limit = variant === "gallery" ? 1600 : 1100;
+  const limit = variant === "inline" ? 1100 : 1600;
+  const capped = variant === "inline";
   const wide = Boolean(size && size.width > limit);
 
   return (
     <div className="doc-mermaid">
       <span className="doc-code-lang">
-        mermaid{wide ? " · desplazá para verlo completo" : ""}
+        mermaid
+        {wide && variant !== "print" ? " · desplazá para verlo completo" : ""}
       </span>
       <div
         className="doc-mermaid-body"
         data-wide={wide ? "true" : undefined}
         data-variant={variant}
         style={
-          wide && variant === "inline"
+          wide && capped
             ? {
                 maxHeight: "76vh",
                 overflow: "auto",

@@ -172,6 +172,8 @@ En la web, el replay se abre desde el cartel de fin de partida o desde el enlace
 
 El frontend se levanta aparte: `cd web`, `npm install` y `npm run dev`. Las instrucciones completas están en [`web/README.md`](web/README.md).
 
+La documentación se puede leer en `/docs` y en `/docs/diagramas`. Los PDFs ya exportados quedan en `docs/export/` (`ARQUITECTURA.pdf`, `JUSTIFICACION.pdf`, `DISENO-FRONT.pdf` y `DIAGRAMAS-DE-FLUJO.pdf`); para regenerarlos, con el frontend levantado, ejecutá `npm run export:pdf` dentro de `web/`.
+
 En IntelliJ IDEA, abrí la carpeta del proyecto, elegí **JDK 17** como Project SDK y ejecutá el `main` de `com.uade.ajedrez.App`.
 
 ## Excepciones y logging

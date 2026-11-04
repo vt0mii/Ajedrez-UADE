@@ -74,6 +74,7 @@ function diagramLink(
 function createComponents(
   diagrams: Diagram[],
   hrefFor: (diagram: Diagram) => string,
+  diagramVariant: "inline" | "print",
 ): Components {
   return {
     h2: ({ children }) => <h2 id={slugify(reactText(children))}>{children}</h2>,
@@ -95,7 +96,12 @@ function createComponents(
       const language = codeLanguage(children);
 
       if (language === "mermaid") {
-        return <MermaidDiagram chart={reactText(children).trim()} />;
+        return (
+          <MermaidDiagram
+            chart={reactText(children).trim()}
+            variant={diagramVariant}
+          />
+        );
       }
 
       return (
@@ -147,17 +153,24 @@ export function DocMarkdown({
   content,
   diagrams = [],
   diagramHref,
+  diagramVariant = "inline",
 }: {
   content: string;
   diagrams?: Diagram[];
   // Destino de la tarjeta que reemplaza a cada diagrama en el texto. Por
   // defecto baja al ancla local; la pantalla de docs lo apunta a /docs/diagramas.
   diagramHref?: (diagram: Diagram) => string;
+  // `print` dibuja los diagramas dentro del texto, sin tope de alto, para la
+  // versión imprimible.
+  diagramVariant?: "inline" | "print";
 }) {
   const hrefFor = diagramHref ?? ((diagram: Diagram) => `#${diagram.id}`);
 
   return (
-    <Markdown remarkPlugins={[remarkGfm]} components={createComponents(diagrams, hrefFor)}>
+    <Markdown
+      remarkPlugins={[remarkGfm]}
+      components={createComponents(diagrams, hrefFor, diagramVariant)}
+    >
       {content}
     </Markdown>
   );

@@ -40,12 +40,13 @@ cambiarla.
 
 ## Scripts
 
-| Comando         | Qué hace                              |
-| --------------- | ------------------------------------- |
-| `npm run dev`   | Servidor de desarrollo en el puerto 3000 |
-| `npm run build` | Build de producción                    |
-| `npm start`     | Sirve el build de producción           |
-| `npm run lint`  | ESLint                                 |
+| Comando              | Qué hace                              |
+| -------------------- | ------------------------------------- |
+| `npm run dev`        | Servidor de desarrollo en el puerto 3000 |
+| `npm run build`      | Build de producción                    |
+| `npm start`          | Sirve el build de producción           |
+| `npm run lint`       | ESLint                                 |
+| `npm run export:pdf` | Genera los PDFs de la documentación    |
 
 ## Estructura
 
@@ -56,11 +57,15 @@ src/
 │   ├── page.tsx            # lobby
 │   ├── docs/page.tsx       # índice de documentación
 │   ├── docs/[slug]/page.tsx # documento markdown
+│   ├── docs/[slug]/imprimir/page.tsx # versión imprimible
+│   ├── docs/[slug]/pdf/route.ts # descarga del PDF del documento
+│   ├── docs/diagramas/page.tsx # todos los diagramas, a ancho completo
+│   ├── docs/diagramas/pdf/route.ts # descarga del PDF de diagramas
 │   ├── game/[id]/page.tsx  # partida (param en el servidor)
 │   └── game/[id]/replay/page.tsx # replay de una partida terminada
 ├── components/
 │   ├── board/              # ChessBoard, Square, Piece
-│   ├── docs/               # DocsScreen, DocsNav, DocsToc, DocMarkdown
+│   ├── docs/               # DocsScreen, DiagramsScreen, DocMarkdown, MermaidDiagram
 │   ├── panels/             # PlayerCard, MoveHistory, GameStatus, ResultBanner
 │   ├── lobby/              # LobbyScreen
 │   ├── game/               # GameScreen, ReplayScreen
@@ -74,6 +79,8 @@ src/
     ├── markdown.ts         # slugs y extracción de títulos
     ├── status.ts           # etiquetas y colores del estado de la partida
     └── types.ts            # contrato GameView y GameSummary
+scripts/
+└── export-pdf.mjs          # genera los PDFs de docs/export con Edge
 ```
 
 ## Flujo de una jugada
@@ -116,6 +123,24 @@ rutas de la app y el render usa `react-markdown` con `remark-gfm`.
 
 La pantalla es un Server Component: lee los archivos con `node:fs` en cada
 request, así que no hay que copiar los documentos ni reconstruir el HTML a mano.
+
+Los diagramas Mermaid se dibujan en `/docs/diagramas`, a ancho completo, y desde
+cada documento hay tarjetas que llevan al diagrama correspondiente.
+
+## Exportar a PDF
+
+`npm run export:pdf` abre las versiones imprimibles con Edge en modo headless y
+deja cuatro archivos en `docs/export/`: `ARQUITECTURA.pdf`, `JUSTIFICACION.pdf`,
+`DISENO-FRONT.pdf` y `DIAGRAMAS-DE-FLUJO.pdf`. Los tres documentos salen en A4
+vertical; la pantalla de diagramas, en A4 apaisado.
+
+Antes de correrlo tiene que estar levantado el frontend (`npm run dev` o
+`npm start`) en `http://localhost:3000`. Se puede cambiar con `DOCS_BASE_URL`.
+El script usa Microsoft Edge; si está en otra ruta, se indica con
+`PUPPETEER_EXECUTABLE_PATH`.
+
+Los PDFs se sirven desde `/docs/{slug}/pdf` y `/docs/diagramas/pdf`, así que la
+web siempre entrega el último archivo generado.
 
 ## Atajos
 

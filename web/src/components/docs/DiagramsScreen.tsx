@@ -5,6 +5,7 @@ import { extractDiagrams, stripTitle } from "@/lib/markdown";
 import type { Diagram } from "@/lib/markdown";
 import { HashScroll } from "./HashScroll";
 import { MermaidDiagram } from "./MermaidDiagram";
+import { PrintToolbar } from "./PrintToolbar";
 
 type DiagramGroup = {
   doc: DocMeta;
@@ -29,18 +30,17 @@ export function DiagramsScreen() {
   const total = groups.reduce((sum, group) => sum + group.diagrams.length, 0);
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:py-12">
+    <div className="print-landscape mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:py-12">
       <HashScroll />
 
-      <header>
-        <Link
-          href="/docs"
-          className="inline-flex items-center gap-2 text-sm text-ink-400 transition-colors hover:text-gold-300"
-        >
-          <span aria-hidden>←</span> Documentación
-        </Link>
+      <PrintToolbar
+        backHref="/docs"
+        backLabel="← Documentación"
+        downloadHref="/docs/diagramas/pdf"
+      />
 
-        <p className="mt-6 text-[10px] font-semibold tracking-[0.16em] text-gold-400 uppercase">
+      <header className="no-print mt-6">
+        <p className="text-[10px] font-semibold tracking-[0.16em] text-gold-400 uppercase">
           Documentación
         </p>
         <h1 className="mt-2 font-serif text-3xl tracking-tight text-ink-100 sm:text-4xl">
@@ -55,7 +55,7 @@ export function DiagramsScreen() {
         {groups.length > 0 && (
           <nav
             aria-label="Documentos con diagramas"
-            className="mt-6 flex flex-wrap gap-2"
+            className="no-print mt-6 flex flex-wrap gap-2"
           >
             {groups.map((group) => (
               <a
@@ -91,7 +91,7 @@ export function DiagramsScreen() {
 
             <Link
               href={`/docs/${group.doc.slug}`}
-              className="text-sm text-ink-400 transition-colors hover:text-gold-300"
+              className="no-print text-sm text-ink-400 transition-colors hover:text-gold-300"
             >
               Leer el documento →
             </Link>
@@ -117,7 +117,7 @@ export function DiagramsScreen() {
                   {diagram.sectionId && (
                     <Link
                       href={`/docs/${group.doc.slug}#${diagram.sectionId}`}
-                      className="text-xs text-ink-400 transition-colors hover:text-gold-300"
+                      className="no-print text-xs text-ink-400 transition-colors hover:text-gold-300"
                     >
                       Ver en el texto ↑
                     </Link>
