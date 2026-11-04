@@ -516,8 +516,37 @@ html[data-theme="light"] {
 
   html,
   body {
-    background: #fff !important;
+    background-color: var(--color-ink-950) !important;
     background-image: none !important;
+    color: var(--color-ink-100);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /*
+   * Geist se sirve como fuente variable y Chrome/Edge la convierte a Type3 en
+   * el PDF, que sale pixelada al hacer zoom. Para imprimir usamos fuentes
+   * estáticas del sistema: se embeben como TrueType y el texto queda nítido.
+   */
+  body,
+  .doc-content,
+  .doc-content p,
+  .doc-content li,
+  .doc-content td,
+  .doc-content th,
+  .doc-content blockquote,
+  .doc-content strong,
+  .doc-content em,
+  .doc-content a,
+  .doc-content h3,
+  .doc-content h4 {
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif !important;
+  }
+
+  .doc-content code,
+  .doc-content pre,
+  .doc-code-lang {
+    font-family: Consolas, "Courier New", monospace !important;
   }
 
   .print-page {

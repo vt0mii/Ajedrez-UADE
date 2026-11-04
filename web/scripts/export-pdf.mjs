@@ -97,11 +97,10 @@ async function main() {
 
   const host = new URL(baseUrl).hostname;
 
-  // Forzamos el tema claro: el PDF se lee mejor en papel y no depende de la
-  // preferencia guardada en el navegador.
+  // Los PDFs salen en tema oscuro, igual que la web por defecto.
   await browser.setCookie({
     name: "chess-theme",
-    value: "light",
+    value: "dark",
     domain: host,
     path: "/",
   });

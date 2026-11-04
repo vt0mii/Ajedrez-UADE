@@ -39,10 +39,7 @@ export default async function PrintDocPage(
 
   return (
     <div className="print-page mx-auto w-full max-w-[860px] px-4 py-8 sm:px-6 lg:py-12">
-      <PrintToolbar
-        backHref={`/docs/${doc.slug}`}
-        downloadHref={doc.pdf ? `/docs/${doc.slug}/pdf` : undefined}
-      />
+      <PrintToolbar backHref={`/docs/${doc.slug}`} />
 
       <header className="mt-8 border-b border-ink-800 pb-6">
         <p className="text-[10px] font-semibold tracking-[0.16em] text-gold-400 uppercase">

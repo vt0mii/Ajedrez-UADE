@@ -5,7 +5,6 @@ import { extractDiagrams, stripTitle } from "@/lib/markdown";
 import type { Diagram } from "@/lib/markdown";
 import { HashScroll } from "./HashScroll";
 import { MermaidDiagram } from "./MermaidDiagram";
-import { PrintToolbar } from "./PrintToolbar";
 
 type DiagramGroup = {
   doc: DocMeta;
@@ -33,14 +32,15 @@ export function DiagramsScreen() {
     <div className="print-landscape mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:py-12">
       <HashScroll />
 
-      <PrintToolbar
-        backHref="/docs"
-        backLabel="← Documentación"
-        downloadHref="/docs/diagramas/pdf"
-      />
-
       <header className="no-print mt-6">
-        <p className="text-[10px] font-semibold tracking-[0.16em] text-gold-400 uppercase">
+        <Link
+          href="/docs"
+          className="inline-flex items-center gap-2 text-sm text-ink-400 transition-colors hover:text-gold-300"
+        >
+          <span aria-hidden>←</span> Documentación
+        </Link>
+
+        <p className="mt-6 text-[10px] font-semibold tracking-[0.16em] text-gold-400 uppercase">
           Documentación
         </p>
         <h1 className="mt-2 font-serif text-3xl tracking-tight text-ink-100 sm:text-4xl">

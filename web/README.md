@@ -132,7 +132,8 @@ cada documento hay tarjetas que llevan al diagrama correspondiente.
 `npm run export:pdf` abre las versiones imprimibles con Edge en modo headless y
 deja cuatro archivos en `docs/export/`: `ARQUITECTURA.pdf`, `JUSTIFICACION.pdf`,
 `DISENO-FRONT.pdf` y `DIAGRAMAS-DE-FLUJO.pdf`. Los tres documentos salen en A4
-vertical; la pantalla de diagramas, en A4 apaisado.
+vertical; los diagramas, en A4 apaisado con una hoja por diagrama. Todo se
+exporta en tema oscuro.
 
 Antes de correrlo tiene que estar levantado el frontend (`npm run dev` o
 `npm start`) en `http://localhost:3000`. Se puede cambiar con `DOCS_BASE_URL`.

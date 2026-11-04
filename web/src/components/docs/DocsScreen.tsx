@@ -49,23 +49,6 @@ export function DocsScreen({ slug }: { slug?: string }) {
               {doc.path}
             </p>
 
-            {doc.pdf && (
-              <div className="mt-4 flex flex-wrap items-center gap-2">
-                <a
-                  href={`/docs/${doc.slug}/pdf`}
-                  className="inline-flex items-center gap-2 rounded-lg border border-gold-500/40 bg-gold-500/5 px-3 py-2 text-sm text-gold-300 transition-colors hover:border-gold-500/70 hover:bg-gold-500/10"
-                >
-                  Descargar PDF
-                </a>
-                <Link
-                  href={`/docs/${doc.slug}/imprimir`}
-                  className="inline-flex items-center gap-2 rounded-lg border border-ink-700 px-3 py-2 text-sm text-ink-300 transition-colors hover:border-ink-600 hover:text-ink-100"
-                >
-                  Versión imprimible
-                </Link>
-              </div>
-            )}
-
             {diagrams.length > 0 && (
               <Link
                 href={`/docs/diagramas#doc-${doc.slug}`}
