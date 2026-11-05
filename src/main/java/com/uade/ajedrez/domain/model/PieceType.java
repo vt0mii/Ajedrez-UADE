@@ -6,5 +6,11 @@ public enum PieceType {
     ROOK,
     KNIGHT,
     QUEEN,
-    KING
+    KING;
+
+    // Piezas a las que puede ascender un peon. El rey y el propio peon no
+    // cuentan.
+    public boolean isPromotionPiece() {
+        return this == QUEEN || this == ROOK || this == BISHOP || this == KNIGHT;
+    }
 }

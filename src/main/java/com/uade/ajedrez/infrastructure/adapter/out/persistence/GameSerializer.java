@@ -18,7 +18,10 @@ import java.util.Properties;
 // se enteró de que las partidas terminan en archivos de texto.
 public final class GameSerializer {
 
-    private static final String FORMAT_VERSION = "3";
+    private static final String FORMAT_VERSION = "4";
+    // La version 3 no tenia promocion: se sigue leyendo para no perder las
+    // partidas que ya estan guardadas.
+    private static final String LEGACY_FORMAT_VERSION = "3";
 
     private GameSerializer() {
     }
@@ -73,8 +76,10 @@ public final class GameSerializer {
         properties.setProperty("historySize", String.valueOf(history.size()));
         for (int i = 0; i < history.size(); i++) {
             Move move = history.get(i);
+            String promotion = move.getPromotion() == null ? "" : move.getPromotion().name();
             properties.setProperty("history." + i,
-                    move.getOrigin().toAlgebraic() + "," + move.getDestination().toAlgebraic());
+                    move.getOrigin().toAlgebraic() + "," + move.getDestination().toAlgebraic()
+                            + "," + promotion);
         }
 
         return properties;
@@ -90,7 +95,7 @@ public final class GameSerializer {
 
     private static ChessGame deserialize(Properties properties, MovementService movementService) {
         String version = properties.getProperty("formatVersion");
-        if (!FORMAT_VERSION.equals(version)) {
+        if (!FORMAT_VERSION.equals(version) && !LEGACY_FORMAT_VERSION.equals(version)) {
             throw new IllegalArgumentException("Unsupported game file format: " + version);
         }
         if (movementService == null) {
@@ -133,8 +138,12 @@ public final class GameSerializer {
             if (value == null) {
                 continue;
             }
-            String[] squares = value.split(",");
-            history.add(new Move(Position.fromAlgebraic(squares[0]), Position.fromAlgebraic(squares[1])));
+            String[] squares = value.split(",", -1);
+            PieceType promotion = squares.length > 2 && !squares[2].isBlank()
+                    ? PieceType.valueOf(squares[2])
+                    : null;
+            history.add(new Move(Position.fromAlgebraic(squares[0]),
+                    Position.fromAlgebraic(squares[1]), promotion));
         }
 
         Turn turn = Turn.restore(whitePlayer, blackPlayer, turnIndex, turnNumber);

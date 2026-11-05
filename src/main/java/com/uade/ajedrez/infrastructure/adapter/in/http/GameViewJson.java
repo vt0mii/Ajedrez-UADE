@@ -112,6 +112,9 @@ final class GameViewJson {
     }
 
     private static String move(MoveView move) {
-        return "{\"from\":" + Json.quote(move.from()) + ",\"to\":" + Json.quote(move.to()) + "}";
+        return "{\"from\":" + Json.quote(move.from())
+                + ",\"to\":" + Json.quote(move.to())
+                + ",\"promotion\":" + (move.promotion() == null ? "null" : Json.quote(move.promotion().name()))
+                + "}";
     }
 }

@@ -57,13 +57,14 @@ public class ChessGame {
         }
 
         Color currentColor = getCurrentTurn();
-        MoveResult validation = movementService.validateMove(board, move, currentColor);
+        Move effectiveMove = withDefaultPromotion(move);
+        MoveResult validation = movementService.validateMove(board, effectiveMove, currentColor);
         if (!validation.wasPossible()) {
             return validation;
         }
 
-        new MoveCommand(board, move).execute();
-        history.add(move);
+        new MoveCommand(board, effectiveMove).execute();
+        history.add(effectiveMove);
         turn.nextTurn();
         updateState();
 
@@ -106,6 +107,18 @@ public class ChessGame {
             }
         }
         return destinations;
+    }
+
+    // Guardamos la promocion ya resuelta en el historial. Asi el replay y el
+    // archivo guardado saben que pieza quedo en la ultima fila.
+    private Move withDefaultPromotion(Move move) {
+        Piece piece = board.getPiece(move.getOrigin());
+        if (piece != null && piece.getType() == PieceType.PAWN
+                && move.getPromotion() == null
+                && move.reachesLastRank(piece.getColor())) {
+            return new Move(move.getOrigin(), move.getDestination(), PieceType.QUEEN);
+        }
+        return move;
     }
 
     private void updateState() {

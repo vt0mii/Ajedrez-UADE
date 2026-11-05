@@ -26,6 +26,6 @@ public record GameView(
     public record PieceView(PieceType type, Color color) {
     }
 
-    public record MoveView(String from, String to) {
+    public record MoveView(String from, String to, PieceType promotion) {
     }
 }

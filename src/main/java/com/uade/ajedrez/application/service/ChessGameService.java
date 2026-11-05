@@ -15,6 +15,7 @@ import com.uade.ajedrez.domain.port.out.GameLogger;
 import com.uade.ajedrez.domain.service.MovementService;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 // Caso de uso principal: coordina el dominio con el repositorio y el logger.
@@ -69,7 +70,8 @@ public class ChessGameService implements ChessGameUseCases {
         }
 
         ChessGame game = findGame(gameId);
-        Move move = new Move(parsePosition(command.from()), parsePosition(command.to()));
+        Move move = new Move(parsePosition(command.from()), parsePosition(command.to()),
+                parsePromotion(command.promotion()));
         Color mover = game.getCurrentTurn();
 
         MoveResult result = game.makeMove(move);
@@ -150,6 +152,19 @@ public class ChessGameService implements ChessGameUseCases {
 
     private Position parsePosition(String coordinate) {
         return Position.fromAlgebraic(coordinate);
+    }
+
+    // El cliente manda el nombre del enum ("QUEEN", "KNIGHT", ...). Si no
+    // manda nada, el dominio resuelve la promocion como reina.
+    private PieceType parsePromotion(String promotion) {
+        if (promotion == null || promotion.isBlank()) {
+            return null;
+        }
+        try {
+            return PieceType.valueOf(promotion.trim().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException error) {
+            throw new InvalidCommandException("Invalid promotion piece: " + promotion);
+        }
     }
 
     private String validPlayerName(String name, String defaultName) {

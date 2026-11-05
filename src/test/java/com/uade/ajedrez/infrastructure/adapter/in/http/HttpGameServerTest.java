@@ -1,6 +1,14 @@
 package com.uade.ajedrez.infrastructure.adapter.in.http;
 
 import com.uade.ajedrez.application.service.ChessGameService;
+import com.uade.ajedrez.domain.factory.PieceFactory;
+import com.uade.ajedrez.domain.model.Board;
+import com.uade.ajedrez.domain.model.ChessGame;
+import com.uade.ajedrez.domain.model.Color;
+import com.uade.ajedrez.domain.model.GameId;
+import com.uade.ajedrez.domain.model.PieceType;
+import com.uade.ajedrez.domain.model.Player;
+import com.uade.ajedrez.domain.model.Position;
 import com.uade.ajedrez.domain.port.out.GameLogger;
 import com.uade.ajedrez.domain.service.MovementService;
 import com.uade.ajedrez.infrastructure.adapter.out.persistence.InMemoryGameRepository;
@@ -15,12 +23,14 @@ public class HttpGameServerTest {
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
     private static String baseUrl;
     private static String rootUrl;
+    private static InMemoryGameRepository repository;
 
     public static void main(String[] args) throws Exception {
         System.out.println("Ejecutando tests del adaptador HTTP...\n");
 
+        repository = new InMemoryGameRepository();
         HttpGameServer server = new HttpGameServer(
-                new ChessGameService(new InMemoryGameRepository(), new MovementService()),
+                new ChessGameService(repository, new MovementService()),
                 GameLogger.noop(),
                 0);
         int port = server.start();
@@ -30,6 +40,7 @@ public class HttpGameServerTest {
         try {
             testHealth();
             testCrearPartidaYMover();
+            testPromocion();
             testMovimientoIlegal();
             testPartidaInexistente();
             testListarPartidas();
@@ -74,10 +85,31 @@ public class HttpGameServerTest {
 
         HttpResponse<String> reloaded = get("/games/" + gameId);
         assert reloaded.statusCode() == 200 : "la partida guardada deberia existir";
-        assert reloaded.body().contains("\"lastMove\":{\"from\":\"e2\",\"to\":\"e4\"}")
+        assert reloaded.body().contains("\"lastMove\":{\"from\":\"e2\",\"to\":\"e4\",\"promotion\":null}")
                 : "el historial deberia conservar el movimiento";
 
         System.out.println("V testCrearPartidaYMover paso");
+    }
+
+    static void testPromocion() throws Exception {
+        Board board = Board.empty();
+        board.getSquare(new Position(1, 4)).setPiece(PieceFactory.create(PieceType.PAWN, Color.WHITE));
+        board.getSquare(new Position(7, 0)).setPiece(PieceFactory.create(PieceType.KING, Color.WHITE));
+        board.getSquare(new Position(0, 7)).setPiece(PieceFactory.create(PieceType.KING, Color.BLACK));
+
+        repository.save(ChessGame.newGame(new GameId("g_promocion"),
+                new Player("Ana", Color.WHITE), new Player("Beto", Color.BLACK),
+                board, new MovementService()));
+
+        HttpResponse<String> moved = post("/games/g_promocion/moves",
+                "{\"from\":\"e7\",\"to\":\"e8\",\"promotion\":\"KNIGHT\"}");
+
+        assert moved.statusCode() == 200 : "la promocion deberia aceptarse";
+        assert moved.body().contains("\"type\":\"KNIGHT\"") : "el peon deberia convertirse en caballo";
+        assert moved.body().contains("\"promotion\":\"KNIGHT\"")
+                : "el historial deberia conservar la pieza elegida";
+
+        System.out.println("V testPromocion paso");
     }
 
     static void testMovimientoIlegal() throws Exception {
@@ -126,7 +158,7 @@ public class HttpGameServerTest {
         HttpResponse<String> saved = post("/games/" + gameId + "/save", "");
 
         assert saved.statusCode() == 200 : "guardar deberia responder 200";
-        assert saved.body().contains("\"lastMove\":{\"from\":\"d2\",\"to\":\"d4\"}")
+        assert saved.body().contains("\"lastMove\":{\"from\":\"d2\",\"to\":\"d4\",\"promotion\":null}")
                 : "guardar deberia devolver la partida completa";
 
         HttpResponse<String> missing = post("/games/g_inexistente/save", "");

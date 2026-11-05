@@ -168,7 +168,8 @@ public class HttpGameServer {
 
     private void makeMove(HttpExchange exchange, String gameId) throws IOException {
         String body = readBody(exchange);
-        MoveCommand command = new MoveCommand(required(body, "from"), required(body, "to"));
+        MoveCommand command = new MoveCommand(required(body, "from"), required(body, "to"),
+                JsonBody.stringField(body, "promotion"));
         respondJson(exchange, 200, GameViewJson.toJson(useCases.makeMove(gameId, command)));
     }
 

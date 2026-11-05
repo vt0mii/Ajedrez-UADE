@@ -94,7 +94,7 @@ public class ConsoleView {
                 continue;
             }
             if (line.equalsIgnoreCase("help")) {
-                renderer.show("Commands: 'e2 e4' to move, 'legal e2' to list moves, 'quit' to abandon. Replay is available after the game ends.");
+                renderer.show("Commands: 'e2 e4' to move, 'e7 e8 q' to promote, 'legal e2' to list moves, 'quit' to abandon. Replay is available after the game ends.");
                 continue;
             }
             if (line.toLowerCase().startsWith("legal ")) {
@@ -103,15 +103,16 @@ public class ConsoleView {
             }
 
             String[] parts = line.split("\\s+");
-            if (parts.length != 2) {
-                String message = "Invalid format. Use: origin destination (e.g: e2 e4)";
+            if (parts.length != 2 && parts.length != 3) {
+                String message = "Invalid format. Use: origin destination [promotion] (e.g: e7 e8 n)";
                 logger.warning(message);
                 renderer.show(message);
                 continue;
             }
 
             try {
-                game = useCases.makeMove(game.id(), new MoveCommand(parts[0], parts[1]));
+                String promotion = parts.length == 3 ? promotionName(parts[2]) : null;
+                game = useCases.makeMove(game.id(), new MoveCommand(parts[0], parts[1], promotion));
             } catch (MoveRejectedException e) {
                 renderer.show("Invalid move: " + e.getMessage());
             } catch (InvalidMoveInputException | InvalidCommandException e) {
@@ -203,6 +204,17 @@ public class ConsoleView {
             logger.warning(e.getMessage());
             renderer.show("Error: " + e.getMessage());
         }
+    }
+
+    // Acepta la inicial que se usa en notacion algebraica: q, r, b o n.
+    private static String promotionName(String letter) {
+        return switch (letter.toLowerCase()) {
+            case "q" -> "QUEEN";
+            case "r" -> "ROOK";
+            case "b" -> "BISHOP";
+            case "n" -> "KNIGHT";
+            default -> letter;
+        };
     }
 
     private String ask(String prompt, String defaultValue) {

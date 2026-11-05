@@ -3,6 +3,7 @@ package com.uade.ajedrez;
 import com.uade.ajedrez.application.service.ChessGameServiceTest;
 import com.uade.ajedrez.application.service.ReplayTest;
 import com.uade.ajedrez.domain.command.MoveCommandTest;
+import com.uade.ajedrez.domain.PromotionTest;
 import com.uade.ajedrez.domain.model.BoardTest;
 import com.uade.ajedrez.domain.model.ChessGameTest;
 import com.uade.ajedrez.domain.service.MovementServiceTest;
@@ -25,6 +26,9 @@ public class AllTests {
             System.out.println();
 
             MoveCommandTest.main(args);
+            System.out.println();
+
+            PromotionTest.main(args);
             System.out.println();
 
             ChessGameServiceTest.main(args);

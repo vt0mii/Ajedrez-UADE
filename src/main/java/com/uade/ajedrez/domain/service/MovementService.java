@@ -30,6 +30,11 @@ public class MovementService {
             return result;
         }
 
+        MoveResult promotion = validatePromotion(piece, move);
+        if (promotion != null) {
+            return promotion;
+        }
+
         if (leavesKingInCheck(board, move, playerColor)) {
             return new MoveResult(false, Reason.NOT_AVAILABLE, "Move leaves king in check");
         }
@@ -70,6 +75,26 @@ public class MovementService {
     // Tablas por ahogado: no está en jaque pero tampoco tiene jugadas legales.
     public boolean isStalemate(Board board, Color playerColor) {
         return !isInCheck(board, playerColor) && !hasAnyLegalMove(board, playerColor);
+    }
+
+    // Si el cliente no elige pieza, se asume reina. Cuando si la elige, tiene
+    // que ser un peon llegando a la ultima fila y una pieza permitida.
+    private MoveResult validatePromotion(Piece piece, Move move) {
+        if (move.getPromotion() == null) {
+            return null;
+        }
+
+        if (piece.getType() != PieceType.PAWN || !move.reachesLastRank(piece.getColor())) {
+            return new MoveResult(false, Reason.NOT_AVAILABLE,
+                    "Only a pawn reaching the last rank can promote");
+        }
+
+        if (!move.getPromotion().isPromotionPiece()) {
+            return new MoveResult(false, Reason.NOT_AVAILABLE,
+                    "A pawn can only promote to a queen, rook, bishop or knight");
+        }
+
+        return null;
     }
 
     private boolean leavesKingInCheck(Board board, Move move, Color playerColor) {

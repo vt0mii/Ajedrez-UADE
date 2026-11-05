@@ -52,7 +52,8 @@ public final class GameViewMapper {
     }
 
     private static MoveView toMoveView(Move move) {
-        return new MoveView(move.getOrigin().toAlgebraic(), move.getDestination().toAlgebraic());
+        return new MoveView(move.getOrigin().toAlgebraic(), move.getDestination().toAlgebraic(),
+                move.getPromotion());
     }
 
     // Versión corta para el listado: sin tablero, solo lo que hace falta para

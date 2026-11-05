@@ -6,6 +6,7 @@ import com.uade.ajedrez.application.dto.NewGameCommand;
 import com.uade.ajedrez.application.service.ChessGameService;
 import com.uade.ajedrez.application.port.out.SavedGame;
 import com.uade.ajedrez.domain.exception.GamePersistenceException;
+import com.uade.ajedrez.domain.factory.PieceFactory;
 import com.uade.ajedrez.domain.model.*;
 import com.uade.ajedrez.domain.service.MovementService;
 
@@ -29,6 +30,8 @@ public class GameSerializerTest {
         testVersionNoSoportada();
         testGuardarEnDirectorio();
         testListarPartidas();
+        testPromocionPersistida();
+        testVersionTresSinPromocion();
 
         System.out.println("\nTodos los tests de GameSerializer pasaron!");
     }
@@ -167,6 +170,54 @@ public class GameSerializerTest {
         } finally {
             deleteRecursively(directory);
         }
+    }
+
+    static void testPromocionPersistida() {
+        MovementService movementService = new MovementService();
+        Board board = Board.empty();
+        board.getSquare(new Position(1, 4)).setPiece(PieceFactory.create(PieceType.PAWN, Color.WHITE));
+        board.getSquare(new Position(7, 0)).setPiece(PieceFactory.create(PieceType.KING, Color.WHITE));
+        board.getSquare(new Position(0, 7)).setPiece(PieceFactory.create(PieceType.KING, Color.BLACK));
+
+        ChessGame game = ChessGame.newGame(new GameId("g_promocion"),
+                new Player("Blanco", Color.WHITE), new Player("Negro", Color.BLACK),
+                board, movementService);
+        game.makeMove(new Move(new Position(1, 4), new Position(0, 4), PieceType.KNIGHT));
+
+        Properties properties = GameSerializer.toProperties(game);
+        assert "4".equals(properties.getProperty("formatVersion"))
+                : "deberia guardar la version nueva";
+        assert "e7,e8,KNIGHT".equals(properties.getProperty("history.0"))
+                : "deberia guardar la pieza elegida";
+
+        ChessGame loaded = GameSerializer.fromProperties(properties, movementService);
+        assert loaded.getBoard().getPiece(new Position(0, 4)).getType() == PieceType.KNIGHT
+                : "deberia conservar el caballo";
+        assert loaded.getHistory().get(0).getPromotion() == PieceType.KNIGHT
+                : "el historial deberia conservar la pieza";
+
+        System.out.println("V testPromocionPersistida paso");
+    }
+
+    static void testVersionTresSinPromocion() {
+        Properties properties = new Properties();
+        properties.setProperty("formatVersion", "3");
+        properties.setProperty("id", "g_vieja");
+        properties.setProperty("state", "IN_PROGRESS");
+        properties.setProperty("turnIndex", "0");
+        properties.setProperty("turnNumber", "1");
+        properties.setProperty("whitePlayer", "Blanco");
+        properties.setProperty("blackPlayer", "Negro");
+        properties.setProperty("historySize", "1");
+        properties.setProperty("history.0", "e2,e4");
+
+        ChessGame loaded = GameSerializer.fromProperties(properties, new MovementService());
+
+        assert loaded.getHistory().size() == 1 : "deberia leer el historial viejo";
+        assert loaded.getHistory().get(0).getPromotion() == null
+                : "sin tercer campo no hay promocion";
+
+        System.out.println("V testVersionTresSinPromocion paso");
     }
 
     private static void deleteRecursively(Path directory) throws IOException {
