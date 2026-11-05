@@ -125,6 +125,7 @@ Al arrancar te pide los nombres de los jugadores (Enter usa `White` y `Black`). 
 Comandos:
 
 - `e2 e4`: hacer una jugada.
+- `e7 e8 q`: promover un peón (también acepta `r`, `b` o `n`; sin la tercera letra va a reina).
 - `legal e2`: ver los destinos legales de la pieza que está en `e2`.
 - `help`: mostrar la ayuda.
 - `quit`: abandonar la partida.
@@ -148,7 +149,7 @@ La web también tiene una sección `/docs` que lee los `.md` del repositorio y l
 | `GET` | `/api/games` | Lista las partidas guardadas con un resumen |
 | `POST` | `/api/games` | Crea una partida (`whitePlayerName`, `blackPlayerName`) |
 | `GET` | `/api/games/{id}` | Devuelve el `GameView` actual |
-| `POST` | `/api/games/{id}/moves` | Mueve una pieza (`from`, `to`) |
+| `POST` | `/api/games/{id}/moves` | Mueve una pieza (`from`, `to` y `promotion` opcional) |
 | `GET` | `/api/games/{id}/legal-moves?from=e2` | Destinos legales desde una casilla |
 | `POST` | `/api/games/{id}/abandon` | Abandona la partida |
 | `POST` | `/api/games/{id}/save` | Vuelve a guardar la partida |
@@ -168,7 +169,11 @@ Solo se pueden reproducir partidas terminadas (`CHECKMATE`, `ABANDONED` o `DRAW`
 
 El replay arma las jugadas de nuevo sobre un tablero propio a partir del historial de coordenadas. No guarda cambios, no modifica la partida original ni el formato de los archivos. Cada sesión navega por su cuenta.
 
-En la web, el replay se abre desde el cartel de fin de partida o desde el enlace **Replay** del lobby. La pantalla `/game/{id}/replay` le pide cada posición al backend con `GET /api/games/{id}/replay?position=N` y se maneja con los botones o con las flechas ← →, Inicio y Fin. El endpoint no guarda sesión en el servidor: solo devuelve el `GameView` de la posición pedida. Todavía no hay promoción, enroque, captura al paso ni tablas por repetición o material insuficiente.
+En la web, el replay se abre desde el cartel de fin de partida o desde el enlace **Replay** del lobby. La pantalla `/game/{id}/replay` le pide cada posición al backend con `GET /api/games/{id}/replay?position=N` y se maneja con los botones o con las flechas ← →, Inicio y Fin. El endpoint no guarda sesión en el servidor: solo devuelve el `GameView` de la posición pedida. Todavía no hay enroque, captura al paso ni tablas por repetición o material insuficiente.
+
+### Promoción
+
+Cuando un peón llega a la última fila, el movimiento puede llevar `promotion` con `QUEEN`, `ROOK`, `BISHOP` o `KNIGHT`. Si no viene, el dominio asume reina. La jugada queda en el historial con la pieza ya resuelta (por ejemplo `e7,e8,KNIGHT`), así el replay y el archivo guardado reconstruyen la misma posición. En la web se abre un diálogo para elegir la pieza antes de mandar la jugada.
 
 El frontend se levanta aparte: `cd web`, `npm install` y `npm run dev`. Las instrucciones completas están en [`web/README.md`](web/README.md).
 
@@ -189,5 +194,5 @@ En IntelliJ IDEA, abrí la carpeta del proyecto, elegí **JDK 17** como Project 
 ## Lo que sigue
 
 1. Poder deshacer jugadas durante una partida activa (hoy el retroceso solo existe en el replay).
-2. Sumar las reglas que faltan: enroque, promoción, captura al paso y tablas por repetición o por 50 movimientos.
+2. Sumar las reglas que faltan: enroque, captura al paso y tablas por repetición o por 50 movimientos.
 3. Migrar los tests a JUnit 5 sin cambiar el build con `build.ps1`.

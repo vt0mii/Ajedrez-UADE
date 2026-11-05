@@ -82,6 +82,7 @@ pertenecen a una pieza sola. De eso se ocupa `MovementService`:
 - no se puede capturar al rey;
 - el camino tiene que estar libre (lo resuelve cada estrategia);
 - una jugada no puede dejar al propio rey en jaque;
+- la promoción solo vale para un peón en la última fila y con una pieza permitida;
 - detección de jaque, jaque mate y ahogado.
 
 Para probar si una jugada deja al rey expuesto, el servicio copia el tablero,
@@ -117,6 +118,13 @@ Este comando se usa en dos lugares:
 
 - en una partida normal, para aplicar la jugada;
 - en el replay, para avanzar y retroceder.
+
+Cuando un peón llega a la última fila, `Move` trae la pieza elegida en
+`promotion` (reina, torre, alfil o caballo). Si no viene, `promotionOrQueen()`
+resuelve reina. `MovementService` rechaza la promoción fuera de la última fila
+o con una pieza que no corresponda, y `MoveCommand` reemplaza el peón al
+ejecutar y lo restaura al deshacer. `ChessGame` guarda en el historial la
+jugada ya resuelta, así el replay y el archivo reproducen la misma posición.
 
 ### 2.6. `ChessReplay`: revivir una partida
 
@@ -233,7 +241,7 @@ comandos), `Json` (escape y helpers) y `HttpError` (errores del adaptador).
 | `GET` | `/api/games` | Lista las partidas guardadas |
 | `POST` | `/api/games` | Crea una partida |
 | `GET` | `/api/games/{id}` | Devuelve la partida actual |
-| `POST` | `/api/games/{id}/moves` | Hace una jugada |
+| `POST` | `/api/games/{id}/moves` | Hace una jugada (`promotion` opcional) |
 | `GET` | `/api/games/{id}/legal-moves?from=e2` | Destinos legales |
 | `POST` | `/api/games/{id}/abandon` | Abandona la partida |
 | `POST` | `/api/games/{id}/save` | Vuelve a guardar |
@@ -247,7 +255,7 @@ body inválido devuelve `400`, una partida inexistente `404`, una jugada ilegal
 
 `FileGameRepository` guarda cada partida en `games/<id>.properties`.
 `GameSerializer` se encarga del formato, que tiene una versión (`formatVersion
-= 3`) y estas claves:
+= 4`) y estas claves:
 
 | Clave | Contenido |
 |-------|-----------|
@@ -258,7 +266,10 @@ body inválido devuelve `400`, una partida inexistente `404`, una jugada ilegal
 | `whitePlayer`, `blackPlayer` | Nombres |
 | `piece.<fila>,<columna>` | Tipo y color de cada pieza |
 | `historySize` | Cantidad de jugadas |
-| `history.<i>` | Origen y destino de cada jugada |
+| `history.<i>` | Origen, destino y pieza de promoción de cada jugada (vacío si no hubo) |
+
+La versión 4 agregó el tercer campo de `history.<i>`. Los archivos versión 3 se
+siguen leyendo: sus jugadas quedan sin promoción.
 
 Al cargar, el serializador valida la versión y los datos. Si algo está mal,
 lanza `GamePersistenceException` y el archivo no se usa.
@@ -411,7 +422,7 @@ Las decisiones más importantes están desarrolladas en
 
 Lo que todavía no está:
 
-- enroque, promoción y captura al paso;
+- enroque y captura al paso;
 - tablas por repetición, por 50 movimientos o por material insuficiente;
 - autenticación y partidas multiusuario reales;
 - deshacer jugadas durante una partida activa.

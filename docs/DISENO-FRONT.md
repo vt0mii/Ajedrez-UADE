@@ -65,7 +65,7 @@ java -cp bin com.uade.ajedrez.App --web      # HTTP en http://localhost:8080
 | `GET` | `/api/games` | — | `200` + `{ "games": [GameSummary] }` |
 | `POST` | `/api/games` | `{ "whitePlayerName": "...", "blackPlayerName": "..." }` | `201` + `GameView` |
 | `GET` | `/api/games/{id}` | — | `200` + `GameView` |
-| `POST` | `/api/games/{id}/moves` | `{ "from": "e2", "to": "e4" }` | `200` + `GameView` |
+| `POST` | `/api/games/{id}/moves` | `{ "from": "e2", "to": "e4" }` o `{ "from": "e7", "to": "e8", "promotion": "KNIGHT" }` | `200` + `GameView` |
 | `GET` | `/api/games/{id}/legal-moves?from=e2` | — | `200` + `{ "moves": ["e3","e4"] }` |
 | `POST` | `/api/games/{id}/abandon` | — | `200` + `GameView` |
 | `POST` | `/api/games/{id}/save` | — | `200` + `GameView` |
@@ -86,8 +86,8 @@ java -cp bin com.uade.ajedrez.App --web      # HTTP en http://localhost:8080
     [ {"type":"ROOK","color":"BLACK"}, {"type":"KNIGHT","color":"BLACK"}, null, "..." ],
     "..."
   ],
-  "history": [ { "from": "e2", "to": "e4" } ],
-  "lastMove": { "from": "e2", "to": "e4" },
+  "history": [ { "from": "e2", "to": "e4", "promotion": null } ],
+  "lastMove": { "from": "e2", "to": "e4", "promotion": null },
   "winner": null
 }
 ```
@@ -96,6 +96,9 @@ java -cp bin com.uade.ajedrez.App --web      # HTTP en http://localhost:8080
   Las casillas vacías son `null`.
 - `winner` es `null` salvo en `CHECKMATE`. En `ABANDONED` y `DRAW` también es
   `null`; el resultado se muestra a partir de `status`.
+- `promotion` es `null` salvo en la jugada en la que un peón corona. Ahí vale
+  `QUEEN`, `ROOK`, `BISHOP` o `KNIGHT` y se usa para mostrar `e7-e8=N` en el
+  historial.
 
 ### Formato de `ReplayView`
 
@@ -200,6 +203,7 @@ web/
     │   │   └── LobbyScreen.tsx # crear y abrir partidas guardadas
     │   ├── game/
     │   │   ├── GameScreen.tsx  # layout de la partida y atajos
+    │   │   ├── PromotionDialog.tsx # elección de pieza al coronar
     │   │   └── ReplayScreen.tsx # tablero, historial y controles del replay
     │   └── ui/
     │       ├── Button.tsx
@@ -222,6 +226,7 @@ web/
 |---------|------|---------|
 | `lib/api.ts` | `fetch` + parseo + errores tipados | reglas del juego |
 | `hooks/useGame.ts` | estado, polling, mutaciones | dibujar |
+| `PromotionDialog.tsx` | mostrar las cuatro piezas y avisar la elección | decidir si la promoción es legal |
 | `ChessBoard.tsx` | layout y clicks | saber si el movimiento es válido |
 | `ReplayScreen.tsx` | pedir posiciones y navegar el historial | reconstruir jugadas o validar reglas |
 | `lib/docs.ts` | listar, leer y enlazar los documentos | renderizar markdown |
@@ -231,9 +236,11 @@ web/
 ### Flujo de una jugada
 
 1. Click en pieza propia → `GET /legal-moves?from=e2` → se marcan puntos.
-2. Click en destino marcado → `POST /moves`.
-3. El servidor devuelve el `GameView` nuevo → se reemplaza el estado.
-4. Si el servidor rechaza (`409`) → toast con el mensaje y se mantiene la selección.
+2. Click en destino marcado. Si es un peón llegando a la última fila, se abre
+   `PromotionDialog` y la jugada espera la pieza elegida.
+3. Se manda `POST /moves`, con `promotion` cuando corresponde.
+4. El servidor devuelve el `GameView` nuevo → se reemplaza el estado.
+5. Si el servidor rechaza (`409`) → toast con el mensaje y se mantiene la selección.
 
 No hay ajedrez en TypeScript: **el front nunca decide si un movimiento es legal**.
 
@@ -385,6 +392,6 @@ Los siete pasos están completos. Los pasos 1–2 no tocan el frontend; los paso
 ## 6. Fuera de alcance (por ahora)
 
 - Autenticación y partidas multiusuario reales.
-- Enroque, promoción y captura al paso (no existen en el dominio todavía).
+- Enroque y captura al paso (no existen en el dominio todavía).
 - Websockets. El polling alcanza para la demo del TP.
 - Deshacer (`MoveCommand`) desde la web: primero hay que integrarlo en `ChessGame`.

@@ -255,6 +255,21 @@ proyecto crece.
 **Consecuencia:** los tests son simples y no requieren descargar nada, pero no
 hay reportes ni integración con el IDE.
 
+### 2.18. La promoción se resuelve en el dominio
+
+`Move` lleva una pieza de promoción opcional. Si un peón llega a la última fila
+sin elección, `ChessGame` la normaliza a reina y guarda en el historial la
+jugada ya resuelta. `MoveCommand` reemplaza el peón al ejecutar y lo restaura al
+deshacer, y `GameSerializer` persiste la pieza elegida en el tercer campo de
+`history.<i>`.
+
+La alternativa era dejar la promoción solo en el frontend. La descartamos
+porque el replay y los archivos guardados necesitan reconstruir la posición
+exacta, y esa es responsabilidad del dominio.
+
+**Consecuencia:** el formato de archivo sube a la versión 4; los archivos
+versión 3 se siguen leyendo sin promoción.
+
 ## 3. Diagrama de clases
 
 ### 3.1. Dominio
@@ -308,6 +323,8 @@ classDiagram
         class Move {
             -Position origin
             -Position destination
+            -PieceType promotion
+            +promotionOrQueen() PieceType
         }
         class MoveResult {
             -boolean wasPossible
@@ -424,6 +441,7 @@ classDiagram
     Piece --> IMovementStrategy
 
     Move *-- Position
+    Move --> PieceType
     MoveResult --> Reason
 
     Turn *-- "2" Player
@@ -745,7 +763,7 @@ Esta tabla une las tres piezas: lo que llama la web, el endpoint que atiende
 | `listGames()` | `GET /api/games` | `ListGamesUseCase.listGames` | `GameSummaryView[]` |
 | `getGame(id)` | `GET /api/games/{id}` | `GetGameUseCase.getGame` | `GameView` |
 | `legalMoves(id, from)` | `GET /api/games/{id}/legal-moves?from=e2` | `LegalMovesUseCase.legalMoves` | `{ moves: string[] }` |
-| `makeMove(id, from, to)` | `POST /api/games/{id}/moves` | `MakeMoveUseCase.makeMove` | `GameView` |
+| `makeMove(id, from, to, promotion?)` | `POST /api/games/{id}/moves` | `MakeMoveUseCase.makeMove` | `GameView` |
 | `abandonGame(id)` | `POST /api/games/{id}/abandon` | `AbandonGameUseCase.abandonGame` | `GameView` |
 | `saveGame(id)` | `POST /api/games/{id}/save` | `SaveGameUseCase.saveGame` | `GameView` |
 | `replay(id, position)` | `GET /api/games/{id}/replay?position=N` | `ReplayGameUseCase.replayAt` | `ReplayView` |
@@ -762,15 +780,17 @@ el mismo motor sin conocerse entre sí.
 3. El servicio recupera la partida con `GameRepositoryPort.findById` y llama a
    `ChessGame.legalMovesFrom`.
 4. `ChessGame` prueba cada destino con `MovementService.validateMove`.
-5. Cuando el jugador elige un destino, el frontend manda `POST /moves`.
-6. `ChessGame.makeMove` valida, ejecuta un `MoveCommand`, actualiza el turno y
-   recalcula el estado.
+5. Cuando el jugador elige un destino, el frontend manda `POST /moves`. Si el
+   peón llega a la última fila, antes elige la pieza y el body incluye
+   `promotion`.
+6. `ChessGame.makeMove` valida, ejecuta un `MoveCommand` (que aplica la
+   promoción), actualiza el turno y recalcula el estado.
 7. `GameViewMapper` arma el `GameView`, el repositorio guarda el archivo y el
    servidor responde el JSON que reemplaza el estado en pantalla.
 
 ## 4. Qué queda afuera
 
-- Enroque, promoción y captura al paso.
+- Enroque y captura al paso.
 - Tablas por repetición, 50 movimientos o material insuficiente (el ahogado ya
   está implementado).
 - Autenticación y partidas multiusuario reales.
