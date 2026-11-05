@@ -24,6 +24,8 @@ export type PlayerView = {
 export type MoveView = {
   from: string;
   to: string;
+  // Solo viene cuando un peon llega a la ultima fila.
+  promotion: PieceType | null;
 };
 
 export type GameView = {

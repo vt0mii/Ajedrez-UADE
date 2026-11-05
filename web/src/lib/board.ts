@@ -29,6 +29,23 @@ export function pieceAt(
   return board[toRow(square)]?.[toColumn(square)] ?? null;
 }
 
+// Un peon promociona cuando llega a la ultima fila del rival. El dialogo se
+// encarga de elegir la pieza; aca solo detectamos el caso.
+export function isPromotionMove(piece: PieceView | null, to: string): boolean {
+  if (piece?.type !== "PAWN") {
+    return false;
+  }
+  return piece.color === "WHITE" ? to.endsWith("8") : to.endsWith("1");
+}
+
+// Inicial que se usa en la notacion algebraica para la pieza elegida.
+export const PROMOTION_LETTERS: Partial<Record<PieceType, string>> = {
+  QUEEN: "Q",
+  ROOK: "R",
+  BISHOP: "B",
+  KNIGHT: "N",
+};
+
 export function findKing(
   board: (PieceView | null)[][],
   color: Color,

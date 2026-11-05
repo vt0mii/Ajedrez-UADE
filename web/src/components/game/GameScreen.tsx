@@ -7,6 +7,7 @@ import { GameStatus } from "@/components/panels/GameStatus";
 import { MoveHistory } from "@/components/panels/MoveHistory";
 import { PlayerCard } from "@/components/panels/PlayerCard";
 import { ResultBanner } from "@/components/panels/ResultBanner";
+import { PromotionDialog } from "@/components/game/PromotionDialog";
 import { Toast } from "@/components/ui/Toast";
 import { useGame } from "@/hooks/useGame";
 import { API_URL } from "@/lib/api";
@@ -24,8 +25,11 @@ export function GameScreen({ gameId }: { gameId: string }) {
     busy,
     saving,
     notice,
+    pendingPromotion,
     notify,
     selectSquare,
+    choosePromotion,
+    cancelPromotion,
     clearSelection,
     abandon,
     save,
@@ -36,7 +40,12 @@ export function GameScreen({ gameId }: { gameId: string }) {
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        clearSelection();
+        if (pendingPromotion) {
+          cancelPromotion();
+        } else {
+          clearSelection();
+        }
+        return;
       }
       if (event.key.toLowerCase() === "f") {
         setFlipped((value) => !value);
@@ -45,7 +54,7 @@ export function GameScreen({ gameId }: { gameId: string }) {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [clearSelection]);
+  }, [clearSelection, cancelPromotion, pendingPromotion]);
 
   if (loading) {
     return (
@@ -138,10 +147,17 @@ export function GameScreen({ gameId }: { gameId: string }) {
               selected={selected}
               legalMoves={legalMoves}
               flipped={flipped}
-              disabled={finished || busy}
+              disabled={finished || busy || pendingPromotion !== null}
               onSquareClick={selectSquare}
             />
             <ResultBanner game={game} />
+            {pendingPromotion ? (
+              <PromotionDialog
+                color={pendingPromotion.color}
+                onChoose={choosePromotion}
+                onCancel={cancelPromotion}
+              />
+            ) : null}
           </div>
         </section>
 

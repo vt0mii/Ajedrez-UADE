@@ -1,8 +1,11 @@
-import { groupMoves } from "@/lib/board";
+import { groupMoves, PROMOTION_LETTERS } from "@/lib/board";
 import type { MoveView } from "@/lib/types";
 
 function formatMove(move: MoveView) {
-  return `${move.from}-${move.to}`;
+  const promotion = move.promotion
+    ? `=${PROMOTION_LETTERS[move.promotion] ?? ""}`
+    : "";
+  return `${move.from}-${move.to}${promotion}`;
 }
 
 export function MoveHistory({ history }: { history: MoveView[] }) {

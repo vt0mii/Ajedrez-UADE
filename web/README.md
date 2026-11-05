@@ -87,7 +87,8 @@ scripts/
 
 1. Click en una pieza propia → `GET /api/games/{id}/legal-moves?from=e2`.
 2. Las casillas devueltas se marcan con un punto.
-3. Click en un destino → `POST /api/games/{id}/moves`.
+3. Click en un destino → `POST /api/games/{id}/moves`. Si el peón corona, antes
+   se elige la pieza en un diálogo y el body lleva `promotion`.
 4. La respuesta reemplaza el `GameView` en pantalla.
 
 Si el backend rechaza la jugada, se muestra el mensaje en un toast.

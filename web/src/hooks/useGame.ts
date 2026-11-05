@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api";
-import { pieceAt } from "@/lib/board";
+import { isPromotionMove, pieceAt } from "@/lib/board";
 import { isFinishedStatus } from "@/lib/status";
-import type { GameView } from "@/lib/types";
+import type { Color, GameView, PieceType } from "@/lib/types";
 
 const POLL_INTERVAL_MS = 2000;
 const NOTICE_DURATION_MS = 4500;
@@ -12,6 +12,13 @@ const NOTICE_DURATION_MS = 4500;
 export type Notice = {
   message: string;
   tone: "error" | "info";
+};
+
+// Jugada que espera que el jugador elija la pieza de promocion.
+export type PendingPromotion = {
+  from: string;
+  to: string;
+  color: Color;
 };
 
 function messageOf(error: unknown): string {
@@ -29,6 +36,7 @@ export function useGame(gameId: string) {
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
+  const [pendingPromotion, setPendingPromotion] = useState<PendingPromotion | null>(null);
 
   const clearSelection = useCallback(() => {
     setSelected(null);
@@ -83,11 +91,12 @@ export function useGame(gameId: string) {
     return () => clearTimeout(timer);
   }, [notice]);
 
-  async function play(from: string, to: string) {
+  async function play(from: string, to: string, promotion?: PieceType) {
     setBusy(true);
     try {
-      setGame(await api.makeMove(gameId, from, to));
+      setGame(await api.makeMove(gameId, from, to, promotion));
       clearSelection();
+      setPendingPromotion(null);
     } catch (cause) {
       notify(messageOf(cause));
     } finally {
@@ -101,6 +110,11 @@ export function useGame(gameId: string) {
     }
 
     if (selected && legalMoves.includes(square)) {
+      const piece = pieceAt(game.board, selected);
+      if (piece && isPromotionMove(piece, square)) {
+        setPendingPromotion({ from: selected, to: square, color: piece.color });
+        return;
+      }
       await play(selected, square);
       return;
     }
@@ -127,11 +141,23 @@ export function useGame(gameId: string) {
     }
   }
 
+  const cancelPromotion = useCallback(() => {
+    setPendingPromotion(null);
+  }, []);
+
+  async function choosePromotion(piece: PieceType) {
+    if (!pendingPromotion) {
+      return;
+    }
+    await play(pendingPromotion.from, pendingPromotion.to, piece);
+  }
+
   async function abandon() {
     setBusy(true);
     try {
       setGame(await api.abandonGame(gameId));
       clearSelection();
+      setPendingPromotion(null);
     } catch (cause) {
       notify(messageOf(cause));
     } finally {
@@ -162,9 +188,12 @@ export function useGame(gameId: string) {
     busy,
     saving,
     notice,
+    pendingPromotion,
     dismissNotice: () => setNotice(null),
     notify,
     selectSquare,
+    choosePromotion,
+    cancelPromotion,
     clearSelection,
     abandon,
     save,

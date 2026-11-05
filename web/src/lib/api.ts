@@ -60,10 +60,15 @@ export const api = {
       `/api/games/${gameId}/legal-moves?from=${encodeURIComponent(from)}`,
     ),
 
-  makeMove: (gameId: string, from: string, to: string) =>
+  makeMove: (
+    gameId: string,
+    from: string,
+    to: string,
+    promotion?: import("./types").PieceType,
+  ) =>
     request<import("./types").GameView>(`/api/games/${gameId}/moves`, {
       method: "POST",
-      body: JSON.stringify({ from, to }),
+      body: JSON.stringify(promotion ? { from, to, promotion } : { from, to }),
     }),
 
   abandonGame: (gameId: string) =>
