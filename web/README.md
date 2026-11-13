@@ -51,6 +51,8 @@ cambiarla.
 ## Estructura
 
 ```
+scripts/
+└── export-pdf.mjs          # genera los PDFs de docs/export con Edge
 src/
 ├── app/
 │   ├── layout.tsx          # shell: header, footer, tipografías
@@ -65,22 +67,21 @@ src/
 │   └── game/[id]/replay/page.tsx # replay de una partida terminada
 ├── components/
 │   ├── board/              # ChessBoard, Square, Piece
-│   ├── docs/               # DocsScreen, DiagramsScreen, DocMarkdown, MermaidDiagram
+│   ├── docs/               # DocsScreen, DiagramsScreen, DocsNav, DocsToc,
+│   │                       # DocMarkdown, MermaidDiagram, HashScroll, PrintToolbar
 │   ├── panels/             # PlayerCard, MoveHistory, GameStatus, ResultBanner
 │   ├── lobby/              # LobbyScreen
-│   ├── game/               # GameScreen, ReplayScreen
-│   └── ui/                 # Button, Input, Toast
+│   ├── game/               # GameScreen, PromotionDialog, ReplayScreen
+│   └── ui/                 # Button, Input, ThemeToggle, Toast
 ├── hooks/
 │   └── useGame.ts          # carga, polling y acciones de la partida
 └── lib/
     ├── api.ts              # cliente tipado del backend
     ├── board.ts            # helpers de coordenadas y presentación
-    ├── docs.ts             # lista, lectura y links de los documentos
-    ├── markdown.ts         # slugs y extracción de títulos
+    ├── docs.ts             # lista, lectura, links y PDFs de los documentos
+    ├── markdown.ts         # slugs, títulos y extracción de diagramas
     ├── status.ts           # etiquetas y colores del estado de la partida
     └── types.ts            # contrato GameView y GameSummary
-scripts/
-└── export-pdf.mjs          # genera los PDFs de docs/export con Edge
 ```
 
 ## Flujo de una jugada
@@ -133,8 +134,8 @@ cada documento hay tarjetas que llevan al diagrama correspondiente.
 `npm run export:pdf` abre las versiones imprimibles con Edge en modo headless y
 deja cuatro archivos en `docs/export/`: `ARQUITECTURA.pdf`, `JUSTIFICACION.pdf`,
 `DISENO-FRONT.pdf` y `DIAGRAMAS-DE-FLUJO.pdf`. Los tres documentos salen en A4
-vertical; los diagramas, en A4 apaisado con una hoja por diagrama. Todo se
-exporta en tema oscuro.
+vertical; los diagramas, en A4 apaisado, con saltos de página entre ellos. Todo
+se exporta en tema oscuro.
 
 Antes de correrlo tiene que estar levantado el frontend (`npm run dev` o
 `npm start`) en `http://localhost:3000`. Se puede cambiar con `DOCS_BASE_URL`.

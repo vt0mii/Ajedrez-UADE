@@ -139,8 +139,8 @@ Spring MVC ni un servidor embebido externo.
 
 La alternativa era Spring Boot o un framework liviano. La descartamos por la
 misma razón que en 2.2: el objetivo era mostrar el desacople, no la configuración
-de un framework. El costo es escribir a mano el ruteo y el JSON, que para ocho
-endpoints es manejable.
+de un framework. El costo es escribir a mano el ruteo y el JSON, que para los
+nueve endpoints de la API es manejable.
 
 **Consecuencia:** cero dependencias y un arranque con `java -cp bin`. A cambio,
 no hay validación automática de requests ni serialización declarativa.

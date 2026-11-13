@@ -66,7 +66,7 @@ Es el único lugar que conoce las implementaciones concretas. Según el argument
 - Ver el historial y consultar los movimientos legales de una casilla (lo usa la web).
 - Jugar desde la consola con nombres de jugadores y los comandos `legal <casilla>`, `help` y `quit`.
 - Jugar desde la web (`web/`, Next.js + Tailwind): tablero, historial, jaque, jaque mate, tablas, abandono, guardado manual, listado de partidas en el lobby, tema claro/oscuro y sincronización cada 2 segundos.
-- Leer la arquitectura, las decisiones y las guías desde `/docs`, con los markdown del repositorio renderizados en la web.
+- Leer la arquitectura, las decisiones y las guías desde `/docs`, con los markdown del repositorio renderizados en la web, y ver todos los diagramas juntos en `/docs/diagramas`.
 - Guardar cada partida por id en `games/` y retomarla después con el turno, el estado y el historial.
 - Revisar partidas terminadas por jaque mate, abandono o tablas, tanto en consola como en la web, sin tocar la partida original.
 - Ids de partida validados (`[A-Za-z0-9_-]{1,64}`), así un id no puede salirse de `games/`.
@@ -78,7 +78,7 @@ Es el único lugar que conoce las implementaciones concretas. Según el argument
 - **PowerShell** para correr el script de compilación.
 - Opcional: **IntelliJ IDEA** con el SDK del proyecto configurado.
 
-No hay dependencias externas, ni Maven, ni Gradle.
+El backend no tiene dependencias externas, ni Maven, ni Gradle.
 
 ## Compilar y correr los tests
 
@@ -101,6 +101,7 @@ java -ea -cp bin com.uade.ajedrez.domain.model.BoardTest
 java -ea -cp bin com.uade.ajedrez.domain.service.MovementServiceTest
 java -ea -cp bin com.uade.ajedrez.domain.model.ChessGameTest
 java -ea -cp bin com.uade.ajedrez.domain.command.MoveCommandTest
+java -ea -cp bin com.uade.ajedrez.domain.PromotionTest
 java -ea -cp bin com.uade.ajedrez.application.service.ChessGameServiceTest
 java -ea -cp bin com.uade.ajedrez.application.service.ReplayTest
 java -ea -cp bin com.uade.ajedrez.infrastructure.adapter.out.persistence.GameSerializerTest

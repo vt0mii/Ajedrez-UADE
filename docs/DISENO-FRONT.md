@@ -1,4 +1,4 @@
-# Diseño del frontend web — rama `front-tomi`
+# Diseño del frontend web
 
 Este documento define **cómo** conectamos el frontend Next.js con el núcleo Java
 sin romper la arquitectura hexagonal. El frontend consume casos de uso a través
@@ -161,7 +161,8 @@ lobby.
 | Movimiento ilegal o partida terminada | `409` |
 | Falla interna | `500` |
 
-CORS abierto (`*`) para desarrollo; se restringe al dominio del frontend cuando lo definamos.
+CORS abierto (`*`) para desarrollo. Para producción conviene restringirlo al
+dominio del frontend.
 
 ---
 
@@ -175,6 +176,8 @@ web/
 ├── next.config.ts              # loader de Tailwind para Turbopack
 ├── tsconfig.json
 ├── .env.local.example          # NEXT_PUBLIC_API_URL=http://localhost:8080
+├── scripts/
+│   └── export-pdf.mjs          # genera docs/export con Edge en modo headless
 └── src/
     ├── app/
     │   ├── layout.tsx          # shell: header, fondo, tipografía
@@ -182,6 +185,10 @@ web/
     │   ├── page.tsx            # Lobby: crear y abrir partidas guardadas
     │   ├── docs/page.tsx       # índice de documentación
     │   ├── docs/[slug]/page.tsx # documento markdown
+    │   ├── docs/[slug]/imprimir/page.tsx # versión imprimible
+    │   ├── docs/[slug]/pdf/route.ts # descarga del PDF del documento
+    │   ├── docs/diagramas/page.tsx # todos los diagramas, a ancho completo
+    │   ├── docs/diagramas/pdf/route.ts # descarga del PDF de diagramas
     │   ├── game/[id]/page.tsx  # Pantalla de juego
     │   └── game/[id]/replay/page.tsx  # Pantalla de replay
     ├── components/
@@ -193,7 +200,11 @@ web/
     │   │   ├── DocsScreen.tsx  # layout de la documentación
     │   │   ├── DocsNav.tsx     # menú de documentos
     │   │   ├── DocsToc.tsx     # índice del documento
-    │   │   └── DocMarkdown.tsx # render de markdown y links internos
+    │   │   ├── DiagramsScreen.tsx # galería de todos los diagramas
+    │   │   ├── DocMarkdown.tsx # render de markdown y links internos
+    │   │   ├── MermaidDiagram.tsx # render de los bloques Mermaid
+    │   │   ├── HashScroll.tsx  # corrige el scroll al entrar por un ancla
+    │   │   └── PrintToolbar.tsx # barra de la versión imprimible
     │   ├── panels/
     │   │   ├── PlayerCard.tsx  # nombre, color, capturadas, turno
     │   │   ├── MoveHistory.tsx # lista de jugadas en pares
@@ -208,6 +219,7 @@ web/
     │   └── ui/
     │       ├── Button.tsx
     │       ├── Input.tsx
+    │       ├── ThemeToggle.tsx # alterna y guarda el tema claro/oscuro
     │       └── Toast.tsx
     ├── hooks/
     │   └── useGame.ts          # estado + polling + acciones
@@ -216,7 +228,7 @@ web/
         ├── types.ts            # GameView, GameSummary, Color, PieceType, GameState
         ├── status.ts           # etiquetas y colores del estado
         ├── docs.ts             # lista, lectura y links de los documentos
-        ├── markdown.ts         # slugs y extracción de títulos
+        ├── markdown.ts         # slugs, extracción de títulos y diagramas
         └── board.ts            # helpers de coordenadas y agrupado de historial
 ```
 
@@ -277,6 +289,16 @@ los `h2` y `h3`. Los ids de los títulos salen de `lib/markdown.ts`, así los
 enlaces del índice funcionan sin JavaScript. La lista es fija para que un slug
 inventado no pueda leer otra parte del disco. Como los documentos están fuera
 de `web/`, `lib/docs.ts` resuelve la raíz del repo desde `process.cwd()`.
+
+Los bloques Mermaid se extraen del markdown y se dibujan con `MermaidDiagram`.
+En cada documento quedan tarjetas que llevan a `/docs/diagramas`, la pantalla
+que reúne todos los diagramas a ancho completo. Desde ahí también se puede
+volver a la sección del texto donde se explica cada uno.
+
+La versión imprimible de cada documento vive en `/docs/[slug]/imprimir` y
+dibuja los diagramas dentro del texto. El script `npm run export:pdf` la usa
+para generar los PDFs de `docs/export/`; las rutas `/docs/[slug]/pdf` y
+`/docs/diagramas/pdf` entregan siempre el último archivo generado.
 
 ---
 
@@ -377,7 +399,7 @@ va primero para que la partida quede visible sin scrollear.
 ## 5. Orden de implementación
 
 1. **Backend**: `GameViewJson`, `HttpGameServer`, ruteo, CORS, `App --web`.
-2. **Contrato**: prueba manual con `curl`/`Invoke-RestMethod` de los 5 endpoints.
+2. **Contrato**: prueba manual con `curl`/`Invoke-RestMethod` de todos los endpoints.
 3. **Frontend base**: `create-next-app` en `web/`, tema y `lib/api.ts`.
 4. **Lobby** (`/`).
 5. **Tablero** (`/game/[id]`): render, selección, jugadas, historial.

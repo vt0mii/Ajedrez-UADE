@@ -166,7 +166,7 @@ interfaz. Si mañana se agrega otro caso de uso, se suma a esta interfaz y listo
 
 Los diagramas de estas interfaces, de sus implementaciones y de cómo las usa el
 frontend están en
-[`JUSTIFICACION.md`](docs/JUSTIFICACION.md#3-3-interfaces-y-comunicacion-con-el-frontend).
+[`JUSTIFICACION.md`](JUSTIFICACION.md#3-3-interfaces-y-comunicacion-con-el-frontend).
 
 ### 3.2. `ChessGameService`
 
@@ -379,6 +379,12 @@ CSS**. Consume la API y no repite reglas del ajedrez.
 | Partida | `/game/[id]` | Tablero, historial, estado y acciones |
 | Replay | `/game/[id]/replay` | Navega una partida terminada |
 | Documentación | `/docs` | Muestra estos documentos |
+| Diagramas | `/docs/diagramas` | Reúne todos los Mermaid a ancho completo |
+| Versión imprimible | `/docs/[slug]/imprimir` | Documento sin menús, listo para exportar |
+
+Los PDFs ya generados se sirven desde `/docs/[slug]/pdf` y
+`/docs/diagramas/pdf`. El script `web/scripts/export-pdf.mjs` recorre las
+versiones imprimibles con Edge y deja los cuatro archivos en `docs/export/`.
 
 El cliente HTTP está en `lib/api.ts`. El hook `useGame` carga la partida,
 refresca cada 2 segundos mientras la pestaña está visible y expone las acciones.
@@ -399,18 +405,19 @@ Cubren:
 - tablero y movimientos de cada pieza;
 - jaque, jaque mate y ahogado;
 - comandos y su `undo`;
+- promoción del peón, incluida la que se guarda en el historial;
 - casos de uso y persistencia;
 - replay con jaque mate, abandono y tablas;
 - adaptador HTTP y manejo de errores.
 
 La decisión de no usar JUnit está explicada en
-[`JUSTIFICACION.md`](docs/JUSTIFICACION.md). La deuda queda anotada: migrar a
-JUnit es un paso natural si el proyecto crece.
+[`JUSTIFICACION.md`](JUSTIFICACION.md). La deuda queda anotada: migrar a JUnit
+es un paso natural si el proyecto crece.
 
 ## 10. Decisiones y límites
 
 Las decisiones más importantes están desarrolladas en
-[`JUSTIFICACION.md`](docs/JUSTIFICACION.md). En resumen:
+[`JUSTIFICACION.md`](JUSTIFICACION.md). En resumen:
 
 - arquitectura hexagonal para que las reglas no dependan de la interfaz;
 - una estrategia por pieza y un servicio para las reglas compartidas;
